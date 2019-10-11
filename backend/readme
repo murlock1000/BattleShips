@@ -1,8 +1,8 @@
-So I added a backend prototype which currently communicates in stdin/stdout. The input/output wor
+So I added a backend prototype which currently communicates in stdin/stdout. The input/output works like this:
 
 INITIALISATION: 
 
-Input: 2 tables (one for each player) containing the positions of the ships, as seen in an exampl
+Input: 2 tables (one for each player) containing the positions of the ships, as seen in an example below.
 
 0 0 1 1 1 1 1 0 0 0
 0 0 0 0 0 0 0 0 0 0
@@ -45,7 +45,7 @@ responseID is an integer which denotes the situation:
 1 - hit
 2 - ship sunk
 
-shipID is only used when responseID is 2. It denotes which ship was sunk. shipID corresponds to a
+shipID is only used when responseID is 2. It denotes which ship was sunk. shipID corresponds to a ship id number from the aforementioned table.
 
 The program quits when any of the players win.
 

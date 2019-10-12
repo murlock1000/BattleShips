@@ -3,7 +3,21 @@
 
 using namespace std;
 
-int main(){
+//read function
+
+int read () {
+    int buffer;
+    cin >> buffer;
+    return buffer;
+}
+
+//write function
+
+void write (int buffer) {
+    cout << buffer << "\n";
+}
+
+int main () {
 	//these variables might become changeable from frontend later
 	
 	int tableWidth = 10;
@@ -34,7 +48,7 @@ int main(){
 	for (int i = 0; i < playerNumber; i++) {
 		for (int j = 0; j < tableWidth * tableHeight; j++) {
 
-			cin >> shipTable [i] [j]; //replace
+			shipTable [i] [j] = read (); //read function
 
 		}
 	}
@@ -44,19 +58,20 @@ int main(){
 	int opponentPlayer = 1; //playing against the next player
 
 	//main game
-	
+
 	while (!gameEnd) {
 		int tileX;
 		int tileY;
 
-		cin >> tileX >> tileY; //replace
+		tileX = read (); //read function
+        tileY = read (); //read function
 
         tileX--;
         tileY--;
 
 		if (shipTable [opponentPlayer] [tableWidth * tileY + tileX] == 0) {
 
-			cout << "0\n"; //replace
+			write (-1); //write function
 
 		}
 
@@ -65,15 +80,18 @@ int main(){
 			if (--shipHealth [opponentPlayer] [shipTable [opponentPlayer] [tableWidth * tileY + tileX] - 1] == 0) {
 				shipsLeft [opponentPlayer]--;
 
-				cout << "2 " << shipTable [opponentPlayer] [tableWidth * tileY + tileX] << "\n"; //replace
+				/*write (2); //write function
+                write (shipTable [opponentPlayer] [tableWidth * tileY + tileX]); //write function*/
 			       	
 			}
 
 			else {
 
-				cout << "1\n"; //replace
+				//write (1); //write function
 
 			}
+
+            write (1);
 
 		}
 

@@ -30,8 +30,6 @@ Prieš žaidimui prasidedant, reikia įvesti lentelės duomenis, kaip pavyzdyje 
 0 0 0 0 0 0 0 4 0 0
 0 0 0 0 0 0 0 4 0 0
 
-Čia 0 reiškia, kad jokio laivo langelyje nėra;
-1 nurodo "carrier", arba 5 langelių laivą;
-2 nurodo "battleship", 4 langelių laivą;
-3 ir 4 nurodo "cruiser" ir "submarine", 3 langelių laivus;
-5 nurodo "destroyer", 2 langelių laivą.
+Čia yra žymima, kuris laivas užima tam tikrus langelius.
+0 reiškia, kad to langelio neužima joks laivas.
+Skaičius nuo 1 iki 5 reiškia, kad tą langelį užima koks nors laivas. Visi langeliai, pažymėti tuo pačiu skaičiumi (išskyrus 0), yra užimti to paties laivo.

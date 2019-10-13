@@ -3,18 +3,48 @@
 
 using namespace std;
 
-//read function
+//read functions
 
-int read () {
+int dbRead () {
+    //database communication
     int buffer;
     cin >> buffer;
     return buffer;
 }
 
-//write function
+int stdRead () {
+    //ai communication
+    int buffer;
+    cin >> buffer;
+    return buffer;
+}
 
-void write (int buffer) {
+int read (bool playerType) {
+    if (playerType) { //ai
+        return stdRead ();
+    }
+    else { //frontend
+        return dbRead ();
+    }
+}
+
+//write functions
+
+void dbWrite (int buffer) {
     cout << buffer << "\n";
+}
+
+void stdWrite (int buffer) {
+    cout << buffer << "\n";
+}
+
+void write (int buffer, bool playerType) {
+    if (playerType) { //ai
+        stdWrite (buffer);
+    }
+    else { //frontend
+        dbWrite (buffer);
+    }
 }
 
 int main () {
@@ -27,20 +57,22 @@ int main () {
 
     //initialisation
     
+    bool playerType [playerNumber];
     int shipHealth [playerNumber] [shipNumber];
     int shipTable [playerNumber] [tableWidth * tableHeight];
     int shipsLeft [playerNumber];
-
+       
     for (int i = 0; i < playerNumber; i++) {
         shipsLeft [i] = shipNumber;
+        playerType [i] = dbRead ();
 
         for (int j=0; j < shipNumber; j++) {
             shipHealth [i] [j] = 0;
         }
 
         for (int j = 0; j < tableWidth * tableHeight; j++) {
-            shipTable [i] [j] = read (); //read function
-            
+            shipTable [i] [j] = read (playerType [i]);
+
             if (shipTable [i] [j] != 0) {
                 shipHealth [i] [shipTable [i] [j] - 1] ++;
             } 
@@ -57,15 +89,15 @@ int main () {
         int tileX;
         int tileY;
 
-        tileX = read (); //read function
-        tileY = read (); //read function
+        tileX = read (playerType [currentPlayer]); //read function
+        tileY = read (playerType [currentPlayer]); //read function
 
         tileX--;
         tileY--;
 
         if (shipTable [opponentPlayer] [tableWidth * tileY + tileX] == 0) {
 
-            write (-1); //write function
+            write (1, playerType [currentPlayer]); //write function
 
         }
 
@@ -74,18 +106,15 @@ int main () {
             if (--shipHealth [opponentPlayer] [shipTable [opponentPlayer] [tableWidth * tileY + tileX] - 1] == 0) {
                 shipsLeft [opponentPlayer]--;
 
-                /*write (2); //write function
-                write (shipTable [opponentPlayer] [tableWidth * tileY + tileX]); //write function*/
-                    
+                write (3, playerType [currentPlayer]); //write function
+
             }
 
             else {
 
-                //write (1); //write function
+                write (2, playerType [currentPlayer]); //write function
 
             }
-
-            write (1);
 
         }
 

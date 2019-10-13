@@ -1,12 +1,8 @@
-Naujesnis backend prototipas.
+Backend prototipas.
 
-Visą įvestį ir išvestį perkėliau į read() ir write() funkcijas. Šiuo metu programa vis dar tebebendrauja per stdin/stdout, bet bent jau bus lengviau pakeisti kodą, kai bus sukurta duomenų bazė.
+Prieš žaidimui prasidedant, kiekvienam žaidėjui reikia įvesti jo duomenis, kaip pavyzdyje žemiau:
 
-Taip pat pasikeitė žaidimo išvestis: išvedama -1, jei žaidėjas nepataiko, ir 1, jei žaidėjas pataiko arba nuskandina laivą.
-
-Įvestis išliko tokia pati: langelio x ir y koordinatės (nuo 1 iki 10 imtinai).
-
-Prieš žaidimui prasidedant, reikia įvesti lentelės duomenis, kaip pavyzdyje žemiau:
+0
 
 0 0 1 1 1 1 1 0 0 0
 0 0 0 0 0 0 0 0 0 0
@@ -19,6 +15,8 @@ Prieš žaidimui prasidedant, reikia įvesti lentelės duomenis, kaip pavyzdyje 
 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0
 
+1
+
 0 0 0 0 0 0 0 5 0 0
 0 0 0 0 0 0 0 5 0 0
 0 0 0 0 0 0 0 0 0 1
@@ -30,6 +28,7 @@ Prieš žaidimui prasidedant, reikia įvesti lentelės duomenis, kaip pavyzdyje 
 0 0 0 0 0 0 0 4 0 0
 0 0 0 0 0 0 0 4 0 0
 
-Čia yra žymima, kuris laivas užima tam tikrus langelius.
+Pirmasis skaičius yra boolean, kuris nurodo, ar žaidėjas yra žmogus (0), ar AI (1).
+Po to esančioje lentelėje yra žymima, kuris laivas užima tam tikrus langelius.
 0 reiškia, kad to langelio neužima joks laivas.
 Skaičius nuo 1 iki 5 reiškia, kad tą langelį užima koks nors laivas. Visi langeliai, pažymėti tuo pačiu skaičiumi (išskyrus 0), yra užimti to paties laivo.

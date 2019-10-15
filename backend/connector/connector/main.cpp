@@ -6,42 +6,42 @@
 
 using namespace std;
 
-int PassQuery(MYSQL * conn, string query) {
+int PassQuery(MYSQL * conn, string query) { //returns a number 0 if there were no mistakes, other error number if failed.
     int qstate = 0;
     const char * q = query.c_str();
     qstate = mysql_query(conn, q);
 
     return qstate;
 }
-int Login(MYSQL * conn, string name) {
+int Login(MYSQL * conn, string name) {  //returns userID when passing the username
 
     stringstream ss; //setting up a query to the database
-    MYSQL_RES * res;
+    MYSQL_RES * res;    //used for storing SELECT result
 
-    ss << "SELECT connected FROM users WHERE username ='" << name << "' ";
+    ss << "SELECT connected FROM users WHERE username ='" << name << "' ";      ///connected functionality no longer used, delete immediatly
 
     string query = ss.str();
     ss.str("");
-    if (PassQuery(conn, query) == 0) { //proccessing query
-        res = mysql_store_result(conn);
-        MYSQL_ROW row = mysql_fetch_row(res);
+    if (PassQuery(conn, query) == 0) { //proccessing query, looking if it succeeded
+        res = mysql_store_result(conn); //storing SELECT result
+        MYSQL_ROW row = mysql_fetch_row(res);   //Getting the first row of the selected table
 
-        if (row == 0) {
+        if (row == 0) { //if there are no rows
             cout << "No such user" << endl;
             return 0;
         }
 
-        if ( * row[0] == '0') {
-            mysql_free_result(res);
+        if ( * row[0] == '0') { //values are stored in a row array
+            mysql_free_result(res); //clearing the result queue, must be done after every SELECT query
 
-            ss << "UPDATE users SET connected=1 WHERE username ='" << name << "' "; //connecting
+            ss << "UPDATE users SET connected=1 WHERE username ='" << name << "' "; //connecting functionality should be erased
             query = ss.str();
             ss.str("");
             if (PassQuery(conn, query) == 0) {
 
                 cout << "CONNECTED" << endl;
 
-                ss << "SELECT idusers FROM users WHERE username='" << name << "'";
+                ss << "SELECT idusers FROM users WHERE username='" << name << "'";      ///This must be left to get the userID for local storage.
                 cout << "Login query: " << ss.str() << endl;
                 query = ss.str();
                 if (PassQuery(conn, query) != 0) {
@@ -50,17 +50,17 @@ int Login(MYSQL * conn, string name) {
                 }
                 res = mysql_store_result(conn);
                 row = mysql_fetch_row(res);
-                cout << "Data: " << row[0] << " " << atoi(row[0]) << endl;
+                cout << "Data: " << row[0] << " " << atoi(row[0]) << endl; ///atoi() converts char array to int
                 return atoi(row[0]);
 
-            } else {
+            } else {    //if query failed print the error message
                 cout << "Exception: " << mysql_error(conn) << endl;
             }
         } else {
             cout << "There is already a connection" << endl;
         }
 
-        mysql_free_result(res); //clearing the query result
+        mysql_free_result(res); ///clearing the query result, must be done after all SELECT queries
 
     } else {
         cout << "Exception: " << mysql_error(conn) << endl;
@@ -74,16 +74,16 @@ int Register(MYSQL * conn, string name) {
 
     int qstate = 0;
 
-    stringstream ss;
+    stringstream ss;    //string building class
 
-    ss << "INSERT INTO users(username) VALUES('" << name << "') ";
-    string query = ss.str();
-    ss.str("");
-    if (PassQuery(conn, query) == 0) {
+    ss << "INSERT INTO users(username) VALUES('" << name << "') ";  //constructing a query
+    string query = ss.str();    //converting stream to string
+    ss.str(""); //clearing stringstream for new query
+    if (PassQuery(conn, query) == 0) {  //passing the query
 
         cout << "Registration complete." << endl;
 
-        return Login(conn, name);
+        return Login(conn, name);   //should return userID
     } else {
         if (mysql_errno(conn) == 1062) {
             cout << "Username already taken." << endl;
@@ -113,7 +113,7 @@ int Register(MYSQL * conn, string name) {
 }
 */
 
-void Disconnect(MYSQL * conn, string name) {
+void Disconnect(MYSQL * conn, string name) {    ///No longer works, should be deleted
 
     stringstream ss;
     string query;
@@ -130,15 +130,15 @@ void Disconnect(MYSQL * conn, string name) {
 
 }
 
-void ShowLobby(MYSQL * conn) {
+void ShowLobby(MYSQL * conn) {   //returns a table of lobbies, lobbies are differentiated by their lobbyID
     stringstream ss;
     ss << "SELECT idlobbies, lobby_name, description, admin_id FROM lobbies WHERE lobby_status ='w'";
     string query = ss.str();
     if (PassQuery(conn, query) == 0) {
         MYSQL_RES * res = mysql_store_result(conn);
-        MYSQL_ROW row; // = mysql_fetch_row(res);
+        MYSQL_ROW row;
 
-        for (int i = 0; i < res -> row_count; i++) {
+        for (int i = 0; i < res -> row_count; i++) {    //iterate through all of the rows
             row = mysql_fetch_row(res);
             cout << row[0] << " " << row[1] << " " << row[2] << " " << row[3] << endl;
         }
@@ -148,7 +148,7 @@ void ShowLobby(MYSQL * conn) {
 
 }
 
-int CreateLobby(MYSQL * conn, string name, string description) {
+int CreateLobby(MYSQL * conn, string name, string description) {    //create a lobby as a user
     stringstream ss;
     ss << "INSERT INTO lobbies (lobby_name,description,admin_id,lobby_status) VALUES ('" << name << " lobby','" << description << "', (SELECT idusers FROM users WHERE username='" << name << "'),'w')";
 
@@ -173,7 +173,7 @@ int CreateLobby(MYSQL * conn, string name, string description) {
     return -1;
 }
 
-int LeaveLobby(MYSQL * conn, int id) {
+int LeaveLobby(MYSQL * conn, int id) {  //erase a lobby you created if no one showed up
 
     stringstream ss;
     ss << "DELETE FROM lobbies WHERE idlobbies=" << id;
@@ -191,7 +191,7 @@ int LeaveLobby(MYSQL * conn, int id) {
 
 }
 
-int JoinLobby(MYSQL * conn, string lobbyid, int userid) {
+int JoinLobby(MYSQL * conn, string lobbyid, int userid) {   //put yourself in a lobby
 
     stringstream ss;
     ss << "UPDATE lobbies SET user_id=" << userid << ",lobby_status='r' WHERE idlobbies =" << lobbyid; //connecting
@@ -215,18 +215,18 @@ int JoinLobby(MYSQL * conn, string lobbyid, int userid) {
 
 }
 
-string GameLogic(string consoleOutput, string gameStatus){
+string GameLogic(string consoleOutput, string gameStatus){  //gives char[5] input, takes char[5] output
 ///YOUR STRATEGY
-return "0 0";
+return "10;10";
 }
 
-void MainGame(MYSQL * conn, int lobbyid, int userid) {
+void MainGame(MYSQL * conn, int lobbyid, int userid) {  //big brain time, runs when playing a match
 
     bool inGame = true;
     stringstream ss;
     string consoleOutput = "";
-    string gameStatus = "";
-    ss << "SELECT console_output, game_status FROM users WHERE idusers =" << userid;
+    string gameStatus = "";     //can be 'w', 'c', 'f'
+    ss << "SELECT console_output, game_status FROM users WHERE idusers =" << userid;    ///MUST be changed to the new database design
 
     string query = ss.str();
     ss.str("");
@@ -241,7 +241,7 @@ void MainGame(MYSQL * conn, int lobbyid, int userid) {
                 gameStatus = "";
                 row = mysql_fetch_row(res);
 
-                if (row[0] == NULL) {
+                if (row[0] == NULL) {   ///NOT IMPLEMENTED YET
                     //  cout<<"NULL ";
                 } else {
                     consoleOutput = row[0];
@@ -254,7 +254,7 @@ void MainGame(MYSQL * conn, int lobbyid, int userid) {
                     //  cout<<gameStatus<<endl;
                 }
 
-                if(gameStatus == "userid"){
+                if(gameStatus == "userid"){     ///should be changed to standart outputs
                 response = GameLogic(consoleOutput, gameStatus);   ///READ OUTPUTS AND GIVE INPUT
 
                 ss.str("");
@@ -311,15 +311,15 @@ void MainGame(MYSQL * conn, int lobbyid, int userid) {
 }
 */
 int main() {
-    bool running = true;
+    bool running = true;    //is listening for user input
     string input;
-    string username; // = "test";
-    int userID = -1;
-    int inLobby = -1;
+    string username;
+    int userID = -1;    //userID saved after connecting with a username
+    int inLobby = -1;   //Is currently in lobby
 
     MYSQL * conn;
     conn = mysql_init(0);
-    conn = mysql_real_connect(conn, "192.168.0.142", "admin", "admin", "battleships", 0, NULL, 0);
+    conn = mysql_real_connect(conn, "192.168.0.142", "ActiveUser", "admin", "battleships", 0, NULL, 0); //connecting to the database
 
     if (conn) {
         cout << "Connected." << endl;
@@ -327,17 +327,17 @@ int main() {
         cout << "Failed To connect, " << mysql_error(conn) << endl;
     }
 
-    while (running) {
+    while (running) {   //reading user inputs
         cin >> input;
 
-        if (input == "quit") {
+        if (input == "quit") {  //exit the application
             running = 0;
             if (userID) {
 
                 if (inLobby != -1) {
-                    LeaveLobby(conn, inLobby);
+                    LeaveLobby(conn, inLobby);  //erase yourself from the lobby
                 }
-                Disconnect(conn, username);
+                Disconnect(conn, username); ///NO LONGER USED
             }
         }
         if (input == "register") {

@@ -6,9 +6,9 @@ Kadangi duomenų bazė dar nėra integruota į žaidimą, kai kuriuos duomenis g
 
 Kiekvienam žaidėjui reikia įvesti po boolean (0 - žmogus, 1 - AI).
 
-Jei įvedate 1, žaidimas automatiškai paleidžia ai_random AI. Jums jo laivų lentelės įvesti nereikia.
-
-Kol kas veikia tik vienas AI. Greitai bus galima pasirinkti bet kokį AI "ai" aplanke.
+Jei įvedate 1, turite įvesti AI pavadinimą - programos pavadinimą be failo kelio ir trumpinio (pvz. ai/ai_random.exe turi būti įvestas kaip ai_random).
+Tai reiškia, kad jau galima kurti AI (jei naudojate Linux). Faile "ai/kaip-sukurti-ai" nurodyta, kaip jis turėtų veikti.
+Jums AI laivų lentelės įvesti nereikia.
 
 Jei įvedate 0, reikia įvesti žaidėjo laivų lentelę, kaip pavaizduota žemiau:
 
@@ -22,8 +22,6 @@ Jei įvedate 0, reikia įvesti žaidėjo laivų lentelę, kaip pavaizduota žemi
 0 0 0 0 2 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0
-
-Tokia pati lentelė yra išsaugota ai_random programoje.
 
 Šioje lentelėje yra žymima, kuris laivas užima tam tikrus langelius.
 0 reiškia, kad to langelio neužima joks laivas.

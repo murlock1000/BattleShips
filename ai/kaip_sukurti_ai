@@ -2,6 +2,12 @@ AI sukurti yra gana paprasta. Bendravimui su backend naudokite standartinę išv
 
 Pirmosios eilutės jūsų AI kode turėtų būti komentarai, talpinantys jūsų vardą ir trumpą AI aprašymą.
 
+Visų pirma AI backendui turėtų pranešti, kad jis buvo sėkmingai paleistas. Tai galima padaryti išsiuntus 0:
+
+cout << "0 ";
+
+Po kiekvieno išsiunčiamo skaičiaus turi būti išsiunčiamas tarpas (ASCII 32).
+
 Visų pirma, AI turėtų backendui išsiųsti lentelę su duomenimis apie laivus, panašią į šį pavyzdį:
 
 0 0 1 1 1 1 1 0 0 0
@@ -22,7 +28,7 @@ Išsiuntęs lentelę, AI gali siųsti savo ėjimus. Ėjimai turėtų atrodyti š
 
 cout << targetX << " " << targetY << " ";
 
-Kaip matote, po kiekvieno išsiunčiamo skaičiaus turi būti išsiunčiamas tarpas (ASCII 32).
+Nepamirškite po kiekvieno skaičiaus išsiųsti tarpą (ASCII 32)!
 
 X ir Y kintamieji turėtų kisti nuo 1 iki lentos ilgio ar aukščio atitinkamai.
 
@@ -34,5 +40,7 @@ Išsiuntęs savo ėjimą, AI turėtų gauti atsakymą: char nuo '1' iki '4'.
 4 - Žaidimas baigtas. Gavęs šį atsakymą, AI turėtų iškart išeiti (return 0).
 
 Iš esmės tai yra viskas. Galite pažiūrėti į ai_random.cpp kaip į pavyzdį, kaip kurti AI.
+
+Tiesa, AI programa turi būti išsaugota "ai" aplanke ir turėti trumpinį ".exe" (dėl Windows palaikymo).
 
 Sakiau, kad tai yra gana paprasta, ar ne? :)

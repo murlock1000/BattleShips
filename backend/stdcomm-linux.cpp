@@ -4,22 +4,25 @@
 
 using namespace std;
 
+int stdRead (int fileDesc);
+int stdWrite (int fileDesc, int buffer);
+
 int stdConnect (int childIO [2], const char* childPath, const char* childProcName) {
     
     //This function creates a child process which can communicate with parent process via stdin/stdout.
     //It writes some file descriptors to childIO which you can use to communicate with child. More on that later.
     //It requires an int [2] array (obviously), a file path of an executable you wish to execute as a to-be-executed executable, and its process name (basically the name of the executable without its path)
-    //It returns 0 (parent) or 1 (child) on success and -1 on failure
+    //It returns 0 on success and -1 on failure for parent. It always returns 1 for child.
 
     int childInputPipe [2], childOutputPipe [2]; 
 
     if (pipe (childInputPipe) < 0) { //creating a pipe and handling errors
-        cout << "ERROR " << errno; //These error codes can be looked up by installing moreutils and entering "errno [error code]" into the terminal.
+        cout << "ERROR " << errno << "\n"; //These error codes can be looked up by installing moreutils and entering "errno [error code]" into the terminal.
         return -1;
     }
 
     if (pipe (childOutputPipe) < 0) { //ditto
-        cout << "ERROR " << errno;
+        cout << "ERROR " << errno << "\n";
         return -1;
     }
 
@@ -40,9 +43,23 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
         close (childOutputPipe [0]); //Closing an input end of the output pipe.
 
         //Child will close the file descriptors left open by parent. That way each fd will be open only once and parent will still be able to communicate with child via these pipes we created.
-        //Since we have already written necessary fds to childIO array, we can now safely return to main in game.cpp 
+        
+        //Before returning success, we need to check if AI is actually running. 0 will be sent by AI, otherwise the sent number is errno.
 
-        return 0;
+        int execSuccess = stdRead (childIO [0]);
+
+        if (execSuccess == 0) {
+            return 0;
+        }
+        else {
+            //We have to prevent child from leaving before reading, otherwise read will fail due to closed fds.
+            //We can stop child from exiting by making it wait for input and then writing literally anything after we're done reading.
+            
+            stdWrite (childIO [1], 0); //now we can finally fail
+
+            cout << "ERROR " << execSuccess << "\n";
+            return -1;
+        }
     }
 
     else if (pid > pid_t(0)) { //This code will only be executed by child.
@@ -60,10 +77,12 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
         //Now any attempt to read or write stdin/stdout from the child will end up in the pipes connected to the parent.
         //However, child here is still executing this code instead of running an executable file we need.
         //You guessed it, time for another system call! execl() will give the shell used by the child to an executable, which means our pipes and fd changes are still intact.
-
+        
         if (execl(childPath, childProcName, (char*)NULL) < 0) { //Note that execl requires an executable file path, its process name, and the rest of arguments terminated by (char*)NULL.
-            cout << "ERROR " << errno;
-            return -1;
+            cout << errno << " "; //number other that 0 tells parent that AI execution was unsuccessful.
+         
+            int useless;
+            cin >> useless; //this is where we tell child to wait for parent output. Again, the output itself is completely useless, it's only used to make child wait.
         }
 
         //close fds we no longer need.
@@ -73,11 +92,11 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
         close (childInputPipe [1]);
         close (childOutputPipe [0]);
         
-        return 1; //child returns 1 on success to differentiate itself from its parent.    
+        return 1; //child returns 1 to be killed by the main function in game.cpp.
     }
 
     else {
-        cout << "ERROR " << errno;
+        cout << "ERROR " << errno << "\n";
         return -1; 
     }
 }
@@ -99,7 +118,7 @@ int stdRead (int fileDesc) {
         buffer[0] = 0;
 
         if (read (fileDesc, buffer, 1) < 0) { //both read and write system calls can only read from/write to a char array.
-            cout << "ERROR " << errno;
+            cout << "ERROR " << errno << "\n";
             return -1;
         }
         if (buffer[0] == 32) { //YOU ARE TERMINATED!
@@ -121,7 +140,7 @@ int stdWrite (int fileDesc, int buffer) {
     cBuffer [0] = buffer + 48; //converting int to char.
 
     if (write (fileDesc, cBuffer, 1) < 0) {
-        cout << "ERROR " << errno;
+        cout << "ERROR " << errno << "\n";
         return -1;
     }
 

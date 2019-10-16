@@ -9,6 +9,8 @@
 using namespace std;
 
 int main(){
+
+    cout << "0 ";
             
     int table [100]  = {0, 0, 1, 1, 1, 1, 1, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

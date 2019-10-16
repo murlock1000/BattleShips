@@ -1,5 +1,5 @@
 #include <iostream>
-#include <errno.h>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -42,6 +42,19 @@ void gameWrite (int buffer, bool playerType, int fileDesc) {
     }
 }
 
+void disconnect (int playerNumber, int fdOutput[], int fdInput[], bool playerType[]) {
+     for (int i = 0; i < playerNumber; i++) {
+        if (playerType [i]) { //ai
+            stdWrite (fdOutput [i], 4);
+            //close (fdInput [i]);
+            //close (fdOutput [i]);
+        }
+        else { //frontend
+
+        }
+    }
+}
+
 int main () {
     //these variables might become changeable from frontend later
     
@@ -64,15 +77,19 @@ int main () {
         playerType [i] = dbRead ();
 
         if (playerType [i]) { //ai initialisation
-            //TEMPORARY CODE: AI testing
-            //
-            const char* aiPath = "../ai/ai_random1";
-            const char* aiProcName = "ai_random1";
+
+            string aiName;
+            cin >> aiName;
+            
+            string aiProcName = aiName + ".exe";
+            string aiPath = "../ai/" + aiProcName;
+            
             int aiIO [2];
 
-            int stdConnSuccess = stdConnect (aiIO, aiPath, aiProcName);
+            int stdConnSuccess = stdConnect (aiIO, aiPath.c_str(), aiProcName.c_str());
 
             if (stdConnSuccess < 0) {
+                disconnect(i, fdOutput, fdInput, playerType);
                 return 1;
             }
             else if (stdConnSuccess > 0) {
@@ -161,14 +178,6 @@ int main () {
 
     //disconnecting players
     
-    for (int i = 0; i < playerNumber; i++) {
-        if (playerType [i]) { //ai
-            stdWrite (fdOutput [i], 4);
-
-        }
-        else { //frontend
-
-        }
-    }
+    disconnect(playerNumber, fdOutput, fdInput, playerType);
     return 0;
 }

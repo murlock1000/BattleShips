@@ -66,33 +66,22 @@ int main () {
         if (playerType [i]) { //ai initialisation
             //TEMPORARY CODE: AI testing
             //
-            if (i == 0) {
-                const char* aiPath = "../ai/ai_random1";
-                const char* aiProcName = "ai_random1";
-                int aiIO [2];
+            const char* aiPath = "../ai/ai_random1";
+            const char* aiProcName = "ai_random1";
+            int aiIO [2];
 
-                if (stdConnect (aiIO, aiPath, aiProcName) < 0) {
-                    cout << "ERROR: errno " << errno << "\n";
-                    return 1;
-                }
+            int stdConnSuccess = stdConnect (aiIO, aiPath, aiProcName);
 
-                fdInput [i] = aiIO [0];
-                fdOutput [i] = aiIO [1];
-           
+            if (stdConnSuccess < 0) {
+                return 1;
             }
-            else {
-                const char* aiPath = "../ai/ai_random2";
-                const char* aiProcName = "ai_random2";
-                int aiIO [2];
-                
-                if (stdConnect (aiIO, aiPath, aiProcName) < 0) {
-                    cout << "ERROR: errno " << errno << "\n";
-                    return 1;
-                }
-
-                fdInput [i] = aiIO [0];
-                fdOutput [i] = aiIO [1];
+            else if (stdConnSuccess > 0) {
+                return 0;
             }
+
+            fdInput [i] = aiIO [0];
+            fdOutput [i] = aiIO [1];
+
         }
         else { //database initialisation
             

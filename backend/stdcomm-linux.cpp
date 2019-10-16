@@ -1,69 +1,130 @@
-#include <unistd.h>
-#include <string>
-#include <iostream>
+#include <iostream> //Hmm, I wonder what this header provides...
+#include <unistd.h> //Provides various system calls, such as pipe() or fork()
+#include <errno.h> //Provides error handling functionality
 
 using namespace std;
 
 int stdConnect (int childIO [2], const char* childPath, const char* childProcName) {
     
-    int childInputPipe [2], childOutputPipe [2];
+    //This function creates a child process which can communicate with parent process via stdin/stdout.
+    //It writes some file descriptors to childIO which you can use to communicate with child. More on that later.
+    //It requires an int [2] array (obviously), a file path of an executable you wish to execute as a to-be-executed executable, and its process name (basically the name of the executable without its path)
+    //It returns 0 (parent) or 1 (child) on success and -1 on failure
 
-    if (pipe (childInputPipe) < 0) {
+    int childInputPipe [2], childOutputPipe [2]; 
+
+    if (pipe (childInputPipe) < 0) { //creating a pipe and handling errors
+        cout << "ERROR " << errno; //These error codes can be looked up by installing moreutils and entering "errno [error code]" into the terminal.
         return -1;
     }
 
-    if (pipe (childOutputPipe) < 0) {
+    if (pipe (childOutputPipe) < 0) { //ditto
+        cout << "ERROR " << errno;
         return -1;
     }
 
-    childIO [0] = childInputPipe [0];
-    childIO [1] = childOutputPipe [1];
+    //So, we have created two pipes. A pipe is an unidirectional means of communication (which is why we need two of them). Whatever is written to the pipe's output can be read from its input.
+    //The pipe() system call writes some file descriptors into a provided int [2] array. The first element is pipe's input (which you can read from), the second is its output (which you can write to).
+
+    childIO [0] = childInputPipe [0]; //This is an input end of the input pipe.
+    childIO [1] = childOutputPipe [1]; //This is an output end of the output pipe.
 
     pid_t pid;
-    pid = fork();
-    if (pid == pid_t(0)) {
-        //parent
-        close (childInputPipe [1]);
-        close (childOutputPipe [0]);
+    pid = fork(); //This system call creates a child process which starts from the next instruction. Since they now execute the same code, we need to separate them.
+   
+    if (pid == pid_t(0)) { //This code will only be executed by parent.
+
+        //Now we have a problem. These pipes we created earlier are also open in child and they have the same file descriptors. It is not a good idea to have the same fd open several times, so we'll have to close some of them.
+ 
+        close (childInputPipe [1]); //Closing an output end of the input pipe.
+        close (childOutputPipe [0]); //Closing an input end of the output pipe.
+
+        //Child will close the file descriptors left open by parent. That way each fd will be open only once and parent will still be able to communicate with child via these pipes we created.
+        //Since we have already written necessary fds to childIO array, we can now safely return to main in game.cpp 
+
         return 0;
     }
-    else if (pid > pid_t(0)) {
-        //child
-        close (childInputPipe [0]);
-        close (childOutputPipe [1]);
-        dup2 (childInputPipe [1], 1);
-        dup2 (childOutputPipe [0], 0);
-        execl(childPath, childProcName, (char*)NULL);
-        exit (0);
+
+    else if (pid > pid_t(0)) { //This code will only be executed by child.
+
+        close (childInputPipe [0]); //Closing an input end of the input pipe.
+        close (childOutputPipe [1]); //Closing an output end of the output pipe.
+
+        //Now all the data sent from the output pipe in the parent will end up read from the output pipe in the child, and vice versa with the input pipe.
+        //The problem is that these fds are not connected to stdin/stdout.
+        //It turns out linux has this dup2() system call which can copy the existing fds into new fds, closing the latter if they were open beforehand. This is exactly what we need!
+
+        dup2 (childInputPipe [1], 1); //1 is the handle of stdout
+        dup2 (childOutputPipe [0], 0); //0 is the handle of stdin
+
+        //Now any attempt to read or write stdin/stdout from the child will end up in the pipes connected to the parent.
+        //However, child here is still executing this code instead of running an executable file we need.
+        //You guessed it, time for another system call! execl() will give the shell used by the child to an executable, which means our pipes and fd changes are still intact.
+
+        if (execl(childPath, childProcName, (char*)NULL) < 0) { //Note that execl requires an executable file path, its process name, and the rest of arguments terminated by (char*)NULL.
+            cout << "ERROR " << errno;
+            return -1;
+        }
+
+        //close fds we no longer need.
+
+        close (0);
+        close (1);
+        close (childInputPipe [1]);
+        close (childOutputPipe [0]);
+        
+        return 1; //child returns 1 on success to differentiate itself from its parent.    
     }
+
     else {
-        return -1;
+        cout << "ERROR " << errno;
+        return -1; 
     }
 }
 
 int stdRead (int fileDesc) {
-    int buffer[1];
+
+    //This function reads a space (ASCII 32) terminated number from a provided fd.
+    //It returns a read number on success and -1 on failure.
+    
+    //Please be kind and ignore this mess. It has got an efficiency of O(log(x*y)), which is good enough for our purposes, okay? 
+
+    int buffer [1];
     int number = 0;
+
     while (true) {
+
+        //I know, it's terrible. Anyway, this function reads the number digit by digit, which is why it needs to be terminated. I chose space (ASCII 32) because read() doesn't like ASCII 0.
+
         buffer[0] = 0;
-        if (read (fileDesc, buffer, 1) < 0) {
+
+        if (read (fileDesc, buffer, 1) < 0) { //both read and write system calls can only read from/write to a char array.
+            cout << "ERROR " << errno;
             return -1;
         }
-        if (buffer[0] == 32) {
+        if (buffer[0] == 32) { //YOU ARE TERMINATED!
             break;
         }
         number *= 10;
-        number += (buffer[0] - 48);
+        number += (buffer[0] - 48); //converting char to int
     }
     return number;
 }
 
 int stdWrite (int fileDesc, int buffer) {
+
+    //This function writes a provided single digit to a provided fd.
+    //It returns 0 on success and -1 on failure.
+    //Again, it only writes a single digit from 0 to 9, so keep that in mind.
+
     char cBuffer [1];
-    cBuffer [0] = buffer + 48;
+    cBuffer [0] = buffer + 48; //converting int to char.
+
     if (write (fileDesc, cBuffer, 1) < 0) {
+        cout << "ERROR " << errno;
         return -1;
     }
+
     return 0;
 }
 

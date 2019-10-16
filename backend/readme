@@ -1,56 +1,14 @@
-AI integracija į žaidimą jau sukurta!
+Tiems, kas kuria AI ir backend bendravimo Windows sistemoje c++ failą: visos reikalingos funkcijos (stdConnect, stdWrite, stdRead) yra aprašytos stdcomm-linux.cpp faile. Nedėkite main funkcijos - kompiliuokite failą kartu su game.cpp į bendrą programą.
 
-Tiesa, šiuo metu veikia tik Linux (nors, tiesą sakant, galbūt ir kitose *nix veiktų) versija, ir kol kas įmanoma žaisti tik su ai_random.
-
-----------------------------------------------------------------------------------------------
-
-Kuriantiems tarpprocesinio komunikavimo C++ failą Windows sistemai, turėtumėte žinoti:
-
-C++ failas turėtų būti sudarytas iš trijų funkcijų.
-
-----------------------------------------------------------------------------------------------
-
-*    int stdConnect (int childIO [2], const char* childPath, const char* childProcName);
-
-Grąžina 0 sėkmės atveju ir -1 klaidos atveju.
-
-int childIO [2] yra tuščias masyvas, į kurį turėtų būti įrašyti file descriptors.
-
-childIO [0] bus input (iš jo yra skaitoma), childIO [1] bus output (į jį yra rašoma).
-
-const char* childPath yra kelias į AI programos failą.
-
-const char* childProcName yra AI programos proceso pavadinimas (failo pavadinimas be kelio ir trumpinio). 
-
-----------------------------------------------------------------------------------------------
-
-*   int stdRead (int fileDesc);
-
-Grąžina nuskaitytą skaičių sėkmės atveju ir -1 klaidos atveju.
-
-int fileDesc yra file descriptor (t. y. childIO [0]).
-
-Jei kuriate AI ir siunčiate skaičius (koordinates) per stdout, užbaikite kiekvieną skaičių tarpu (ASCII 32).
-
-----------------------------------------------------------------------------------------------
-
-*   int stdWrite (int fileDesc, int buffer);
-
-Grąžina 0 sėkmės atveju ir -1 klaidos atveju.
-
-int fileDesc yra file descriptor (t. y. childIO [1]).
-
-int buffer yra skaičius, kurį išsiunčiate.
-
-Kol kas galima išsiųsti tik skaičių nuo 0 iki 9.
-
-----------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
 
 Kadangi duomenų bazė dar nėra integruota į žaidimą, kai kuriuos duomenis gali tekti įvesti ranka.
 
 Kiekvienam žaidėjui reikia įvesti po boolean (0 - žmogus, 1 - AI).
 
 Jei įvedate 1, žaidimas automatiškai paleidžia ai_random AI. Jums jo laivų lentelės įvesti nereikia.
+
+Kol kas veikia tik vienas AI. Greitai bus galima pasirinkti bet kokį AI "ai" aplanke.
 
 Jei įvedate 0, reikia įvesti žaidėjo laivų lentelę, kaip pavaizduota žemiau:
 

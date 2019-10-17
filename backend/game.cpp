@@ -1,22 +1,21 @@
-#include <iostream>
-#include <bits/stdc++.h>
+#include <iostream> //do i really need to tell what this header provides?
+#include <bits/stdc++.h> //provides string to char* conversion utility.
 
 using namespace std;
 
-//read functions
+int stdConnect (int childIO [2], const char* childPath, const char* childProcName); //Starts ai child process. Provided by stdcomm-linux or stdcomm-windows.
 
-int dbRead () {
-    //database communication
+//The followiing functions are used to read data.
+
+int dbRead () { //Reads from database. To be implemented.
     int buffer;
     cin >> buffer;
     return buffer;
 }
 
-int stdConnect (int childIO [2], const char* childPath, const char* childProcName);
+int stdRead (int fileDesc); //Reads from AI. Provided by either stdcomm-linux or stdcomm-windows.
 
-int stdRead (int fileDesc);
-
-int gameRead (bool playerType, int fileDesc) {
+int gameRead (bool playerType, int fileDesc) { //Universal read command.
     if (playerType) { //ai
         return stdRead (fileDesc);
     }
@@ -25,15 +24,15 @@ int gameRead (bool playerType, int fileDesc) {
     }
 }
 
-//write functions
+//The following functions are used to write data.
 
-void dbWrite (int buffer) {
+void dbWrite (int buffer) { //Writes to database. To be implemented.
     cout << buffer << "\n";
 }
 
-void stdWrite (int fileDesc, int buffer);
+void stdWrite (int fileDesc, int buffer); //Writes to AI. Provided by either stdcomm-linux or stdcomm-windows.
 
-void gameWrite (int buffer, bool playerType, int fileDesc) {
+void gameWrite (int buffer, bool playerType, int fileDesc) { //Universal write command.
     if (playerType) { //ai
         stdWrite (fileDesc, buffer);
     }
@@ -42,15 +41,13 @@ void gameWrite (int buffer, bool playerType, int fileDesc) {
     }
 }
 
-void disconnect (int playerNumber, int fdOutput[], int fdInput[], bool playerType[]) {
+void disconnect (int playerNumber, int fdOutput[], int fdInput[], bool playerType[]) { //Terminates connections
      for (int i = 0; i < playerNumber; i++) {
         if (playerType [i]) { //ai
-            stdWrite (fdOutput [i], 4);
-            //close (fdInput [i]);
-            //close (fdOutput [i]);
+            stdWrite (fdOutput [i], 4); //Tells AI to exit.
         }
         else { //frontend
-
+        //to be implemented.
         }
     }
 }
@@ -69,17 +66,17 @@ int main () {
     int shipHealth [playerNumber] [shipNumber];
     int shipTable [playerNumber] [tableWidth * tableHeight];
     int shipsLeft [playerNumber];
-    int fdInput [playerNumber];
-    int fdOutput [playerNumber];
+    int fdInput [playerNumber]; //holds input file descriptors.
+    int fdOutput [playerNumber]; //holds output file descriptors.
        
     for (int i = 0; i < playerNumber; i++) {
         shipsLeft [i] = shipNumber;
-        playerType [i] = dbRead ();
+        playerType [i] = dbRead (); //player types are saved in the database.
 
         if (playerType [i]) { //ai initialisation
 
             string aiName;
-            cin >> aiName;
+            cin >> aiName; //should be read from db later.
             
             string aiProcName = aiName + ".exe";
             string aiPath = "../ai/" + aiProcName;
@@ -89,6 +86,10 @@ int main () {
             int stdConnSuccess = stdConnect (aiIO, aiPath.c_str(), aiProcName.c_str());
 
             if (stdConnSuccess < 0) {
+                //If launching an ai process fails, we have to kill parent.
+                //However, before that we must terminate other AIs which may have been lauched before.
+                //We only need to do that to previous players, so we enter i instead of playerNumber.
+
                 disconnect(i, fdOutput, fdInput, playerType);
                 return 1;
             }
@@ -96,12 +97,12 @@ int main () {
                 return 0;
             }
 
-            fdInput [i] = aiIO [0];
+            fdInput [i] = aiIO [0]; //Store each player's fds
             fdOutput [i] = aiIO [1];
 
         }
         else { //database initialisation
-            
+            //to be implemented
         }
 
         for (int j=0; j < shipNumber; j++) {
@@ -124,22 +125,24 @@ int main () {
 
     while (true) {
 
+        //Of course, it's safe to output some game progress.
+
         cout << "Player " << currentPlayer + 1 << " move:\n";
 
         int tileX;
         int tileY;
 
-        tileX = gameRead (playerType [currentPlayer], fdInput [currentPlayer]); //read function
-        tileY = gameRead (playerType [currentPlayer], fdInput [currentPlayer]); //read function
+        tileX = gameRead (playerType [currentPlayer], fdInput [currentPlayer]);
+        tileY = gameRead (playerType [currentPlayer], fdInput [currentPlayer]);
 
         cout << tileX << " " << tileY << "\n\n";
 
         tileX--;
         tileY--;
 
-        if (shipTable [opponentPlayer] [tableWidth * tileY + tileX] == 0) {
+        if (shipTable [opponentPlayer] [tableWidth * tileY + tileX] == 0) { //Tile isn't taken by any ship
 
-            gameWrite (0, playerType [currentPlayer], fdOutput [currentPlayer]); //write function
+            gameWrite (0, playerType [currentPlayer], fdOutput [currentPlayer]);
         
             cout << "MISSED!\n\n"; 
 
@@ -147,17 +150,17 @@ int main () {
 
         else {
             
-            if (--shipHealth [opponentPlayer] [shipTable [opponentPlayer] [tableWidth * tileY + tileX] - 1] == 0) {
+            if (--shipHealth [opponentPlayer] [shipTable [opponentPlayer] [tableWidth * tileY + tileX] - 1] == 0) { //Target tile is the last tile of some ship
         
                 shipsLeft [opponentPlayer]--;
 
-                gameWrite (3, playerType [currentPlayer], fdOutput [currentPlayer]); //write function
+                gameWrite (3, playerType [currentPlayer], fdOutput [currentPlayer]);
         
                 cout << "SHIP SUNK!\n\n";
 
             }
 
-            else {
+            else { //Tile is taken by a ship, but it isn't its last tile
 
                 gameWrite (2, playerType [currentPlayer], fdOutput [currentPlayer]); //write function
         
@@ -167,11 +170,12 @@ int main () {
 
         }
 
-        if (shipsLeft [opponentPlayer] == 0) {
+        if (shipsLeft [opponentPlayer] == 0) { //Game over
+            cout << "PLAYER " << currentPlayer + 1 << " WON!\n\n";
             break;
         }
 
-        currentPlayer = (currentPlayer + 1) % playerNumber;
+        currentPlayer = (currentPlayer + 1) % playerNumber; //Next player's turn
         opponentPlayer = (currentPlayer + 1) % playerNumber;    
 
     }

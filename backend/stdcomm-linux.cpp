@@ -1,6 +1,7 @@
 #include <iostream> //Hmm, I wonder what this header provides...
 #include <unistd.h> //Provides various system calls, such as pipe() or fork()
 #include <errno.h> //Provides error handling functionality
+#include <string.h> //Provides strerror()
 
 using namespace std;
 
@@ -17,12 +18,12 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
     int childInputPipe [2], childOutputPipe [2]; 
 
     if (pipe (childInputPipe) < 0) { //creating a pipe and handling errors
-        cout << "ERROR " << errno << "\n"; //These error codes can be looked up by installing moreutils and entering "errno [error code]" into the terminal.
+        cout << "ERROR: " << strerror(errno) << "\n"; //errno is set to the last error code. strerror() converts it into a human-readable string.
         return -1;
     }
 
     if (pipe (childOutputPipe) < 0) { //ditto
-        cout << "ERROR " << errno << "\n";
+        cout << "ERROR: " << strerror(errno) << "\n";
         return -1;
     }
 
@@ -57,7 +58,7 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
             
             stdWrite (childIO [1], 0); //now we can finally fail
 
-            cout << "ERROR " << execSuccess << "\n";
+            cout << "ERROR: " << strerror(execSuccess) << "\n";
             return -1;
         }
     }
@@ -96,7 +97,7 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
     }
 
     else {
-        cout << "ERROR " << errno << "\n";
+        cout << "ERROR: " << strerror(errno) << "\n";
         return -1; 
     }
 }
@@ -118,7 +119,7 @@ int stdRead (int fileDesc) {
         buffer[0] = 0;
 
         if (read (fileDesc, buffer, 1) < 0) { //both read and write system calls can only read from/write to a char array.
-            cout << "ERROR " << errno << "\n";
+            cout << "ERROR: " << strerror(errno) << "\n";
             return -1;
         }
         if (buffer[0] == 32) { //YOU ARE TERMINATED!
@@ -140,7 +141,7 @@ int stdWrite (int fileDesc, int buffer) {
     cBuffer [0] = buffer + 48; //converting int to char.
 
     if (write (fileDesc, cBuffer, 1) < 0) {
-        cout << "ERROR " << errno << "\n";
+        cout << "ERROR: " << strerror(errno) << "\n";
         return -1;
     }
 

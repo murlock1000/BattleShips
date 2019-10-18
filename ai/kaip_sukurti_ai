@@ -8,7 +8,7 @@ cout << "0 ";
 
 Po kiekvieno išsiunčiamo skaičiaus turi būti išsiunčiamas tarpas (ASCII 32).
 
-Visų pirma, AI turėtų backendui išsiųsti lentelę su duomenimis apie laivus, panašią į šį pavyzdį:
+Paskui AI turėtų backendui išsiųsti lentelę su duomenimis apie laivus, panašią į šį pavyzdį:
 
 0 0 1 1 1 1 1 0 0 0
 0 0 0 0 0 0 0 0 0 0
@@ -23,6 +23,7 @@ Visų pirma, AI turėtų backendui išsiųsti lentelę su duomenimis apie laivus
 
 Šioje lentelėje 0 reiškia, kad to langelio neužima joks laivas.
 Skaičius nuo 1 iki 5 nurodo, kokias pozicijas užima tam tikras laivas.
+Vėlgi, po kiekvieno išsiunčiamo skaičiaus turi būti išsiunčiamas tarpas (ASCII 32).
 
 Išsiuntęs lentelę, AI gali siųsti savo ėjimus. Ėjimai turėtų atrodyti šitaip:
 

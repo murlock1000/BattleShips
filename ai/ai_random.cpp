@@ -31,7 +31,7 @@ int main(){
         moves [i] = i;
     }
     int moveCount = 100;
-    while (true) {
+    while (true && moveCount > 0) {
         srand (time(NULL));
         int currentMove = rand() % moveCount;
         int targetY = (moves [currentMove] / 10);

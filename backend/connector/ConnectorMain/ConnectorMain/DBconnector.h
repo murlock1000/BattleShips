@@ -5,11 +5,26 @@ class DBconnector
 {
 private:
 	int N;
-	MYSQL *conn;
+	MYSQL *conn; 
 public:
 	DBconnector();
 	~DBconnector();
 	int ReadN();
 	void Connect(std::string,std::string,std::string,std::string);
+	void Register(std::string);
+	void Login(std::string);
+	void ChangeName(std::string, int);
+	MYSQL_RES GetInfo(int);
+	void CreateLobby(std::string, std::string, int);
+	MYSQL_RES ListLobbiesAsPlayer(boolean);
+	MYSQL_RES JoinLobbyAsSpectator(int);
+	MYSQL_RES ReadLobby(int);
+	MYSQL_RES ReadMap(int);
+	void WriteMove(int, std::string, int);
+	void Leave(int);
+	void AcknowledgeLoss(int, int);
+	MYSQL_RES GetWinner(int);
+	MYSQL_RES List();
+	MYSQL_RES GetInfoOnGame(int);
 };
 

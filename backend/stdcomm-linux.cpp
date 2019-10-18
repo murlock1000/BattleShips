@@ -2,11 +2,9 @@
 #include <unistd.h> //Provides various system calls, such as pipe() or fork()
 #include <errno.h> //Provides error handling functionality
 #include <string.h> //Provides strerror()
+#include "stdcomm.h" //Provides AI communication functions prototypes
 
 using namespace std;
-
-int stdRead (int fileDesc);
-int stdWrite (int fileDesc, int buffer);
 
 int stdConnect (int childIO [2], const char* childPath, const char* childProcName) {
     

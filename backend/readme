@@ -1,4 +1,4 @@
-Tiems, kas kuria AI ir backend bendravimo Windows sistemoje c++ failą: visos reikalingos funkcijos (stdConnect, stdWrite, stdRead) yra aprašytos stdcomm-linux.cpp faile. Nedėkite main funkcijos - kompiliuokite failą kartu su game.cpp į bendrą programą.
+Tiems, kas kuria AI ir backend bendravimo Windows sistemoje c++ failą: visos reikalingos funkcijos (stdConnect, stdWrite, stdRead) yra aprašytos stdcomm.h faile. Jis turėtų būti include'intas į stdcomm-windows.cpp failą. Nedėkite main funkcijos - kompiliuokite failą kartu su game.cpp į bendrą programą.
 
 ------------------------------------------------------------------------------------------------
 

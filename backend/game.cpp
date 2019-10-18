@@ -1,9 +1,8 @@
 #include <iostream> //do i really need to tell what this header provides?
 #include <bits/stdc++.h> //provides string to char* conversion utility.
+#include "stdcomm.h" //Provides AI communication functions prototypes
 
 using namespace std;
-
-int stdConnect (int childIO [2], const char* childPath, const char* childProcName); //Starts ai child process. Provided by stdcomm-linux or stdcomm-windows.
 
 //The followiing functions are used to read data.
 
@@ -12,8 +11,6 @@ int dbRead () { //Reads from database. To be implemented.
     cin >> buffer;
     return buffer;
 }
-
-int stdRead (int fileDesc); //Reads from AI. Provided by either stdcomm-linux or stdcomm-windows.
 
 int gameRead (bool playerType, int fileDesc) { //Universal read command.
     if (playerType) { //ai
@@ -29,8 +26,6 @@ int gameRead (bool playerType, int fileDesc) { //Universal read command.
 void dbWrite (int buffer) { //Writes to database. To be implemented.
     cout << buffer << "\n";
 }
-
-void stdWrite (int fileDesc, int buffer); //Writes to AI. Provided by either stdcomm-linux or stdcomm-windows.
 
 void gameWrite (int buffer, bool playerType, int fileDesc) { //Universal write command.
     if (playerType) { //ai

@@ -1,11 +1,17 @@
 #pragma once
 #include <mysql.h>
 #include <string>
+#include <sstream>
+#include <cppconn/statement.h>
 class DBconnector
 {
 private:
 	int N;
 	MYSQL *conn; 
+	std::string query;
+	stringstream ss;
+//	sql::Statement *stmt;
+//	sql::PreparedStatement *pstmt;
 public:
 	DBconnector();
 	~DBconnector();

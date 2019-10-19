@@ -22,7 +22,7 @@ void DBconnector::Connect(string ip, string username, string pass, string databa
 	conn = mysql_real_connect(conn, ip.c_str(), username.c_str(), pass.c_str(), database.c_str(), 3306, NULL, 0);
 	if (conn)
 	{
-		cout << "works" << endl;
+		cout << "Connected!" << endl;
 	}
 	else {
 		throw "Failed To connect";
@@ -68,7 +68,7 @@ int DBconnector::Login(string username)
 void DBconnector::ChangeName(string newName, int userID)
 {
 	ss << userID;
-	query = "UPDATE users SET username='" + newName + "' WHERE userID='" + ss.str() + "'";
+	query = "UPDATE users SET username='" + newName + "' WHERE userID=" + ss.str();
 	ss.clear();
 	ss.str(string());
 	if (PassQuery(query) != 0) {
@@ -80,7 +80,7 @@ pair<int, int> DBconnector::GetInfo(int userID)
 {
 	ss << userID;
 	int wins, losses;
-	query = "SELECT wins,losses FROM users WHERE userID='" + ss.str() + "'";
+	query = "SELECT wins,losses FROM users WHERE userID=" + ss.str();
 	ss.clear();
 	ss.str(string());
 	MYSQL_RES *result = mysql_store_result(conn);
@@ -240,11 +240,15 @@ vector<DBconnector::LobbyTable> DBconnector::ListLobbiesAsPlayer(boolean isUser)
 {
 	vector<LobbyTable> lobbyTable;	
 	if (isUser) {
-		query = "SELECT lobbyID, lobby_name, username FROM lobbies, users WHERE lobby_status='w' AND userID=adminID";
+		query="SELECT l.lobbyID, l.lobby_name, u1.username FROM lobbies AS l JOIN users AS u1 ON u1.userID=l.adminID WHERE l.lobby_status='w'";
 	}
-	//SELECT lobbyID, lobby_name, username FROM lobbies, users WHERE lobby_status='w';
-	else { query = "SELECT lobbyID, lobby_name, username FROM lobbies, users WHERE lobby_status != 'w' AND userID = adminID"; }
-
+	else 
+	{
+		query = "SELECT l.lobbyID, l.lobby_name, u1.username, u2.username FROM lobbies AS l JOIN users AS u1 ON u1.userID=l.adminID LEFT JOIN users AS u2 ON u2.userID=l.opponentID WHERE l.lobby_status!='w'";
+	}
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
 	MYSQL_RES *result = mysql_store_result(conn);
 
 	if (result == NULL) {

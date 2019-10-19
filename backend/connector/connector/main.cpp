@@ -6,11 +6,32 @@
 
 using namespace std;
 
+class DBconnector{
+private:
+
+public:
+
+    void Connect(string IP, string username, string password, string DBname){
+        MYSQL * conn;
+        conn = mysql_init(0);
+        conn = mysql_real_connect(conn, "192.168.0.142", "ActiveUser", "admin", "battleships", 0, NULL, 0); //connecting to the database
+       // if(conn==0){
+          //  throw mysql_errno(conn);
+             if (conn) {
+
+         cout<<"good"<<endl;
+    } else {
+      // return mysql_errno(conn);
+      cout<<mysql_error(conn)<<endl;
+    }
+       // }
+    }
+};
+
 int PassQuery(MYSQL * conn, string query) { //returns a number 0 if there were no mistakes, other error number if failed.
     int qstate = 0;
     const char * q = query.c_str();
     qstate = mysql_query(conn, q);
-
     return qstate;
 }
 int Login(MYSQL * conn, string name) {  //returns userID when passing the username
@@ -311,6 +332,10 @@ void MainGame(MYSQL * conn, int lobbyid, int userid) {  //big brain time, runs w
 }
 */
 int main() {
+
+
+/*
+
     bool running = true;    //is listening for user input
     string input;
     string username;
@@ -321,12 +346,19 @@ int main() {
     conn = mysql_init(0);
     conn = mysql_real_connect(conn, "192.168.0.142", "ActiveUser", "admin", "battleships", 0, NULL, 0); //connecting to the database
 
+
+
+
     if (conn) {
         cout << "Connected." << endl;
     } else {
+        if(mysql_errno(conn)==NULL){
+            cout<<"null"<<endl;
+        }
         cout << "Failed To connect, " << mysql_error(conn) << endl;
-    }
+    }*/
 
+/*
     while (running) {   //reading user inputs
         cin >> input;
 
@@ -421,5 +453,7 @@ int main() {
     }
 
     mysql_close(conn);
+
+    */
     return 0;
 }

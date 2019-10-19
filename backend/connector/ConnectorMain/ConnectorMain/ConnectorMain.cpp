@@ -25,7 +25,7 @@ int main()
 
 	try
 	{
-		userID=cnn.Register("Paulius");
+		userID=cnn.Login("Matas");
 	}
 	catch (const char* e)
 	{
@@ -33,7 +33,7 @@ int main()
 	}
 	cout << userID << endl;
 	
-	try
+	/*try
 	{
 		lobbyID = cnn.CreateLobby("Test", userID);
 	}
@@ -42,6 +42,7 @@ int main()
 		cout <<"EXCEPTION: "<< e << endl;
 	}
 	cout << "lobbyID: " << lobbyID << endl;
+	*/
 /*	try
 	{
 		cnn.LeaveLobby(lobbyID, userID);
@@ -53,7 +54,7 @@ int main()
 	cout << "left" << endl;*/
 	vector<DBconnector::LobbyTable> tbl;
 
-	/*try
+	try
 	{
 		tbl = cnn.ListLobbiesAsPlayer(1);
 	}
@@ -65,7 +66,7 @@ int main()
 	for (int i = 0; i < tbl.size(); i++) {
 		cout << tbl[i].lobbyID << " " << tbl[i].lobbyName << " " << tbl[i].adminName << endl;
 	}
-	*/
+	
 	return 0;
 }
 

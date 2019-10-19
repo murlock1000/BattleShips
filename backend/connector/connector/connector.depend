@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1570923760 source:d:\files\programming\battleships\backend\connector\connector\main.cpp
+1571244914 source:d:\files\programming\battleships\backend\connector\connector\main.cpp
 	<iostream>
 	<windows.h>
 	<mysql.h>
@@ -236,4 +236,9 @@
 1476100768 c:\program files (x86)\codeblocks\mingw\include\my_list.h
 
 1476100777 c:\program files (x86)\codeblocks\mingw\include\my_alloc.h
+
+1571243359 source:d:\files\programming\battleships\backend\connector\connector\dbconnector.cpp
+	"DBconnector.h"
+
+1571243366 d:\files\programming\battleships\backend\connector\connector\dbconnector.h
 

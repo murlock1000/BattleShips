@@ -11,9 +11,61 @@ using namespace std;
 int main()
 {
 	DBconnector cnn;
-	cnn.Connect("localhost", "root", "password", "battleships");
-	
+	int userID;
+	int lobbyID;
+	try
+	{
+		cnn.Connect("localhost", "root", "password", "battleships");
+	}
+	catch (const char* e)
+	{
+		cout << e << endl;
+	}
 
+
+	try
+	{
+		userID=cnn.Register("Paulius");
+	}
+	catch (const char* e)
+	{
+		cout << e << endl;
+	}
+	cout << userID << endl;
+	
+	try
+	{
+		lobbyID = cnn.CreateLobby("Test", userID);
+	}
+	catch (const char* e)
+	{
+		cout <<"EXCEPTION: "<< e << endl;
+	}
+	cout << "lobbyID: " << lobbyID << endl;
+/*	try
+	{
+		cnn.LeaveLobby(lobbyID, userID);
+	}
+	catch (const char* e)
+	{
+		cout << "EXCEPTION: " << e << endl;
+	}
+	cout << "left" << endl;*/
+	vector<DBconnector::LobbyTable> tbl;
+
+	/*try
+	{
+		tbl = cnn.ListLobbiesAsPlayer(1);
+	}
+	catch (const char* e)
+	{
+		cout << "EXCEPTION: " << e << endl;
+	}
+
+	for (int i = 0; i < tbl.size(); i++) {
+		cout << tbl[i].lobbyID << " " << tbl[i].lobbyName << " " << tbl[i].adminName << endl;
+	}
+	*/
 	return 0;
 }
 

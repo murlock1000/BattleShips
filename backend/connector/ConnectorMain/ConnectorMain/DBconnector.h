@@ -3,33 +3,48 @@
 #include <string>
 #include <sstream>
 #include <cppconn/statement.h>
+#include <vector>
+using namespace std;
+
 class DBconnector
 {
+	
 private:
-	int N;
 	MYSQL *conn; 
-	std::string query;
+	string query;
 	stringstream ss;
+	int PassQuery(string q) {
+		return mysql_query(conn, q.c_str());
+	}
+	void SetUserLobby(int userID, int lobbyID);
 //	sql::Statement *stmt;
 //	sql::PreparedStatement *pstmt;
 public:
+
+	struct LobbyTable {
+		int lobbyID;
+		string lobbyName;
+		string adminName;
+	};
+
 	DBconnector();
 	~DBconnector();
-	int ReadN();
-	void Connect(std::string,std::string,std::string,std::string);
-	void Register(std::string);
-	void Login(std::string);
-	void ChangeName(std::string, int);
-	MYSQL_RES GetInfo(int);
-	void CreateLobby(std::string, std::string, int);
-	MYSQL_RES ListLobbiesAsPlayer(boolean);
-	MYSQL_RES JoinLobbyAsSpectator(int);
-	MYSQL_RES ReadLobby(int);
-	MYSQL_RES ReadMap(int);
-	void WriteMove(int, std::string, int);
+	void Connect(string ip,string username,string password,string dbName);
+	int Register(string username);
+	int Login(string username);
+	void ChangeName(string newUsername, int userID);
+	pair<int,int> GetInfo(int userID);
+	int GetLobbyID(int userID);
+	int CreateLobby(string lobbyName, int userID);
+	void LeaveLobby(int lobbyID, int userID);
+	vector<LobbyTable> ListLobbiesAsPlayer(boolean isUser);
+	int JoinLobbyAsSpectator(int lobbyID);
+	MYSQL_RES ReadLobby(int lobbyID);
+	pair<string,string> ReadMap(int lobbyID);
+	void WriteMove(int, string, int);
 	void Leave(int);
 	void AcknowledgeLoss(int, int);
-	MYSQL_RES GetWinner(int);
+	string GetWinner(int);
 	MYSQL_RES List();
 	MYSQL_RES GetInfoOnGame(int);
 };

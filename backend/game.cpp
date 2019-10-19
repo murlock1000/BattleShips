@@ -147,11 +147,20 @@ int main () {
             
             if (--shipHealth [opponentPlayer] [shipTable [opponentPlayer] [tableWidth * tileY + tileX] - 1] == 0) { //Target tile is the last tile of some ship
         
+                cout << "SHIP SUNK!\n\n";
+
                 shipsLeft [opponentPlayer]--;
 
+                if (shipsLeft [opponentPlayer] == 0) { //Game over
+
+                    cout << "PLAYER " << currentPlayer + 1 << " WON!\n\n";
+
+                    //Write last move and winner to the database
+
+                    break;
+                }
+
                 gameWrite (3, playerType [currentPlayer], fdOutput [currentPlayer]);
-        
-                cout << "SHIP SUNK!\n\n";
 
             }
 
@@ -163,11 +172,6 @@ int main () {
 
             }
 
-        }
-
-        if (shipsLeft [opponentPlayer] == 0) { //Game over
-            cout << "PLAYER " << currentPlayer + 1 << " WON!\n\n";
-            break;
         }
 
         currentPlayer = (currentPlayer + 1) % playerNumber; //Next player's turn

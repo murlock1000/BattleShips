@@ -27,6 +27,12 @@ public:
 		string adminName;
 	};
 
+	struct Rlobby {
+		string game_status;
+		string console_output;
+		int curr_player;
+	};
+
 	DBconnector();
 	~DBconnector();
 	void Connect(string ip,string username,string password,string dbName);
@@ -37,15 +43,13 @@ public:
 	int GetLobbyID(int userID);
 	int CreateLobby(string lobbyName, int userID);
 	void LeaveLobby(int lobbyID, int userID);
-	vector<LobbyTable> ListLobbiesAsPlayer(boolean isUser);
-	int JoinLobbyAsSpectator(int lobbyID);
-	MYSQL_RES ReadLobby(int lobbyID);
+	vector<LobbyTable> ListLobbies(boolean isUser);
+	void JoinLobbyAsPlayer(int lobbyID, int userID);
+	Rlobby ReadLobby(int lobbyID);
 	pair<string,string> ReadMap(int lobbyID);
-	void WriteMove(int, string, int);
-	void Leave(int);
-	void AcknowledgeLoss(int, int);
+	void WriteMove(int, string);
+	int AcknowledgeLoss(int, int);
 	string GetWinner(int);
-	MYSQL_RES List();
 	MYSQL_RES GetInfoOnGame(int);
 };
 

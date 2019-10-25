@@ -236,7 +236,7 @@ void  DBconnector::LeaveLobby(int lobbyID, int userID)
 
 }
 
-vector<DBconnector::LobbyTable> DBconnector::ListLobbiesAsPlayer(boolean isUser)
+vector<DBconnector::LobbyTable> DBconnector::ListLobbies(boolean isUser)
 {
 	vector<LobbyTable> lobbyTable;	
 	if (isUser) {
@@ -272,39 +272,128 @@ vector<DBconnector::LobbyTable> DBconnector::ListLobbiesAsPlayer(boolean isUser)
 	return lobbyTable;
 }
 
-int DBconnector::JoinLobbyAsSpectator(int)
+
+void DBconnector::JoinLobbyAsPlayer(int lobbyID, int userID)
 {
-	int lobbyID;
-	query = "";
-	return lobbyID;
+	ss >> userID;
+	string uID = ss.str();
+	ss.clear();
+	ss.str(string());
+	ss >> lobbyID;
+	query = "UPDATE lobbies SET opponentID='"+uID+"', lobby_status='r' WHERE lobbyID='" + ss.str();
+	ss.clear();
+	ss.str(string());
+	
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+	try {
+		SetUserLobby(userID, lobbyID);
+	}
+	catch(const char* e){
+		cout << e << endl;
+	}
 }
 
-MYSQL_RES DBconnector::ReadLobby(int)
+DBconnector::Rlobby DBconnector::ReadLobby(int lobbyID)
 {
-	query = "";
-	return MYSQL_RES();
+	ss >> lobbyID;
+	query = "SELECT game_status, console_output, current_player FROM lobbies WHERE lobbyID="+lobbyID;	
+	ss.clear();
+	ss.str(string());
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+	MYSQL_RES* result = mysql_store_result(conn);
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row = mysql_fetch_row(result);
+	Rlobby rlobby;
+	rlobby.game_status = row[0];
+	rlobby.console_output = row[1];
+	rlobby.curr_player = atoi(row[2]);
+	return rlobby;
 }
 
-pair<string, string> DBconnector::ReadMap(int)
+pair<string, string> DBconnector::ReadMap(int lobbyID)
 {
+	ss << lobbyID;
 	string map1, map2;
-	query = "";
+	query = "SELECT admin_map, opponent_map FROM lobbies WHERE lobbyID=" + ss.str();
+	ss.clear();
+	ss.str(string());
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+	MYSQL_RES* result = mysql_store_result(conn);
+
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row = mysql_fetch_row(result);
+
+	map1 = row[0];
+	map2 = row[1];
+
+	mysql_free_result(result);
+
 	return make_pair(map1, map2);
 }
 
-void DBconnector::WriteMove(int, string, int)
+void DBconnector::WriteMove(int lobbyID, string userIn)
 {
-	query = "";
+	ss << lobbyID;
+	query = "UPDATE lobbies SET user_input='" + userIn + "', game_status='c' WHERE lobbyID=" + ss.str();
+	ss.clear();
+	ss.str(string());
+
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
 }
 
-void DBconnector::Leave(int)
+int DBconnector::AcknowledgeLoss(int lobbyID, int userID)
 {
-	query = "";
-}
+	int historyID;
+	ss << lobbyID;
+	query = "SELECT historyID FROM lobbies WHERE lobbyID=" + ss.str(); //get pointer to game history
 
-void DBconnector::AcknowledgeLoss(int, int)
-{
-	query = "";
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+	MYSQL_RES* result = mysql_store_result(conn);
+
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row = mysql_fetch_row(result);
+
+	historyID = atoi(row[0]);
+
+	mysql_free_result(result);
+
+	query = "UPDATE lobbies SET user_input='OK', game_status='c' WHERE lobbyID=" + ss.str();
+
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+
+	try
+	{
+		SetUserLobby(userID, -1);
+	}
+	catch (const char* e)
+	{
+		throw e;
+	}
+	ss.clear();
+	ss.str(string());
+
+	return historyID;
 }
 
 string DBconnector::GetWinner(int)
@@ -314,11 +403,7 @@ string DBconnector::GetWinner(int)
 	return username;
 }
 
-MYSQL_RES DBconnector::List()
-{
-	query = "";
-	return MYSQL_RES();
-}
+
 
 MYSQL_RES DBconnector::GetInfoOnGame(int)
 {

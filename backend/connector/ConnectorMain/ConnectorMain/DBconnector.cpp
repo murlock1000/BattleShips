@@ -396,10 +396,27 @@ int DBconnector::AcknowledgeLoss(int lobbyID, int userID)
 	return historyID;
 }
 
-string DBconnector::GetWinner(int)
+string DBconnector::GetWinner(int gameID)
 {
 	string username;
-	query = "";
+	ss >> gameID;
+	query = "SELECT username FROM users WHERE userID= SELECT winnerID FROM history WHERE gameID ="+ss.str();
+	ss.clear();
+	ss.str(string());
+
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+	MYSQL_RES* result = mysql_store_result(conn);
+
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row = mysql_fetch_row(result);
+
+	username = row[0];
+
 	return username;
 }
 

@@ -1,0 +1,10 @@
+﻿  ConnectorMain.cpp
+c:\program files\mysql\connector c++ 1.1\include\cppconn\sqlstring.h(45): warning C4251: 'sql::SQLString::realStr': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'sql::SQLString'
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\xstring(4373): note: see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+d:\files\programming\battleships\backend\connectormain\connectormain\connectormain.cpp(15): warning C4101: 'lobbyID': unreferenced local variable
+  Generating code
+  160 of 164 functions (97.6%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  ConnectorMain.vcxproj -> D:\Files\programming\BattleShips\backend\ConnectorMain\x64\Release\ConnectorMain.exe

@@ -2,11 +2,12 @@
 #include <unistd.h> //Provides various system calls, such as pipe() or fork()
 #include <errno.h> //Provides error handling functionality
 #include <string.h> //Provides strerror()
+#include <signal.h> // Provides kill()
 #include "stdcomm.h" //Provides AI communication functions prototypes
 
 using namespace std;
 
-int stdConnect (int childIO [2], const char* childPath, const char* childProcName) {
+int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName) {
     
     //This function creates a child process which can communicate with parent process via stdin/stdout.
     //It writes some file descriptors to childIO which you can use to communicate with child. More on that later.
@@ -34,7 +35,8 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
     pid_t pid;
     pid = fork(); //This system call creates a child process which starts from the next instruction. Since they now execute the same code, we need to separate them.
    
-    if (pid == pid_t(0)) { //This code will only be executed by parent.
+    if (pid > pid_t(0)) { //This code will only be executed by parent.
+        *childPid = pid;
 
         //Now we have a problem. These pipes we created earlier are also open in child and they have the same file descriptors. It is not a good idea to have the same fd open several times, so we'll have to close some of them.
  
@@ -61,7 +63,7 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
         }
     }
 
-    else if (pid > pid_t(0)) { //This code will only be executed by child.
+    else if (pid == pid_t(0)) { //This code will only be executed by child.
 
         close (childInputPipe [0]); //Closing an input end of the input pipe.
         close (childOutputPipe [1]); //Closing an output end of the output pipe.
@@ -146,3 +148,45 @@ int stdWrite (int fileDesc, int buffer) {
     return 0;
 }
 
+int stdDisconnect (int childPid) {
+    
+    //This function terminates a child process if it doesn't want to kill itself
+    //It requires a process id of a child
+    //It returns 0 on success and -1 on failure
+    
+    if (kill (childPid, 0) < 0) { //sends null signal to the process (which doesn't do anything), checks if it exists
+        if (errno == 3) { //error code for "No such process"
+            return 0; //Child already terminated itself, safe to return
+        }
+        else { //Permission denied
+            cout << "Unexpected error while attempting to terminate a child process:\n";
+            cout << "ERROR: " << strerror(errno) << "\n";
+            cout << "Please kill process " << childPid << " manually\n";
+            return -1;
+        }
+    }
+
+    kill (childPid, 15); //If child is still alive, we have to ask it to die
+
+    if (kill (childPid, 0) < 0) { //same code as above, checking if child still exists
+        if (errno == 3) {
+            return 0;
+        }
+        else { 
+            cout << "Unexpected error while attempting to terminate a child process:\n";
+            cout << "ERROR: " << strerror(errno) << "\n";
+            cout << "Please kill process " << childPid << " manually\n";
+            return -1;
+        }
+    }
+    
+    kill (childPid, 9); //Child is being stubborn, we'll have to ask kernel to kill it instead
+
+    if (kill (childPid, 0) < 0) { //Apparently that child is a literal Satan's offspring. This program does not have enough godly power to destroy it.
+        cout << "ERROR: Unable to kill child process\n";
+        cout << "Please kill process " << childPid << " manually\n";
+        return -1;
+    }
+
+    return 0;
+}

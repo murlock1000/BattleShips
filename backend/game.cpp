@@ -36,15 +36,22 @@ void gameWrite (int buffer, bool playerType, int fileDesc) { //Universal write c
     }
 }
 
-void disconnect (int playerNumber, int fdOutput[], int fdInput[], bool playerType[]) { //Terminates connections
-     for (int i = 0; i < playerNumber; i++) {
+int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[]) { //Terminates connections
+    int success = 0;
+
+    for (int i = 0; i < playerNumber; i++) {
         if (playerType [i]) { //ai
             stdWrite (fdOutput [i], 4); //Tells AI to exit.
+            if (stdDisconnect (pid [i]) < 0) { //Kills AI in case it hasn't exited yet
+                success = -1;
+            }
         }
         else { //frontend
         //to be implemented.
         }
     }
+
+    return success;
 }
 
 int main () {
@@ -63,6 +70,7 @@ int main () {
     int shipsLeft [playerNumber];
     int fdInput [playerNumber]; //holds input file descriptors.
     int fdOutput [playerNumber]; //holds output file descriptors.
+    int pid [playerNumber]; //holds ai pids
        
     for (int i = 0; i < playerNumber; i++) {
         shipsLeft [i] = shipNumber;
@@ -78,20 +86,23 @@ int main () {
             
             int aiIO [2];
 
-            int stdConnSuccess = stdConnect (aiIO, aiPath.c_str(), aiProcName.c_str());
+            int* aiPid = new int;
+
+            int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiProcName.c_str());
 
             if (stdConnSuccess < 0) {
                 //If launching an ai process fails, we have to kill parent.
                 //However, before that we must terminate other AIs which may have been lauched before.
                 //We only need to do that to previous players, so we enter i instead of playerNumber.
 
-                disconnect(i, fdOutput, fdInput, playerType);
+                disconnect(i, fdOutput, fdInput, pid, playerType);
                 return 1;
             }
             else if (stdConnSuccess > 0) {
                 return 0;
             }
 
+            pid [i] = *aiPid;
             fdInput [i] = aiIO [0]; //Store each player's fds
             fdOutput [i] = aiIO [1];
 
@@ -180,7 +191,10 @@ int main () {
     }
 
     //disconnecting players
-    
-    disconnect(playerNumber, fdOutput, fdInput, playerType);
+        
+    if (disconnect(playerNumber, fdOutput, fdInput, pid, playerType) < 0) {
+        return 1;            
+    }
+        
     return 0;
 }

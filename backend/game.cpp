@@ -36,15 +36,22 @@ void gameWrite (int buffer, bool playerType, int fileDesc) { //Universal write c
     }
 }
 
-void disconnect (int playerNumber, int fdOutput[], int fdInput[], bool playerType[]) { //Terminates connections
-     for (int i = 0; i < playerNumber; i++) {
+int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[]) { //Terminates connections
+    int success = 0;
+
+    for (int i = 0; i < playerNumber; i++) {
         if (playerType [i]) { //ai
             stdWrite (fdOutput [i], 4); //Tells AI to exit.
+            if (stdDisconnect (pid [i]) < 0) { //Kills AI in case it hasn't exited yet
+                success = -1;
+            }
         }
         else { //frontend
         //to be implemented.
         }
     }
+
+    return success;
 }
 
 int main () {
@@ -88,7 +95,7 @@ int main () {
                 //However, before that we must terminate other AIs which may have been lauched before.
                 //We only need to do that to previous players, so we enter i instead of playerNumber.
 
-                disconnect(i, fdOutput, fdInput, playerType);
+                disconnect(i, fdOutput, fdInput, pid, playerType);
                 return 1;
             }
             else if (stdConnSuccess > 0) {
@@ -184,7 +191,10 @@ int main () {
     }
 
     //disconnecting players
-    
-    disconnect(playerNumber, fdOutput, fdInput, playerType);
+        
+    if (disconnect(playerNumber, fdOutput, fdInput, pid, playerType) < 0) {
+        return 1;            
+    }
+        
     return 0;
 }

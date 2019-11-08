@@ -8,9 +8,9 @@ using namespace std;
 
 class DBconnector
 {
-	
+
 private:
-	MYSQL *conn; 
+	MYSQL *conn;
 	string query;
 	stringstream ss;
 	int PassQuery(string q) {
@@ -53,8 +53,17 @@ public:
 		string map1;
 		string map2;
 		int winnerID;
-		vector<Move> turns;	
+		vector<Move> turns;
 
+	};
+
+	struct ConsoleReadStruct{
+        int adminID;
+        int opponentID;
+        string userIN;
+        string admin_map;
+        string user_map;
+        string game_status;
 	};
 
 	DBconnector();
@@ -75,5 +84,15 @@ public:
 	int AcknowledgeEnd(int lobbyID, int userID, bool isUser);
 	string GetWinner(int);	//not recommended to use when getting all information about the game, replace with GetInfoOnGame and GetUserInfo
 	History GetInfoOnGame(int gameID);
+
+	int RegisterAI(string username);
+	int CreateAIlobby(string lobbyName, int AI_ID);
+    vector<int> GetReadyLobbies();
+    int CreateHistoryTable(string game_name, int player1_ID, int player2_ID, string map1, string map2);
+    void UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID);
+    void UpdateLobby(int lobbyID, string lobby_status, string user_input, string console_output, string map1, string map2, int historyID, string game_status, int playerID );
+    ConsoleReadStruct ConsoleRead(int lobbyID);
+    void InitiateDeletion(int lobbyID);
+
 };
 

@@ -1,0 +1,10 @@
+﻿  Laivas.cpp
+  Shot.cpp
+  Starting window.cpp
+C:\Users\Pauli\Documents\GitHub\BattleShipsFrontEnd\Laivu_m_FE\Starting window.cpp(215,22): warning C4018: '<': signed/unsigned mismatch
+  Generating code
+  417 of 429 functions (97.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Laivu_m_FE.vcxproj -> C:\Users\Pauli\Documents\GitHub\BattleShipsFrontEnd\Laivu_m_FE\Release\Laivu_m_FE.exe

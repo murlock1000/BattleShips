@@ -1,5 +1,5 @@
 #pragma once
-#include <sfml/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 
 class Shot
 {

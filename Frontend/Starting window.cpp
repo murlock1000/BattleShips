@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <string>
-#include "ClassesAndHeaders/shot.h"
+#include "ClassesAndHeaders/Shot.h"
 #include "ClassesAndHeaders/Laivas.h"
 
 using namespace std;
@@ -51,7 +51,7 @@ int main()
 	//[y][x][player]
 
 	//duomenų gavimas, kolkas iš failo, reikia pakeisti
-	ifstream Data("Media/data.txt");
+	ifstream Data("Media/Data.txt");
 	for (int k = 0; k < PlayerCount; k++) {
 		AI[k] = ReadFromFile(Data);
 		for (int i = 0; i < TableHeight; i++)

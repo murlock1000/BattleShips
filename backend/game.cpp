@@ -63,6 +63,7 @@ int main () {
     int shipsLeft [playerNumber];
     int fdInput [playerNumber]; //holds input file descriptors.
     int fdOutput [playerNumber]; //holds output file descriptors.
+    int pid [playerNumber]; //holds ai pids
        
     for (int i = 0; i < playerNumber; i++) {
         shipsLeft [i] = shipNumber;
@@ -78,7 +79,9 @@ int main () {
             
             int aiIO [2];
 
-            int stdConnSuccess = stdConnect (aiIO, aiPath.c_str(), aiProcName.c_str());
+            int* aiPid = new int;
+
+            int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiProcName.c_str());
 
             if (stdConnSuccess < 0) {
                 //If launching an ai process fails, we have to kill parent.
@@ -92,6 +95,7 @@ int main () {
                 return 0;
             }
 
+            pid [i] = *aiPid;
             fdInput [i] = aiIO [0]; //Store each player's fds
             fdOutput [i] = aiIO [1];
 

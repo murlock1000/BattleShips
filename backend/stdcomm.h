@@ -1,7 +1,7 @@
 #ifndef _STDCOMM
 #define _STDCOMM 1
 
-int stdConnect (int childIO [2], const char* childPath, const char* childProcName);
+int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName);
 
 //This function should start a child process which would communicate with parent via stdin/stdout.
 //It requires an int [2] array, a path of an executable and the process name of an executable (name of an executable without its path).

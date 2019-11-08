@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int stdConnect (int childIO [2], const char* childPath, const char* childProcName) {
+int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName) {
     
     //This function creates a child process which can communicate with parent process via stdin/stdout.
     //It writes some file descriptors to childIO which you can use to communicate with child. More on that later.
@@ -34,7 +34,8 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
     pid_t pid;
     pid = fork(); //This system call creates a child process which starts from the next instruction. Since they now execute the same code, we need to separate them.
    
-    if (pid == pid_t(0)) { //This code will only be executed by parent.
+    if (pid > pid_t(0)) { //This code will only be executed by parent.
+        *childPid = pid;
 
         //Now we have a problem. These pipes we created earlier are also open in child and they have the same file descriptors. It is not a good idea to have the same fd open several times, so we'll have to close some of them.
  
@@ -61,7 +62,7 @@ int stdConnect (int childIO [2], const char* childPath, const char* childProcNam
         }
     }
 
-    else if (pid > pid_t(0)) { //This code will only be executed by child.
+    else if (pid == pid_t(0)) { //This code will only be executed by child.
 
         close (childInputPipe [0]); //Closing an input end of the input pipe.
         close (childOutputPipe [1]); //Closing an output end of the output pipe.

@@ -17,12 +17,12 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
     int childInputPipe [2], childOutputPipe [2]; 
 
     if (pipe (childInputPipe) < 0) { //creating a pipe and handling errors
-        cout << "ERROR: " << strerror(errno) << "\n"; //errno is set to the last error code. strerror() converts it into a human-readable string.
+        //cout << "ERROR: " << strerror(errno) << "\n"; //errno is set to the last error code. strerror() converts it into a human-readable string.
         return -1;
     }
 
     if (pipe (childOutputPipe) < 0) { //ditto
-        cout << "ERROR: " << strerror(errno) << "\n";
+        //cout << "ERROR: " << strerror(errno) << "\n";
         return -1;
     }
 
@@ -36,6 +36,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
     pid = fork(); //This system call creates a child process which starts from the next instruction. Since they now execute the same code, we need to separate them.
    
     if (pid > pid_t(0)) { //This code will only be executed by parent.
+
         *childPid = pid;
 
         //Now we have a problem. These pipes we created earlier are also open in child and they have the same file descriptors. It is not a good idea to have the same fd open several times, so we'll have to close some of them.
@@ -58,7 +59,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
             
             stdWrite (childIO [1], 0); //now we can finally fail
 
-            cout << "ERROR: " << strerror(execSuccess) << "\n";
+            //cout << "ERROR: " << strerror(execSuccess) << "\n";
             return -1;
         }
     }
@@ -80,7 +81,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
         //You guessed it, time for another system call! execl() will give the shell used by the child to an executable, which means our pipes and fd changes are still intact.
         
         if (execl(childPath, childProcName, (char*)NULL) < 0) { //Note that execl requires an executable file path, its process name, and the rest of arguments terminated by (char*)NULL.
-            cout << errno << " "; //number other that 0 tells parent that AI execution was unsuccessful.
+            //cout << errno << " "; //number other that 0 tells parent that AI execution was unsuccessful.
          
             int useless;
             cin >> useless; //this is where we tell child to wait for parent output. Again, the output itself is completely useless, it's only used to make child wait.
@@ -97,7 +98,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
     }
 
     else {
-        cout << "ERROR: " << strerror(errno) << "\n";
+        //cout << "ERROR: " << strerror(errno) << "\n";
         return -1; 
     }
 }
@@ -119,7 +120,7 @@ int stdRead (int fileDesc) {
         buffer[0] = 0;
 
         if (read (fileDesc, buffer, 1) < 0) { //both read and write system calls can only read from/write to a char array.
-            cout << "ERROR: " << strerror(errno) << "\n";
+            //cout << "ERROR: " << strerror(errno) << "\n";
             return -1;
         }
         if (buffer[0] == 32) { //YOU ARE TERMINATED!
@@ -141,7 +142,7 @@ int stdWrite (int fileDesc, int buffer) {
     cBuffer [0] = buffer + 48; //converting int to char.
 
     if (write (fileDesc, cBuffer, 1) < 0) {
-        cout << "ERROR: " << strerror(errno) << "\n";
+        //cout << "ERROR: " << strerror(errno) << "\n";
         return -1;
     }
 
@@ -159,9 +160,9 @@ int stdDisconnect (int childPid) {
             return 0; //Child already terminated itself, safe to return
         }
         else { //Permission denied
-            cout << "Unexpected error while attempting to terminate a child process:\n";
-            cout << "ERROR: " << strerror(errno) << "\n";
-            cout << "Please kill process " << childPid << " manually\n";
+            //cout << "Unexpected error while attempting to terminate a child process:\n";
+            //cout << "ERROR: " << strerror(errno) << "\n";
+            //cout << "Please kill process " << childPid << " manually\n";
             return -1;
         }
     }
@@ -173,9 +174,9 @@ int stdDisconnect (int childPid) {
             return 0;
         }
         else { 
-            cout << "Unexpected error while attempting to terminate a child process:\n";
-            cout << "ERROR: " << strerror(errno) << "\n";
-            cout << "Please kill process " << childPid << " manually\n";
+            //cout << "Unexpected error while attempting to terminate a child process:\n";
+            //cout << "ERROR: " << strerror(errno) << "\n";
+            //cout << "Please kill process " << childPid << " manually\n";
             return -1;
         }
     }
@@ -183,8 +184,8 @@ int stdDisconnect (int childPid) {
     kill (childPid, 9); //Child is being stubborn, we'll have to ask kernel to kill it instead
 
     if (kill (childPid, 0) < 0) { //Apparently that child is a literal Satan's offspring. This program does not have enough godly power to destroy it.
-        cout << "ERROR: Unable to kill child process\n";
-        cout << "Please kill process " << childPid << " manually\n";
+        //cout << "ERROR: Unable to kill child process\n";
+        //cout << "Please kill process " << childPid << " manually\n";
         return -1;
     }
 

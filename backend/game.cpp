@@ -7,9 +7,9 @@ using namespace std;
 //The followiing functions are used to read data.
 
 int dbRead () { //Reads from database. To be implemented.
-    int buffer;
-    cin >> buffer;
-    return buffer;
+    //int buffer;
+    //cin >> buffer;
+    //return buffer;
 }
 
 int gameRead (bool playerType, int fileDesc) { //Universal read command.
@@ -24,7 +24,7 @@ int gameRead (bool playerType, int fileDesc) { //Universal read command.
 //The following functions are used to write data.
 
 void dbWrite (int buffer) { //Writes to database. To be implemented.
-    cout << buffer << "\n";
+    //cout << buffer << "\n";
 }
 
 void gameWrite (int buffer, bool playerType, int fileDesc) { //Universal write command.
@@ -54,9 +54,12 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
     return success;
 }
 
-int main () {
-    //these variables might become changeable from frontend later
+int main (int argc, char* argv []) {
+
+    cout << "0 "; //Executed successfully
     
+    //Should be read from database later
+
     int tableWidth = 10;
     int tableHeight = 10;
     int shipNumber = 5;
@@ -74,12 +77,13 @@ int main () {
        
     for (int i = 0; i < playerNumber; i++) {
         shipsLeft [i] = shipNumber;
-        playerType [i] = dbRead (); //player types are saved in the database.
+        //playerType [i] = dbRead (); //player types are saved in the database.
+        playerType [i] = 1; //Temporary hard-coding ai because database isn't ready yet
 
         if (playerType [i]) { //ai initialisation
 
             string aiName;
-            cin >> aiName; //should be read from db later.
+            aiName = "ai_random"; //should be read from db later.
             
             string aiProcName = aiName + ".exe";
             string aiPath = "../ai/" + aiProcName;
@@ -131,9 +135,9 @@ int main () {
 
     while (true) {
 
-        //Of course, it's safe to output some game progress.
+        //All cout commands are temporary and for testing purposes only
 
-        cout << "Player " << currentPlayer + 1 << " move:\n";
+        cout << currentPlayer << " ";
 
         int tileX;
         int tileY;
@@ -141,30 +145,28 @@ int main () {
         tileX = gameRead (playerType [currentPlayer], fdInput [currentPlayer]);
         tileY = gameRead (playerType [currentPlayer], fdInput [currentPlayer]);
 
-        cout << tileX << " " << tileY << "\n\n";
+        cout << tileX << " " << tileY << " ";
 
         tileX--;
         tileY--;
 
         if (shipTable [opponentPlayer] [tableWidth * tileY + tileX] == 0) { //Tile isn't taken by any ship
 
-            gameWrite (0, playerType [currentPlayer], fdOutput [currentPlayer]);
+            gameWrite (1, playerType [currentPlayer], fdOutput [currentPlayer]);
         
-            cout << "MISSED!\n\n"; 
+            cout << "1 "; 
 
         }
 
         else {
             
             if (--shipHealth [opponentPlayer] [shipTable [opponentPlayer] [tableWidth * tileY + tileX] - 1] == 0) { //Target tile is the last tile of some ship
-        
-                cout << "SHIP SUNK!\n\n";
 
                 shipsLeft [opponentPlayer]--;
 
                 if (shipsLeft [opponentPlayer] == 0) { //Game over
 
-                    cout << "PLAYER " << currentPlayer + 1 << " WON!\n\n";
+                    cout << "4 ";
 
                     //Write last move and winner to the database
 
@@ -172,6 +174,8 @@ int main () {
                 }
 
                 gameWrite (3, playerType [currentPlayer], fdOutput [currentPlayer]);
+                
+                cout << "3 ";
 
             }
 
@@ -179,7 +183,7 @@ int main () {
 
                 gameWrite (2, playerType [currentPlayer], fdOutput [currentPlayer]); //write function
         
-                cout << "SHIP HIT!\n\n";
+                cout << "2 ";
 
             }
 

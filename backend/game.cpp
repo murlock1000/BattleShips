@@ -92,7 +92,7 @@ int main (int argc, char* argv []) {
 
             int* aiPid = new int;
 
-            int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiProcName.c_str());
+            int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiProcName.c_str(), "0");
 
             if (stdConnSuccess < 0) {
                 //If launching an ai process fails, we have to kill parent.

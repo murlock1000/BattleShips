@@ -1,12 +1,13 @@
 #ifndef _STDCOMM
 #define _STDCOMM 1
 
-int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName);
+int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName, const char* argument);
 
 //This function should start a child process which would communicate with parent via stdin/stdout.
 //It requires an empty int [2] array, an empty int pointer, a path of an executable and the process name of an executable (name of an executable without its path).
 //It should store two file descriptors in the array; childIO [0] would contain child's input (which parent reads from), childIO [1] would contain child's output (which parent writes to)
 //It should also store a child process id in a memory address referred to by a pointer childPid
+//The child program should be executed with an argument stored in const char* argument
 //It returns 0 on sucess and -1 on failure if parent is the one which returns. It should also return 1 if child is the one which returns.
 
 int stdRead (int fileDesc);

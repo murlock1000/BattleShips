@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName) {
+int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName, const char* argument) {
     
     //This function creates a child process which can communicate with parent process via stdin/stdout.
     //It writes some file descriptors to childIO which you can use to communicate with child. More on that later.
@@ -80,7 +80,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
         //However, child here is still executing this code instead of running an executable file we need.
         //You guessed it, time for another system call! execl() will give the shell used by the child to an executable, which means our pipes and fd changes are still intact.
         
-        if (execl(childPath, childProcName, (char*)NULL) < 0) { //Note that execl requires an executable file path, its process name, and the rest of arguments terminated by (char*)NULL.
+        if (execl(childPath, childProcName, argument, (char*)NULL) < 0) { //Note that execl requires an executable file path, its process name, and the rest of arguments terminated by (char*)NULL.
             //cout << errno << " "; //number other that 0 tells parent that AI execution was unsuccessful.
          
             int useless;

@@ -11,8 +11,9 @@ using namespace std;
 int main()
 {
 	DBconnector cnn;
-	int userID;
-	int lobbyID;
+	int user1;
+	int user2;
+	int lobbyID=3;
 	try
 	{
 		cnn.Connect("localhost", "root", "password", "battleships");
@@ -23,51 +24,71 @@ int main()
 	}
 
 
+
 	try
 	{
-		userID=cnn.Login("Matas");
+		user1 = cnn.Login("Matas");
 	}
 	catch (const char* e)
 	{
 		cout << e << endl;
 	}
-	cout << userID << endl;
-	
+
+	try
+	{
+		user2 = cnn.Login("Paulius");
+	}
+	catch (const char* e)
+	{
+		cout << e << endl;
+	}
+
+/*	try
+	{
+		lobbyID = cnn.CreateLobby("Mato Zaidimas", user1);
+	}
+	catch (const char* e)
+	{
+		cout << e << endl;
+	}
+
+	*/
 	/*try
 	{
-		lobbyID = cnn.CreateLobby("Test", userID);
+		//cout << lobbyID << " A " << user2 << endl;
+		cnn.JoinLobbyAsPlayer(lobbyID, user2);
 	}
 	catch (const char* e)
 	{
-		cout <<"EXCEPTION: "<< e << endl;
+		cout <<"cia "<< e << endl;
 	}
-	cout << "lobbyID: " << lobbyID << endl;
 	*/
-/*	try
-	{
-		cnn.LeaveLobby(lobbyID, userID);
-	}
-	catch (const char* e)
-	{
-		cout << "EXCEPTION: " << e << endl;
-	}
-	cout << "left" << endl;*/
-	vector<DBconnector::LobbyTable> tbl;
+	vector<DBconnector::LobbyTable> tables = cnn.ListLobbies(1);
 
-/*	try
-	{
-		tbl = cnn.ListLobbiesAsPlayer(1);
+	for (int i = 0; i < tables.size(); i++) {
+		cout << tables[i].lobbyID << " " << tables[i].lobbyName << " " << tables[i].adminName << " " << tables[i].opponentName << endl;
 	}
-	catch (const char* e)
-	{
-		cout << "EXCEPTION: " << e << endl;
-	}*/
 
-	for (int i = 0; i < tbl.size(); i++) {
-		cout << tbl[i].lobbyID << " " << tbl[i].lobbyName << " " << tbl[i].adminName << endl;
-	}
+	DBconnector::Rlobby lobby;
+
 	
-	return 0;
+	try
+	{
+		lobby = cnn.ReadLobby(lobbyID);
+	}
+	catch (const char* e)
+	{
+		cout << e << endl;
+	}
+
+	cout << "lobby3: " << lobby.game_status << " " << lobby.curr_player << " " << lobby.console_output << endl;
+
+	
+
+
+
+
+		return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

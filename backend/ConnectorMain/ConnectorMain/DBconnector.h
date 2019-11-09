@@ -31,13 +31,13 @@ public:
 		int lobbyID;
 		string lobbyName;
 		string adminName;
-		string opponentName;
+		string opponentName="";
 	};
 
 	struct Rlobby {
 		string game_status;
-		string console_output;
-		int curr_player;
+		string console_output="";
+		int curr_player=-1;
 	};
 
 	struct Move {
@@ -52,18 +52,18 @@ public:
 		int player2_ID;
 		string map1;
 		string map2;
-		int winnerID;
+		int winnerID=-1;
 		vector<Move> turns;
 
 	};
 
 	struct ConsoleReadStruct{
         int adminID;
-        int opponentID;
-        string userIN;
-        string admin_map;
-        string user_map;
-        string game_status;
+        int opponentID=-1;
+        string userIN="";
+        string admin_map="";
+        string user_map="";
+        string game_status="";
 	};
 
 	DBconnector();

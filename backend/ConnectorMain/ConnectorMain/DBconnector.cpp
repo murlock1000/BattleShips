@@ -278,12 +278,12 @@ vector<DBconnector::LobbyTable> DBconnector::ListLobbies(boolean isUser)	//Retur
 
 void DBconnector::JoinLobbyAsPlayer(int lobbyID, int userID)	//checks if lobby is still available, sets opponentID in the lobby as userID, updates lobbyID in user table.
 {
-	ss >> userID;
+	ss << userID;
 	string uID = ss.str();
 	ss.clear();
 	ss.str(string());
-	ss >> lobbyID;
-
+	ss << lobbyID;
+	//cout << "lobbyID: " <<uID<<" "<< ss.str()<<endl;
 	query = "SELECT lobby_status FROM lobbies WHERE lobbyID=" + ss.str();
 
 	if (PassQuery(query) != 0) {
@@ -303,7 +303,7 @@ void DBconnector::JoinLobbyAsPlayer(int lobbyID, int userID)	//checks if lobby i
 	}
 	mysql_free_result(result);
 
-	query = "UPDATE lobbies SET opponentID='"+uID+"', lobby_status='r' WHERE lobbyID='" + ss.str();
+	query = "UPDATE lobbies SET opponentID="+uID+", lobby_status='r' WHERE lobbyID=" + ss.str();
 	ss.clear();
 	ss.str(string());
 
@@ -325,10 +325,11 @@ DBconnector::Rlobby DBconnector::ReadLobby(int lobbyID)	//returns Rlobby struct 
 	//if game_status==f & current_player==userID -> AcknowledgeEnd
 
 
-	ss >> lobbyID;
-	query = "SELECT game_status, console_output, current_player FROM lobbies WHERE lobbyID="+lobbyID;
+	ss << lobbyID;
+	query = "SELECT game_status, console_output, current_player FROM lobbies WHERE lobbyID="+ss.str();
 	ss.clear();
 	ss.str(string());
+
 	if (PassQuery(query) != 0) {
 		throw mysql_error(conn);
 	}
@@ -339,9 +340,15 @@ DBconnector::Rlobby DBconnector::ReadLobby(int lobbyID)	//returns Rlobby struct 
 
 	MYSQL_ROW row = mysql_fetch_row(result);
 	Rlobby rlobby;
+
 	rlobby.game_status = row[0];
-	rlobby.console_output = row[1];
-	rlobby.curr_player = atoi(row[2]);
+	if (row[1] != NULL) {
+		rlobby.console_output = row[1];
+	}
+	if (row[2] != NULL) {
+		rlobby.curr_player = atoi(row[2]);
+	}
+	
 	return rlobby;
 }
 
@@ -363,8 +370,14 @@ pair<string, string> DBconnector::ReadMap(int lobbyID)	//returns both maps in a 
 
 	MYSQL_ROW row = mysql_fetch_row(result);
 
-	map1 = row[0];
-	map2 = row[1];
+	if(row[0]!=NULL){
+		map1 = row[0];
+	}
+	
+	if(row[0]!=NULL){
+		map2 = row[1];
+	}
+
 	gameStatus = row[2];
 
 	mysql_free_result(result);
@@ -444,7 +457,7 @@ int DBconnector::AcknowledgeEnd(int lobbyID, int userID, bool isUser)	//leaves t
 string DBconnector::GetWinner(int gameID)	//returns winner's username after passing gameID
 {
 	string username;
-	ss >> gameID;
+	ss << gameID;
 	query = "SELECT username FROM users WHERE userID= SELECT winnerID FROM history WHERE gameID ="+ss.str();
 	ss.clear();
 	ss.str(string());
@@ -468,7 +481,7 @@ string DBconnector::GetWinner(int gameID)	//returns winner's username after pass
 DBconnector::History DBconnector::GetInfoOnGame(int gameID)	//returns History struct when passing gameID
 {
 	History ist;
-	ss >> gameID;
+	ss << gameID;
 	query = "SELECT game_name, player1_ID, player2_ID, map1, map2, winnerID FROM history WHERE gameID=" + ss.str();
 
 	MYSQL_RES* result = mysql_store_result(conn);
@@ -610,11 +623,11 @@ vector<int> DBconnector::GetReadyLobbies()
 int DBconnector::CreateHistoryTable(string game_name, int player1_ID, int player2_ID, string map1, string map2)
 {
 	int historyID;
-	ss >> player1_ID;
+	ss << player1_ID;
 	string temp1 = ss.str();
 	ss.clear();
 	ss.str(string());
-	ss >> player2_ID;
+	ss << player2_ID;
 	query = "INSERT INTO history(game_name,player1_ID,player2_ID, map1, map2) VALUES("+game_name+","+temp1+","+ss.str()+","+map1+","+map2+")";
 	ss.clear();
 	ss.str(string());
@@ -642,15 +655,15 @@ int DBconnector::CreateHistoryTable(string game_name, int player1_ID, int player
 
 void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID)  //gameid - historyID, moveID-from 0 to N, move_pos - userInput, move_res - consoleOutput, playerID- currentPlayer.
 {
-	ss >> moveID;
+	ss << moveID;
 	string temp1 = ss.str();
 	ss.clear();
 	ss.str(string());
-	ss >> player_ID;
+	ss << player_ID;
 	string temp2 = ss.str();
 	ss.clear();
 	ss.str(string());
-	ss >> gameID;
+	ss << gameID;
 	string temp3 = ss.str();
 	ss.clear();
 	ss.str(string());
@@ -664,15 +677,15 @@ void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, strin
 
 void DBconnector::UpdateLobby(int lobbyID, string lobby_status, string user_input, string console_output, string map1, string map2, int historyID, string game_status, int playerID)
 {
-	ss >> historyID;
+	ss << historyID;
 	string temp1 = ss.str();
 	ss.clear();
 	ss.str(string());
-	ss >> playerID;
+	ss << playerID;
 	string temp2 = ss.str();
 	ss.clear();
 	ss.str(string());
-	ss >> lobbyID;
+	ss << lobbyID;
 	string temp3 = ss.str();
 	ss.clear();
 	ss.str(string());
@@ -687,7 +700,7 @@ void DBconnector::UpdateLobby(int lobbyID, string lobby_status, string user_inpu
 DBconnector::ConsoleReadStruct DBconnector::ConsoleRead(int lobbyID)
 {
 	ConsoleReadStruct crs;
-	ss >> lobbyID;
+	ss << lobbyID;
 	query = "SELECT adminID, opponentID, userIN, admin_map, user_map, game_status FROM lobbies WHERE lobbyID="+ss.str();
 	ss.clear();
 	ss.str(string());
@@ -711,7 +724,7 @@ DBconnector::ConsoleReadStruct DBconnector::ConsoleRead(int lobbyID)
 
 void DBconnector::InitiateDeletion(int lobbyID)
 {
-	ss >> lobbyID;
+	ss << lobbyID;
 	query = "DELETE FROM lobbies WHERE lobbyID="+ss.str();
 	ss.clear();
 	ss.str(string());

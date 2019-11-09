@@ -1,7 +1,6 @@
 #include <iostream> //do i really need to tell what this header provides?
 #include <bits/stdc++.h> //provides string to char* conversion utility.
 #include "stdcomm.h" //Provides AI communication functions prototypes
-#include <string> //Provides stoi()
 
 using namespace std;
 
@@ -56,16 +55,15 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
 }
 
 int main (int argc, char* argv []) {
-    
-    if (argc != 5) { //exactly 4 arguments must be present
-        //This shouldn't ever execute, but it's present for testing purposes
-        return 1;
-    }
 
-    int tableWidth = stoi(argv [1]); //converts char* to int
-    int tableHeight = stoi(argv [2]);
-    int shipNumber = stoi(argv [3]);
-    int playerNumber = stoi(argv [4]);
+    cout << "0 "; //Executed successfully
+    
+    //Should be read from database later
+
+    int tableWidth = 10;
+    int tableHeight = 10;
+    int shipNumber = 5;
+    int playerNumber = 2;
 
     //initialisation
     

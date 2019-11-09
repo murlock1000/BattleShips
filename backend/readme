@@ -1,28 +1,3 @@
-Tiems, kas kuria AI ir backend bendravimo Windows sistemoje c++ failą: visos reikalingos funkcijos (stdConnect, stdWrite, stdRead) yra aprašytos stdcomm.h faile. Jis turėtų būti include'intas į stdcomm-windows.cpp failą. Nedėkite main funkcijos - kompiliuokite failą kartu su game.cpp į bendrą programą.
+Kad sukompiliuotumėte backendą, paleiskite ./compile.sh
 
-------------------------------------------------------------------------------------------------
-
-Kadangi duomenų bazė dar nėra integruota į žaidimą, kai kuriuos duomenis gali tekti įvesti ranka.
-
-Kiekvienam žaidėjui reikia įvesti po boolean (0 - žmogus, 1 - AI).
-
-Jei įvedate 1, turite įvesti AI pavadinimą - programos pavadinimą be failo kelio ir trumpinio (pvz. ai/ai_random.exe turi būti įvestas kaip ai_random).
-Tai reiškia, kad jau galima kurti AI (jei naudojate Linux). Faile "ai/kaip-sukurti-ai" nurodyta, kaip jis turėtų veikti.
-Jums AI laivų lentelės įvesti nereikia.
-
-Jei įvedate 0, reikia įvesti žaidėjo laivų lentelę, kaip pavaizduota žemiau:
-
-0 0 1 1 1 1 1 0 0 0
-0 0 0 0 0 0 0 0 0 0
-5 5 0 3 3 3 0 4 4 4
-0 0 0 0 0 0 0 0 0 0
-0 0 0 0 2 0 0 0 0 0
-0 0 0 0 2 0 0 0 0 0
-0 0 0 0 2 0 0 0 0 0
-0 0 0 0 2 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0
-
-Šioje lentelėje yra žymima, kuris laivas užima tam tikrus langelius.
-0 reiškia, kad to langelio neužima joks laivas.
-Skaičius nuo 1 iki 5 reiškia, kad tą langelį užima koks nors laivas. Visi langeliai, pažymėti tuo pačiu skaičiumi (išskyrus 0), yra užimti to paties laivo.
+Tada paleiskite ./server

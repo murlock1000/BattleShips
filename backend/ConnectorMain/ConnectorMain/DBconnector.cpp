@@ -274,7 +274,6 @@ vector<DBconnector::LobbyTable> DBconnector::ListLobbies(boolean isUser)	//Retur
 	return lobbyTable;
 }
 
-
 void DBconnector::JoinLobbyAsPlayer(int lobbyID, int userID)	//checks if lobby is still available, sets opponentID in the lobby as userID, updates lobbyID in user table.
 {
 	ss >> userID;
@@ -464,8 +463,6 @@ string DBconnector::GetWinner(int gameID)	//returns winner's username after pass
 	return username;
 }
 
-
-
 DBconnector::History DBconnector::GetInfoOnGame(int gameID)	//returns History struct when passing gameID
 {
 	History ist;
@@ -520,6 +517,204 @@ DBconnector::History DBconnector::GetInfoOnGame(int gameID)	//returns History st
 	ss.clear();
 	ss.str(string());
 	return ist;
+}
+
+
+
+
+
+
+
+int DBconnector::RegisterAI(string username)
+{
+	query = "INSERT INTO users(username,is_ai) VALUES('" + username + "',1)";
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+
+	return Login(username);
+}
+
+int DBconnector::CreateAIlobby(string lobbyName, int AI_ID)
+{
+	int cLobby;
+	try
+	{
+		cLobby = GetLobbyID(AI_ID);
+	}
+	catch (const char* e)
+	{
+		throw e;
+	}
+
+	if (cLobby != -1) {
+		return cLobby;		//if a player is in a lobby return the lobbyID
+	}
+
+	ss << AI_ID;
+	query = "INSERT INTO lobbies(lobby_name,adminID) VALUES('" + lobbyName + "'," + ss.str() + ")";
+	ss.clear();
+	ss.str(string());
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+
+	query = "SELECT LAST_INSERT_ID()";	//get last inserted row index
+
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_RES* result = mysql_store_result(conn);
+
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row = mysql_fetch_row(result);
+
+	cLobby = atoi(row[0]);
+	mysql_free_result(result);
+
+	return atoi(row[0]);
+	return 0;
+}
+
+vector<int> DBconnector::GetReadyLobbies()
+{
+	vector<int> lobbyIDs;
+	query = "SELECT lobbyID FROM lobbies WHERE lobby_status='r'";
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+	MYSQL_RES* result = mysql_store_result(conn);
+
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row;
+	int rowCount = result->row_count;	//get number of lobbies
+
+	for (int i = 0; i < rowCount; i++) {
+		row = mysql_fetch_row(result);
+		lobbyIDs.push_back(atoi(row[0]));
+	}
+
+	mysql_free_result(result);
+	return lobbyIDs;
+}
+
+int DBconnector::CreateHistoryTable(string game_name, int player1_ID, int player2_ID, string map1, string map2)
+{
+	int historyID;
+	ss >> player1_ID;
+	string temp1 = ss.str();
+	ss.clear();
+	ss.str(string());
+	ss >> player2_ID;
+	query = "INSERT INTO history(game_name,player1_ID,player2_ID, map1, map2) VALUES("+game_name+","+temp1+","+ss.str()+","+map1+","+map2+")";
+	ss.clear();
+	ss.str(string());
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+	query = "SELECT LAST_INSERT_ID()";	//get last inserted row index
+
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_RES* result = mysql_store_result(conn);
+
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row = mysql_fetch_row(result);
+
+	historyID = atoi(row[0]);
+	mysql_free_result(result);
+	return historyID;
+}
+
+void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID)
+{
+	ss >> moveID;
+	string temp1 = ss.str();
+	ss.clear();
+	ss.str(string());
+	ss >> player_ID;
+	string temp2 = ss.str();
+	ss.clear();
+	ss.str(string());
+	ss >> gameID;
+	string temp3 = ss.str();
+	ss.clear();
+	ss.str(string());
+
+	query = "UPDATE moves SET moveID=" + temp1 + ", move_pos='" + move_pos + "', move_res='" + move_res + "', playerID=" + temp2+" WHERE="+temp3;
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+}
+
+void DBconnector::UpdateLobby(int lobbyID, string lobby_status, string user_input, string console_output, string map1, string map2, int historyID, string game_status, int playerID)
+{
+	ss >> historyID;
+	string temp1 = ss.str();
+	ss.clear();
+	ss.str(string());
+	ss >> playerID;
+	string temp2 = ss.str();
+	ss.clear();
+	ss.str(string());
+	ss >> lobbyID;
+	string temp3 = ss.str();
+	ss.clear();
+	ss.str(string());
+	query = "UPDATE lobbies SET lobby_status='"+lobby_status+"', user_input='"+user_input+"', console_output='"+console_output+"', map1='"+map1+"', map2='"+map2+"', historyID="+temp1+",game_status='"+game_status+"', playerID="+temp2+" WHERE lobbyID="+temp3;
+
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
+
+}
+
+DBconnector::ConsoleReadStruct DBconnector::ConsoleRead(int lobbyID)
+{
+	ConsoleReadStruct crs;
+	ss >> lobbyID;
+	query = "SELECT adminID, opponentID, userIN, admin_map, user_map, game_status FROM lobbies WHERE lobbyID="+ss.str();
+	ss.clear();
+	ss.str(string());
+	MYSQL_RES* result = mysql_store_result(conn);
+
+	if (result == NULL) {
+		throw mysql_error(conn);
+	}
+
+	MYSQL_ROW row = mysql_fetch_row(result);
+	crs.adminID = atoi(row[0]);
+	crs.opponentID = atoi(row[1]);
+	crs.userIN = row[2];
+	crs.admin_map = row[3];
+	crs.user_map = row[4];
+	crs.game_status = row[5];
+	mysql_free_result(result);
+
+	return crs;
+}
+
+void DBconnector::InitiateDeletion(int lobbyID)
+{
+	ss >> lobbyID;
+	query = "DELETE FROM lobbies WHERE lobbyID="+ss.str();
+	ss.clear();
+	ss.str(string());
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
 }
 
 

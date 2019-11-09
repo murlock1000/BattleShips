@@ -54,10 +54,7 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
     return success;
 }
 
-int main (int argc, char* argv []) {
-
-    cout << "0 "; //Executed successfully
-    
+int main (int argc, char* argv []) { 
     //Should be read from database later
 
     int tableWidth = 10;
@@ -130,6 +127,8 @@ int main (int argc, char* argv []) {
 
     int currentPlayer = 0; //player 1 starts
     int opponentPlayer = 1; //playing against the next player
+
+    cout << "0 "; //Telling server that we have successfully initialised a game
 
     //main game
 

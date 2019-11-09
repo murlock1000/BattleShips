@@ -56,7 +56,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
         else {
             //We have to prevent child from leaving before reading, otherwise read will fail due to closed fds.
             //We can stop child from exiting by making it wait for input and then writing literally anything after we're done reading.
-            
+             
             stdWrite (childIO [1], 0); //now we can finally fail
 
             //cout << "ERROR: " << strerror(execSuccess) << "\n";
@@ -81,8 +81,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
         //You guessed it, time for another system call! execl() will give the shell used by the child to an executable, which means our pipes and fd changes are still intact.
         
         if (execl(childPath, childProcName, argument, (char*)NULL) < 0) { //Note that execl requires an executable file path, its process name, and the rest of arguments terminated by (char*)NULL.
-            //cout << errno << " "; //number other that 0 tells parent that AI execution was unsuccessful.
-         
+            cout << errno << " "; //number other that 0 tells parent that AI execution was unsuccessful.
             int useless;
             cin >> useless; //this is where we tell child to wait for parent output. Again, the output itself is completely useless, it's only used to make child wait.
         }

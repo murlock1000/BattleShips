@@ -15,7 +15,9 @@ DBconnector::DBconnector()
 DBconnector::~DBconnector()
 {
 }
-void DBconnector::Connect(string ip, string username, string pass, string database)		// connects to database with user credentials. requires database ip, username, password, database name. 
+
+///userside functions
+void DBconnector::Connect(string ip, string username, string pass, string database)		// connects to database with user credentials. requires database ip, username, password, database name.
 {
 	conn = mysql_init(0);
 
@@ -237,11 +239,11 @@ void  DBconnector::LeaveLobby(int lobbyID, int userID)	//if user created a lobby
 
 vector<DBconnector::LobbyTable> DBconnector::ListLobbies(boolean isUser)	//Returns lobby list. If user is a spectator (isUser=0) returns lobbyID, lobbyName, adminUsername, opponentUsername. If user is a player does not return opponentUsername.
 {
-	vector<LobbyTable> lobbyTable;	
+	vector<LobbyTable> lobbyTable;
 	if (isUser) {
 		query="SELECT l.lobbyID, l.lobby_name, u1.username FROM lobbies AS l JOIN users AS u1 ON u1.userID=l.adminID WHERE l.lobby_status='w'";
 	}
-	else 
+	else
 	{
 		query = "SELECT l.lobbyID, l.lobby_name, u1.username, u2.username FROM lobbies AS l JOIN users AS u1 ON u1.userID=l.adminID LEFT JOIN users AS u2 ON u2.userID=l.opponentID WHERE l.lobby_status!='w'";
 	}
@@ -256,12 +258,12 @@ vector<DBconnector::LobbyTable> DBconnector::ListLobbies(boolean isUser)	//Retur
 
 	MYSQL_ROW row;
 	int rowCount = result->row_count;	//get number of lobbies
-	
+
 	for (int i = 0; i < rowCount; i++) {
 		row = mysql_fetch_row(result);
 		LobbyTable tempLobby;
 		tempLobby.lobbyID = atoi(row[0]);
-		tempLobby.lobbyName = row[1]; 
+		tempLobby.lobbyName = row[1];
 		tempLobby.adminName = row[2];
 		if (!isUser) {
 			tempLobby.opponentName = row[3];
@@ -304,7 +306,7 @@ void DBconnector::JoinLobbyAsPlayer(int lobbyID, int userID)	//checks if lobby i
 	query = "UPDATE lobbies SET opponentID='"+uID+"', lobby_status='r' WHERE lobbyID='" + ss.str();
 	ss.clear();
 	ss.str(string());
-	
+
 	if (PassQuery(query) != 0) {
 		throw mysql_error(conn);
 	}
@@ -320,11 +322,11 @@ void DBconnector::JoinLobbyAsPlayer(int lobbyID, int userID)	//checks if lobby i
 DBconnector::Rlobby DBconnector::ReadLobby(int lobbyID)	//returns Rlobby struct with game_status, console_output, current_player.
 {
 	//if game_status==w & current_player==userID -> WriteMove &&  read the outcome of previous action.
-	//if game_status==f & current_player==userID -> AcknowledgeEnd 
+	//if game_status==f & current_player==userID -> AcknowledgeEnd
 
 
 	ss >> lobbyID;
-	query = "SELECT game_status, console_output, current_player FROM lobbies WHERE lobbyID="+lobbyID;	
+	query = "SELECT game_status, console_output, current_player FROM lobbies WHERE lobbyID="+lobbyID;
 	ss.clear();
 	ss.str(string());
 	if (PassQuery(query) != 0) {
@@ -343,7 +345,7 @@ DBconnector::Rlobby DBconnector::ReadLobby(int lobbyID)	//returns Rlobby struct 
 	return rlobby;
 }
 
-pair<string, string> DBconnector::ReadMap(int lobbyID)	//returns both maps in a lobby as a pair<string, string> (used for spectating). when using always check if pair.first=="finished" -> pair.second = gameID (for history table) and stop ReadingMap (game has finished). 
+pair<string, string> DBconnector::ReadMap(int lobbyID)	//returns both maps in a lobby as a pair<string, string> (used for spectating). when using always check if pair.first=="finished" -> pair.second = gameID (for history table) and stop ReadingMap (game has finished).
 {
 	ss << lobbyID;
 	string map1, map2, gameStatus;
@@ -485,7 +487,7 @@ DBconnector::History DBconnector::GetInfoOnGame(int gameID)	//returns History st
 	ist.winnerID = atoi(row[5]);
 
 	mysql_free_result(result);
-	
+
 	query = "SELECT move_pos, move_res, playerID FROM moves WHERE gameID=" + ss.str();
 
 	if (result == NULL) {
@@ -522,7 +524,7 @@ DBconnector::History DBconnector::GetInfoOnGame(int gameID)	//returns History st
 
 
 
-
+///serverside functions
 
 
 int DBconnector::RegisterAI(string username)
@@ -638,7 +640,7 @@ int DBconnector::CreateHistoryTable(string game_name, int player1_ID, int player
 	return historyID;
 }
 
-void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID)
+void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID)  //gameid - historyID, moveID-from 0 to N, move_pos - userInput, move_res - consoleOutput, playerID- currentPlayer.
 {
 	ss >> moveID;
 	string temp1 = ss.str();
@@ -653,7 +655,8 @@ void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, strin
 	ss.clear();
 	ss.str(string());
 
-	query = "UPDATE moves SET moveID=" + temp1 + ", move_pos='" + move_pos + "', move_res='" + move_res + "', playerID=" + temp2+" WHERE="+temp3;
+	query = "INSERT INTO moves (gameID, moveID, move_pos, move_res, playerID) VALUES("+temp3+","+temp1+","+move_pos+","+move_res+","+temp2+")";
+
 	if (PassQuery(query) != 0) {
 		throw mysql_error(conn);
 	}

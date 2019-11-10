@@ -83,7 +83,7 @@ int main (int argc, char* argv []) {
             aiName = "ai_random"; //should be read from db later.
             
             string aiProcName = aiName + ".exe";
-            string aiPath = "../ai/" + aiProcName;
+            string aiPath = "./ai/" + aiProcName;
             
             int aiIO [2];
 
@@ -97,6 +97,7 @@ int main (int argc, char* argv []) {
                 //We only need to do that to previous players, so we enter i instead of playerNumber.
 
                 disconnect(i, fdOutput, fdInput, pid, playerType);
+                cout << "1 "; //tells server game initialisation failed
                 return 1;
             }
             else if (stdConnSuccess > 0) {

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "DBconnector.h"
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <iostream>
 #include <sstream>
 #include <cppconn/statement.h>
@@ -237,7 +237,7 @@ void  DBconnector::LeaveLobby(int lobbyID, int userID)	//if user created a lobby
 
 }
 
-vector<DBconnector::LobbyTable> DBconnector::ListLobbies(boolean isUser)	//Returns lobby list. If user is a spectator (isUser=0) returns lobbyID, lobbyName, adminUsername, opponentUsername. If user is a player does not return opponentUsername.
+vector<DBconnector::LobbyTable> DBconnector::ListLobbies(bool isUser)	//Returns lobby list. If user is a spectator (isUser=0) returns lobbyID, lobbyName, adminUsername, opponentUsername. If user is a player does not return opponentUsername.
 {
 	vector<LobbyTable> lobbyTable;
 	if (isUser) {
@@ -599,9 +599,14 @@ vector<int> DBconnector::GetReadyLobbies()
 {
 	vector<int> lobbyIDs;
 	query = "SELECT lobbyID FROM lobbies WHERE lobby_status='r'";
+    try {
 	if (PassQuery(query) != 0) {
 		throw mysql_error(conn);
 	}
+    }
+    catch (int e) {
+        cout << e << "\n";
+    }
 	MYSQL_RES* result = mysql_store_result(conn);
 
 	if (result == NULL) {

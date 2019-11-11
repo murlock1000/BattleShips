@@ -54,7 +54,9 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
     return success;
 }
 
-int main (int argc, char* argv []) { 
+int main (int argc, char* argv []) {
+    cout << argv[1] << " ";
+    return 1; 
     //Should be read from database later
 
     int tableWidth = 10;

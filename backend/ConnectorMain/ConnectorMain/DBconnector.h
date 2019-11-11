@@ -1,5 +1,5 @@
 #pragma once
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <string>
 #include <sstream>
 #include <cppconn/statement.h>
@@ -76,7 +76,7 @@ public:
 	int GetLobbyID(int userID);
 	int CreateLobby(string lobbyName, int userID);
 	void LeaveLobby(int lobbyID, int userID);
-	vector<LobbyTable> ListLobbies(boolean isUser);
+	vector<LobbyTable> ListLobbies(bool isUser);
 	void JoinLobbyAsPlayer(int lobbyID, int userID);
 	Rlobby ReadLobby(int lobbyID);
 	pair<string,string> ReadMap(int lobbyID);
@@ -95,4 +95,3 @@ public:
     void InitiateDeletion(int lobbyID);
 
 };
-

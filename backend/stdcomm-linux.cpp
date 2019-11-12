@@ -1,7 +1,5 @@
 #include <iostream> //Hmm, I wonder what this header provides...
 #include <unistd.h> //Provides various system calls, such as pipe() or fork()
-#include <errno.h> //Provides error handling functionality
-#include <string.h> //Provides strerror()
 #include <signal.h> // Provides kill()
 #include "stdcomm.h" //Provides AI communication functions prototypes
 
@@ -17,12 +15,12 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
     int childInputPipe [2], childOutputPipe [2]; 
 
     if (pipe (childInputPipe) < 0) { //creating a pipe and handling errors
-        //cout << "ERROR: " << strerror(errno) << "\n"; //errno is set to the last error code. strerror() converts it into a human-readable string.
+        cerr << "stdcomm: Failed to launch " << childProcName << " (input pipe)\n"; //errno is set to the last error code. strerror() converts it into a human-readable string.
         return -1;
     }
 
     if (pipe (childOutputPipe) < 0) { //ditto
-        //cout << "ERROR: " << strerror(errno) << "\n";
+        cerr << "stdcomm: Failed to launch " << childProcName << " (output pipe)\n";
         return -1;
     }
 
@@ -59,7 +57,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
              
             stdWrite (childIO [1], 0); //now we can finally fail
 
-            //cout << "ERROR: " << strerror(execSuccess) << "\n";
+            cerr << "stdcomm: Failed to launch " << childProcName << " (file does not exist or quit with an error)\n";
             return -1;
         }
     }
@@ -97,7 +95,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
     }
 
     else {
-        //cout << "ERROR: " << strerror(errno) << "\n";
+        cerr << "stdcomm: Failed to launch " << childProcName << " (fork)\n";       
         return -1; 
     }
 }
@@ -119,7 +117,7 @@ int stdRead (int fileDesc) {
         buffer[0] = 0;
 
         if (read (fileDesc, buffer, 1) < 0) { //both read and write system calls can only read from/write to a char array.
-            //cout << "ERROR: " << strerror(errno) << "\n";
+            cerr << "stdcomm: Failed to read\n";
             return -1;
         }
         if (buffer[0] == 32) { //YOU ARE TERMINATED!
@@ -141,7 +139,7 @@ int stdWrite (int fileDesc, int buffer) {
     cBuffer [0] = buffer + 48; //converting int to char.
 
     if (write (fileDesc, cBuffer, 1) < 0) {
-        //cout << "ERROR: " << strerror(errno) << "\n";
+        cerr << "stdcomm: Failed to write\n";
         return -1;
     }
 
@@ -159,9 +157,7 @@ int stdDisconnect (int childPid) {
             return 0; //Child already terminated itself, safe to return
         }
         else { //Permission denied
-            //cout << "Unexpected error while attempting to terminate a child process:\n";
-            //cout << "ERROR: " << strerror(errno) << "\n";
-            //cout << "Please kill process " << childPid << " manually\n";
+            cerr << "stdcomm: Unexpected error while attempting to terminate a child process\n";
             return -1;
         }
     }
@@ -172,10 +168,8 @@ int stdDisconnect (int childPid) {
         if (errno == 3) {
             return 0;
         }
-        else { 
-            //cout << "Unexpected error while attempting to terminate a child process:\n";
-            //cout << "ERROR: " << strerror(errno) << "\n";
-            //cout << "Please kill process " << childPid << " manually\n";
+        else {
+            cerr << "stdcomm: Unexpected error while attempting to terminate a child process\n";
             return -1;
         }
     }
@@ -183,8 +177,7 @@ int stdDisconnect (int childPid) {
     kill (childPid, 9); //Child is being stubborn, we'll have to ask kernel to kill it instead
 
     if (kill (childPid, 0) < 0) { //Apparently that child is a literal Satan's offspring. This program does not have enough godly power to destroy it.
-        //cout << "ERROR: Unable to kill child process\n";
-        //cout << "Please kill process " << childPid << " manually\n";
+        cerr << "stdcomm: Unable to kill child process (SIGKILL failed)\n";
         return -1;
     }
 

@@ -3,7 +3,7 @@
 #include <string>
 #include <bits/stdc++.h>
 #include <vector>
-#include "ConnectorMain/ConnectorMain/DBconnector.h"
+#include "dbconnector/dbconnector.h"
 
 using namespace std;
 

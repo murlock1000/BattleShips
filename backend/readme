@@ -1,3 +1,4 @@
-Kad sukompiliuotumėte backendą, paleiskite ./compile.sh
+Kad sukompiliuotumėte ir paleistumėte backendą, paleiskite:
 
-Tada paleiskite ./server
+$ make
+$ ./server

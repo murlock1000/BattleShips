@@ -1,40 +1,10 @@
 #include <iostream> //do i really need to tell what this header provides?
 #include <bits/stdc++.h> //provides string to char* conversion utility.
+#include <string>
 #include "stdcomm.h" //Provides AI communication functions prototypes
+#include "dbconnector/dbconnector.h" //Provides database communication functions prototypes
 
 using namespace std;
-
-//The followiing functions are used to read data.
-
-int dbRead () { //Reads from database. To be implemented.
-    //int buffer;
-    //cin >> buffer;
-    //return buffer;
-}
-
-int gameRead (bool playerType, int fileDesc) { //Universal read command.
-    if (playerType) { //ai
-        return stdRead (fileDesc);
-    }
-    else { //frontend
-        return dbRead ();
-    }
-}
-
-//The following functions are used to write data.
-
-void dbWrite (int buffer) { //Writes to database. To be implemented.
-    //cout << buffer << "\n";
-}
-
-void gameWrite (int buffer, bool playerType, int fileDesc) { //Universal write command.
-    if (playerType) { //ai
-        stdWrite (fileDesc, buffer);
-    }
-    else { //frontend
-        dbWrite (buffer);
-    }
-}
 
 int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[]) { //Terminates connections
     int success = 0;
@@ -54,8 +24,20 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
     return success;
 }
 
-int main (int argc, char* argv []) { 
-    //Should be read from database later
+int main (int argc, char* argv []) {
+
+    if (argc != 2) { //must have exactly one argument (not counting process name)
+        cerr << "game: Must be launched with exactly one argument\n";
+        return 1;
+    }
+
+    DBconnector dbc;
+    dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
+
+    int lobbyId = stoi(argv[1]);
+    DBconnector::ConsoleReadStruct lobby = dbc.ConsoleRead (lobbyId);
+    
+    //May be saved in lobby table later
 
     int tableWidth = 10;
     int tableHeight = 10;
@@ -65,6 +47,7 @@ int main (int argc, char* argv []) {
     //initialisation
     
     bool playerType [playerNumber];
+    int playerId [playerNumber];
     int shipHealth [playerNumber] [shipNumber];
     int shipTable [playerNumber] [tableWidth * tableHeight];
     int shipsLeft [playerNumber];
@@ -74,13 +57,28 @@ int main (int argc, char* argv []) {
        
     for (int i = 0; i < playerNumber; i++) {
         shipsLeft [i] = shipNumber;
-        //playerType [i] = dbRead (); //player types are saved in the database.
-        playerType [i] = 1; //Temporary hard-coding ai because database isn't ready yet
+
+        for (int j = 0; j < shipNumber; j++) {
+            shipHealth [i] [j] = 0;
+        }
+
+        DBconnector::UserInfoTable userInfo;
+
+        if (i == 0) {
+            userInfo = dbc.GetUserInfo (lobby.adminID);
+            playerId [i] = lobby.adminID;
+        }
+
+        else if (i == 1) {
+            userInfo = dbc.GetUserInfo (lobby.opponentID);
+            playerId [i] = lobby.opponentID;
+        }
+
+        playerType [i] = userInfo.is_ai;
 
         if (playerType [i]) { //ai initialisation
 
-            string aiName;
-            aiName = "ai_random"; //should be read from db later.
+            string aiName = userInfo.username;
             
             string aiProcName = aiName + ".exe";
             string aiPath = "./ai/" + aiProcName;
@@ -108,22 +106,49 @@ int main (int argc, char* argv []) {
             fdInput [i] = aiIO [0]; //Store each player's fds
             fdOutput [i] = aiIO [1];
 
-        }
-        else { //database initialisation
-            //to be implemented
+            string aiShipTable = "";
+
+            for (int j = 0; j < tableWidth * tableHeight; j++) {
+                shipTable [i] [j] = stdRead (fdInput [i]);
+
+                aiShipTable += to_string(shipTable [i] [j]);
+
+                if (shipTable [i] [j] != 0) {
+                    shipHealth [i] [shipTable [i] [j] - 1] ++;
+                } 
+
+            }
+
+            lobby = dbc.ConsoleRead (lobbyId);
+            
+            if (i == 0) {
+                dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", aiShipTable, lobby.opponent_map, 0, "n", 0);
+            }
+            else if (i == 1) {
+                dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, aiShipTable, 0, "n", 0); 
+            }
         }
 
-        for (int j=0; j < shipNumber; j++) {
-            shipHealth [i] [j] = 0;
+        else { //human player initialisation
+
+            string userShipTable;
+            
+            if (i == 0) {
+                userShipTable = lobby.admin_map;
+            }
+            else if (i == 1) {
+                userShipTable = lobby.opponent_map;
+            }
+
+            for (int j = 0; j < tableWidth * tableHeight; j++) {
+                shipTable [i] [j] = stoi (userShipTable.substr (j, 1));
+
+                if (shipTable [i] [j] != 0) {
+                    shipHealth [i] [shipTable [i] [j] - 1] ++;
+                }
+            }
         }
 
-        for (int j = 0; j < tableWidth * tableHeight; j++) {
-            shipTable [i] [j] = gameRead (playerType [i], fdInput [i]);
-            if (shipTable [i] [j] != 0) {
-                shipHealth [i] [shipTable [i] [j] - 1] ++;
-            } 
-
-        }
     }
 
     int currentPlayer = 0; //player 1 starts
@@ -132,30 +157,47 @@ int main (int argc, char* argv []) {
     cout << "0 "; //Telling server that we have successfully initialised a game
 
     //main game
+    
+    lobby = dbc.ConsoleRead (lobbyId); //update info, just in case
+
+    int historyId = dbc.CreateHistoryTable ("Lobby " + to_string(lobbyId), lobby.adminID, lobby.opponentID, lobby.admin_map, lobby.opponent_map);
+
+    int moveId = 0;
+
+    string consoleOutput = "";
 
     while (true) {
 
-        //All cout commands are temporary and for testing purposes only
-
-        cout << currentPlayer << " ";
+        dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, 0, "w", playerId [currentPlayer]);
 
         int tileX;
         int tileY;
 
-        tileX = gameRead (playerType [currentPlayer], fdInput [currentPlayer]);
-        tileY = gameRead (playerType [currentPlayer], fdInput [currentPlayer]);
+        if (playerType [currentPlayer] == 0) {
+            do {
+                lobby = dbc.ConsoleRead (lobbyId);
+            } while (lobby.game_status != "c");
 
-        cout << tileX << " " << tileY << " ";
+            int dashPosition = 0;
+            while (lobby.user_input.substr(dashPosition, 1) != "-") dashPosition++;
+            tileX = stoi(lobby.user_input.substr(0, dashPosition));
+            tileY = stoi(lobby.user_input.substr(dashPosition + 1, lobby.user_input.length() - 1));
+        }
+        else {
+            tileX = stdRead (fdInput [currentPlayer]);
+            tileY = stdRead (fdInput [currentPlayer]);
+        }
 
         tileX--;
         tileY--;
 
+        int response;
+        int subresponse;
+
         if (shipTable [opponentPlayer] [tableWidth * tileY + tileX] == 0) { //Tile isn't taken by any ship
 
-            gameWrite (1, playerType [currentPlayer], fdOutput [currentPlayer]);
+            response = 1;
         
-            cout << "1 "; 
-
         }
 
         else {
@@ -166,39 +208,67 @@ int main (int argc, char* argv []) {
 
                 if (shipsLeft [opponentPlayer] == 0) { //Game over
 
-                    cout << "4 ";
+                    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]), lobby.admin_map, lobby.opponent_map, 0, "f", currentPlayer);
 
-                    //Write last move and winner to the database
+                    string pseudoInput, pseudoOutput;
+                    pseudoInput = to_string (tileX + 1) + "-" + to_string (tileY + 1);
+                    pseudoOutput = "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]);
+                    dbc.UpdateMoveTable (historyId, moveId, pseudoInput, pseudoOutput, playerId [currentPlayer]); 
+
+                    //write winner to database
 
                     break;
                 }
 
-                gameWrite (3, playerType [currentPlayer], fdOutput [currentPlayer]);
+                response = 3;
                 
-                cout << "3 ";
-
+                subresponse = shipTable [opponentPlayer] [tableWidth * tileY + tileX];
+               
             }
 
             else { //Tile is taken by a ship, but it isn't its last tile
 
-                gameWrite (2, playerType [currentPlayer], fdOutput [currentPlayer]); //write function
+                response = 2;
         
-                cout << "2 ";
-
             }
 
         }
 
+        
+        string pseudoOutput = to_string (response - 1); //pseudoInput and pseudoOutput are used to send data that was not necessarily have been generated to moves table
+        if (response == 3) {
+            pseudoOutput = pseudoOutput + "-" + to_string (subresponse);
+        }
+
+        string pseudoInput = to_string (tileX + 1) + "-" + to_string (tileY + 1);
+
+        dbc.UpdateMoveTable (historyId, moveId, pseudoInput, pseudoOutput, playerId [currentPlayer]);
+        
+        if (playerType [currentPlayer] == 0) {
+            consoleOutput = pseudoOutput;
+        }
+        else {
+            stdWrite (fdOutput [currentPlayer], response);
+        }
+
         currentPlayer = (currentPlayer + 1) % playerNumber; //Next player's turn
-        opponentPlayer = (currentPlayer + 1) % playerNumber;    
+        opponentPlayer = (currentPlayer + 1) % playerNumber;
+        
+        moveId ++;
 
     }
 
     //disconnecting players
         
-    if (disconnect(playerNumber, fdOutput, fdInput, pid, playerType) < 0) {
-        return 1;            
-    }
+    disconnect (playerNumber, fdOutput, fdInput, pid, playerType);
+
+    //deleting lobby
+    
+    do {
+        lobby = dbc.ConsoleRead (lobbyId); //waiting for user to aknowledge end
+    } while (lobby.game_status != "c");
+
+    dbc.InitiateDeletion (lobbyId);
         
     return 0;
 }

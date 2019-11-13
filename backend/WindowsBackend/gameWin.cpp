@@ -86,11 +86,14 @@ int main (int argc, char* argv []) {
             string aiProcName = aiName + ".exe";
             string aiPath = "./ai/" + aiProcName;
 
-            HANDLE aiIO [2];
+            HANDLE child_IN_Wr = NULL;
+            HANDLE child_OUT_Rd = NULL;
+
+            HANDLE aiIO [2]={child_IN_Wr,child_OUT_Rd};
 
             int* aiPid = new int;
 
-            int stdConnSuccess = stdConnectWin (aiIO, aiPid, aiPath.c_str(), "0");
+            int stdConnSuccess = stdConnectWin (aiIO, *aiPid, aiPath.c_str(), ("0").c_str());
 
             if (stdConnSuccess < 0) {
                 //If launching an ai process fails, we have to kill parent.

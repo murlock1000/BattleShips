@@ -1,5 +1,5 @@
-#ifndef _STDCOMM
-#define _STDCOMM 1
+#ifndef STDCOMM_H
+#define STDCOMM_H
 
 #include <windows.h>
 

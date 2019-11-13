@@ -4,6 +4,8 @@
 #include <strsafe.h>
 #include <iostream>
 
+#include "stdcomm.h"
+
 #define BUFSIZE 4096
 
 using namespace std;
@@ -55,7 +57,7 @@ SECURITY_ATTRIBUTES saAttr;
    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
    bSuccess = CreateProcess(childPath,
-      argument,     // command line
+      const_cast<char *> (argument),     // command line
       NULL,          // process security attributes
       NULL,          // primary thread security attributes
       TRUE,          // handles are inherited
@@ -71,7 +73,7 @@ SECURITY_ATTRIBUTES saAttr;
       }
    else
    {
-        childPid= (int)piProcInfo.dwProcessId;
+        *childPid= (int)piProcInfo.dwProcessId;
 
       CloseHandle(piProcInfo.hProcess);
       CloseHandle(piProcInfo.hThread);

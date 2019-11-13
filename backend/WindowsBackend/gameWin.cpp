@@ -81,6 +81,7 @@ int main (int argc, char* argv []) {
         if (playerType [i]) { //ai initialisation
 
             string aiName;
+          //  string argument = "0";
             aiName = "ai_random"; //should be read from db later.
 
             string aiProcName = aiName + ".exe";
@@ -93,7 +94,7 @@ int main (int argc, char* argv []) {
 
             int* aiPid = new int;
 
-            int stdConnSuccess = stdConnectWin (aiIO, *aiPid, aiPath.c_str(), ("0").c_str());
+            int stdConnSuccess = stdConnectWin (aiIO, aiPid, aiPath.c_str(), "0");//argument.c_str());
 
             if (stdConnSuccess < 0) {
                 //If launching an ai process fails, we have to kill parent.

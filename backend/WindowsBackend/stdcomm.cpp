@@ -77,6 +77,8 @@ SECURITY_ATTRIBUTES saAttr;
 
       CloseHandle(piProcInfo.hProcess);
       CloseHandle(piProcInfo.hThread);
+
+      return 0;
    }
 
 }

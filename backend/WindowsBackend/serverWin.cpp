@@ -12,10 +12,16 @@ int main() {
         //However, since database isn't implemented yet, we will instead launch a new hardcoded game
 
         int lobbyId = 0;
-        string lobbyId_s = to_string(lobbyId);
+        stringstream ss;
+        ss<<lobbyId;
+        string lobbyId_s = ss.str(); //to_string(lobbyId); to_string nera windows g++ versijoje
         const char* lobbyId_c = lobbyId_s.c_str();
 
-        HANDLE unusedIO [2]; //Will not be used in a future, although it's currently used for testing purposes
+        HANDLE child_IN_Wr = NULL;
+        HANDLE child_OUT_Rd = NULL;
+
+        HANDLE unusedIO [2]={child_IN_Wr,child_OUT_Rd}; //Will not be used in a future, although it's currently used for testing purposes
+
         int* unusedPid = new int;
 
         if (stdConnectWin (unusedIO, unusedPid, "./game.exe", lobbyId_c) < 0) {

@@ -47,7 +47,7 @@ int main (int argc, char* argv []) {
     //initialisation
     
     bool playerType [playerNumber];
-    int playerID [playerNumber];
+    int playerId [playerNumber];
     int shipHealth [playerNumber] [shipNumber];
     int shipTable [playerNumber] [tableWidth * tableHeight];
     int shipsLeft [playerNumber];
@@ -66,12 +66,12 @@ int main (int argc, char* argv []) {
 
         if (i == 0) {
             userInfo = dbc.GetUserInfo (lobby.adminID);
-            playerID [i] = lobby.adminID;
+            playerId [i] = lobby.adminID;
         }
 
         else if (i == 1) {
             userInfo = dbc.GetUserInfo (lobby.opponentID);
-            playerID [i] = lobby.opponentID;
+            playerId [i] = lobby.opponentID;
         }
 
         playerType [i] = userInfo.is_ai;
@@ -158,16 +158,17 @@ int main (int argc, char* argv []) {
 
     //main game
     
-    lobby = dbc.ConsoleRead (lobbyId);
+    lobby = dbc.ConsoleRead (lobbyId); //update info, just in case
+
+    int historyId = dbc.CreateHistoryTable ("Lobby " + to_string(lobbyId), lobby.adminID, lobby.opponentID, lobby.admin_map, lobby.opponent_map);
+
+    int moveId = 0;
+
     string consoleOutput = "";
 
     while (true) {
 
-        dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, 0, "w", playerID [currentPlayer]);
-
-        //All cout commands are temporary and for testing purposes only
-
-        cout << "PLAYER ID " << playerID [currentPlayer] << " MOVE:\n";
+        dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, 0, "w", playerId [currentPlayer]);
 
         int tileX;
         int tileY;
@@ -177,21 +178,15 @@ int main (int argc, char* argv []) {
                 lobby = dbc.ConsoleRead (lobbyId);
             } while (lobby.game_status != "c");
 
-            //whoever thought saving user input as a string with two numbers separated by dash was a good idea deserves to be sent to the programmer's hell for eternal and extraordinarily painful torture
-
             int dashPosition = 0;
             while (lobby.user_input.substr(dashPosition, 1) != "-") dashPosition++;
             tileX = stoi(lobby.user_input.substr(0, dashPosition));
             tileY = stoi(lobby.user_input.substr(dashPosition + 1, lobby.user_input.length() - 1));
-
-            //to reiterate, fuck you
         }
         else {
             tileX = stdRead (fdInput [currentPlayer]);
             tileY = stdRead (fdInput [currentPlayer]);
         }
-
-        cout << tileX << " " << tileY << "\n\n";
 
         tileX--;
         tileY--;
@@ -203,8 +198,6 @@ int main (int argc, char* argv []) {
 
             response = 1;
         
-            cout << "MISSED\n\n";
-
         }
 
         else {
@@ -217,6 +210,11 @@ int main (int argc, char* argv []) {
 
                     dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]), lobby.admin_map, lobby.opponent_map, 0, "f", currentPlayer);
 
+                    string pseudoInput, pseudoOutput;
+                    pseudoInput = to_string (tileX + 1) + "-" + to_string (tileY + 1);
+                    pseudoOutput = "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]);
+                    dbc.UpdateMoveTable (historyId, moveId, pseudoInput, pseudoOutput, playerId [currentPlayer]); 
+
                     //write winner to database
 
                     break;
@@ -226,33 +224,37 @@ int main (int argc, char* argv []) {
                 
                 subresponse = shipTable [opponentPlayer] [tableWidth * tileY + tileX];
                
-                cout << "SHIP SUNK\n\n";
-
             }
 
             else { //Tile is taken by a ship, but it isn't its last tile
 
                 response = 2;
         
-                cout << "SHIP HIT\n\n";
-
             }
 
         }
+
+        
+        string pseudoOutput = to_string (response - 1); //pseudoInput and pseudoOutput are used to send data that was not necessarily have been generated to moves table
+        if (response == 3) {
+            pseudoOutput = pseudoOutput + "-" + to_string (subresponse);
+        }
+
+        string pseudoInput = to_string (tileX + 1) + "-" + to_string (tileY + 1);
+
+        dbc.UpdateMoveTable (historyId, moveId, pseudoInput, pseudoOutput, playerId [currentPlayer]);
         
         if (playerType [currentPlayer] == 0) {
-            consoleOutput = to_string (response - 1);
-            if (response == 3) {
-                consoleOutput = consoleOutput + "-" + to_string (subresponse);
-            }
+            consoleOutput = pseudoOutput;
         }
         else {
-            //send ai move and response to history
             stdWrite (fdOutput [currentPlayer], response);
         }
 
         currentPlayer = (currentPlayer + 1) % playerNumber; //Next player's turn
         opponentPlayer = (currentPlayer + 1) % playerNumber;
+        
+        moveId ++;
 
     }
 
@@ -262,6 +264,10 @@ int main (int argc, char* argv []) {
 
     //deleting lobby
     
+    do {
+        lobby = dbc.ConsoleRead (lobbyId); //waiting for user to aknowledge end
+    } while (lobby.game_status != "c");
+
     dbc.InitiateDeletion (lobbyId);
         
     return 0;

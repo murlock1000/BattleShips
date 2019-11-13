@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "dbconnector.h"
 #include <mysql/mysql.h>
 #include <iostream>
@@ -639,7 +638,7 @@ int DBconnector::CreateHistoryTable(string game_name, int player1_ID, int player
 	ss.clear();
 	ss.str(string());
 	ss << player2_ID;
-	query = "INSERT INTO history(game_name,player1_ID,player2_ID, map1, map2) VALUES("+game_name+","+temp1+","+ss.str()+","+map1+","+map2+")";
+	query = "INSERT INTO history(game_name,player1_ID,player2_ID, map1, map2) VALUES('"+game_name+"',"+temp1+","+ss.str()+",'"+map1+"','"+map2+"')";
 	ss.clear();
 	ss.str(string());
 	if (PassQuery(query) != 0) {
@@ -679,7 +678,7 @@ void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, strin
 	ss.clear();
 	ss.str(string());
 
-	query = "INSERT INTO moves (gameID, moveID, move_pos, move_res, playerID) VALUES("+temp3+","+temp1+","+move_pos+","+move_res+","+temp2+")";
+	query = "INSERT INTO moves (gameID, moveID, move_pos, move_res, playerID) VALUES("+temp3+","+temp1+",'"+move_pos+"','"+move_res+"',"+temp2+")";
 
 	if (PassQuery(query) != 0) {
 		throw mysql_error(conn);

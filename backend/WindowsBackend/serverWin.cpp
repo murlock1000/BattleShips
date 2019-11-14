@@ -17,10 +17,10 @@ int main() {
         string lobbyId_s = ss.str(); //to_string(lobbyId); to_string nera windows g++ versijoje
         const char* lobbyId_c = lobbyId_s.c_str();
 
-        HANDLE child_IN_Wr = NULL;
-        HANDLE child_OUT_Rd = NULL;
+       // HANDLE child_IN_Wr = NULL;
+        //HANDLE child_OUT_Rd = NULL;
 
-        HANDLE unusedIO [2]={child_IN_Wr,child_OUT_Rd}; //Will not be used in a future, although it's currently used for testing purposes
+        HANDLE unusedIO [2]={NULL,NULL}//child_IN_Wr,child_OUT_Rd}; //Will not be used in a future, although it's currently used for testing purposes
 
         int* unusedPid = new int;
 

@@ -10,7 +10,7 @@ using namespace std;
 
 int main(){
 
-    cout << "0 ";
+    cout << "0 " << flush;
             
     int table [100]  = {0, 0, 1, 1, 1, 1, 1, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -24,7 +24,7 @@ int main(){
                         0, 0, 0, 0, 0, 0, 0, 0, 5, 5};
 
     for (int i=0; i<100; i++) {
-        cout << table [i] << " ";
+        cout << table [i] << " " << flush;
     }
     int moves [100];
     for (int i=0; i<100; i++)  {
@@ -37,7 +37,7 @@ int main(){
         int targetY = (moves [currentMove] / 10);
         int targetX = (moves [currentMove] - 10 * targetY);
 
-        cout << targetX + 1 << " " << targetY + 1 << " ";
+        cout << targetX + 1 << " " << targetY + 1 << " " << flush;
         char status = '0';
         cin >> status;
         if (status == '4') {

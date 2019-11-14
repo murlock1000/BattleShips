@@ -4,9 +4,10 @@ Pirmosios eilutės jūsų AI kode turėtų būti komentarai, talpinantys jūsų 
 
 Visų pirma AI backendui turėtų pranešti, kad jis buvo sėkmingai paleistas. Tai galima padaryti išsiuntus 0:
 
-cout << "0 ";
+cout << "0 " << flush;
 
 Po kiekvieno išsiunčiamo skaičiaus turi būti išsiunčiamas tarpas (ASCII 32).
+Taip pat po kiekvienos "cout" komandos turi būti išsiųstas "flush".
 
 Paskui AI turėtų backendui išsiųsti lentelę su duomenimis apie laivus, panašią į šį pavyzdį:
 
@@ -23,13 +24,13 @@ Paskui AI turėtų backendui išsiųsti lentelę su duomenimis apie laivus, pana
 
 Šioje lentelėje 0 reiškia, kad to langelio neužima joks laivas.
 Skaičius nuo 1 iki 5 nurodo, kokias pozicijas užima tam tikras laivas.
-Vėlgi, po kiekvieno išsiunčiamo skaičiaus turi būti išsiunčiamas tarpas (ASCII 32).
+Vėlgi, po kiekvieno išsiunčiamo skaičiaus turi būti išsiunčiamas tarpas (ASCII 32) ir flush.
 
 Išsiuntęs lentelę, AI gali siųsti savo ėjimus. Ėjimai turėtų atrodyti šitaip:
 
-cout << targetX << " " << targetY << " ";
+cout << targetX << " " << targetY << " " << flush;
 
-Nepamirškite po kiekvieno skaičiaus išsiųsti tarpą (ASCII 32)!
+Nepamirškite po kiekvieno skaičiaus išsiųsti tarpą (ASCII 32) ir flush!
 
 X ir Y kintamieji turėtų kisti nuo 1 iki lentos ilgio ar aukščio atitinkamai.
 

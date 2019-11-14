@@ -22,10 +22,14 @@ int main() {
             int unusedIO [2];
             int* unusedPid = new int;
 
-            if (stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", to_string(lobbies[i]).c_str()) < 0) {
-                
-                cout << "ERROR: Failed to launch lobby " << lobbies[i] << "\n";
-                
+            int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", to_string(lobbies[i]).c_str());
+
+            if (stdConnSuccess < 0) {
+                 cout << "ERROR: Failed to launch lobby " << lobbies[i] << "\n";
+            }
+            else if (stdConnSuccess > 0) {
+                //finally ends finished game process
+                return 0;
             }
         }
     }

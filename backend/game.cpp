@@ -3,6 +3,8 @@
 #include <string>
 #include "stdcomm.h" //Provides AI communication functions prototypes
 #include "dbconnector/dbconnector.h" //Provides database communication functions prototypes
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -56,6 +58,9 @@ int main (int argc, char* argv []) {
     int pid [playerNumber]; //holds ai pids
 
     //initialising players
+
+    srand (time(NULL));
+    int admin = rand() % playerNumber; //randomises which player plays first
        
     for (int i = 0; i < playerNumber; i++) {
         shipsLeft [i] = shipNumber;
@@ -66,12 +71,12 @@ int main (int argc, char* argv []) {
 
         DBconnector::UserInfoTable userInfo; //get info about user
 
-        if (i == 0) {
+        if (i == admin) {
             userInfo = dbc.GetUserInfo (lobby.adminID);
             playerId [i] = lobby.adminID;
         }
 
-        else if (i == 1) {
+        else {
             userInfo = dbc.GetUserInfo (lobby.opponentID);
             playerId [i] = lobby.opponentID;
         }
@@ -125,10 +130,10 @@ int main (int argc, char* argv []) {
 
             lobby = dbc.ConsoleRead (lobbyId); //updating local information to prevent overwriting ship tables
             
-            if (i == 0) {
+            if (i == admin) {
                 dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", aiShipTable, lobby.opponent_map, 0, "n", 0);
             }
-            else if (i == 1) {
+            else {
                 dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, aiShipTable, 0, "n", 0); 
             }
         }
@@ -137,10 +142,10 @@ int main (int argc, char* argv []) {
 
             string userShipTable;
             
-            if (i == 0) {
+            if (i == admin) {
                 userShipTable = lobby.admin_map;
             }
-            else if (i == 1) {
+            else {
                 userShipTable = lobby.opponent_map;
             }
 

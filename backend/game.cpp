@@ -154,7 +154,9 @@ int main (int argc, char* argv []) {
     int currentPlayer = 0; //player 1 starts
     int opponentPlayer = 1; //playing against the next player
 
-    cout << "0 "; //Telling server that we have successfully initialised a game
+    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "n", playerId [currentPlayer]); //Set lobby_status to i before telling server initialisation succeeded to prevent it from launching multiple instances of the same lobby
+
+    cout << "0 " << flush; //Telling server that we have successfully initialised a game (flush force sends a line buffer, otherwise data is only sent when the game finishes)
 
     //main game
     
@@ -168,7 +170,7 @@ int main (int argc, char* argv []) {
 
     while (true) {
 
-        dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, 0, "w", playerId [currentPlayer]);
+        dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]);
 
         int tileX;
         int tileY;
@@ -208,7 +210,7 @@ int main (int argc, char* argv []) {
 
                 if (shipsLeft [opponentPlayer] == 0) { //Game over
 
-                    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]), lobby.admin_map, lobby.opponent_map, 0, "f", currentPlayer);
+                    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]), lobby.admin_map, lobby.opponent_map, historyId, "f", playerId [currentPlayer]);
 
                     string pseudoInput, pseudoOutput;
                     pseudoInput = to_string (tileX + 1) + "-" + to_string (tileY + 1);

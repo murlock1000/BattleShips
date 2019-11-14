@@ -1,4 +1,13 @@
-Kad sukompiliuotumėte ir paleistumėte backendą, paleiskite:
+Backendo kompiliavimo instrukcijos:
 
-$ make
-$ ./server
+1. Bendros instrukcijos
+    * Įdiekite MySQL klientą (Oracle MySQL arba MariaDB)
+    * Įdiekite Oracle MySQL Connector/C++ (Pastaba: MariaDB nebepalaiko naujesnių versijų, nei 1.1.9)
+2a. Linux instrukcijos (jei naudojate Windows, praleiskite šį skyrių)
+    * Įdiekite make ir gcc, jei šios programos dar nėra įdiegtos
+    * Paleiskite terminalo programą šiame aplankale (backend) ir įveskite:
+    * $ make
+2b. Windows instrukcijos (jei naudojate Linux, praleiskite šį skyrių)
+    * Kol kas backendo Windows sistemai sukompiliuoti negalima
+3. Paleidimo instrukcijos
+    * Paleiskite server arba server.exe failą

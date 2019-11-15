@@ -5,6 +5,12 @@
 #include <vector>
 #include "dbconnector/dbconnector.h"
 
+//Windows compatibility
+
+#ifdef __linux__
+#define HANDLE int
+#endif
+
 using namespace std;
 
 int main() {
@@ -19,10 +25,14 @@ int main() {
 
             //cout << "Lobby " << lobbies[i] << " ready\n";
 
-            int unusedIO [2];
+            HANDLE unusedIO [2];
             int* unusedPid = new int;
 
-            int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", to_string(lobbies[i]).c_str());
+            stringstream lobbyId_s;
+            lobbyId_s << lobbies [i];
+            const char* lobbyId_c = lobbyId_s.str().c_str();
+
+            int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", lobbyId_c);
 
             if (stdConnSuccess < 0) {
                  cout << "ERROR: Failed to launch lobby " << lobbies[i] << "\n";

@@ -747,3 +747,18 @@ void DBconnector::InitiateDeletion(int lobbyID)
 		throw mysql_error(conn);
 	}
 }
+
+void DBconnector::WriteWinner (int playerID, int gameID) {
+    ss << playerID;
+    string player = ss.str();
+    ss.clear();
+    ss.str(string());
+    ss << gameID;
+    query = "UPDATE history SET winnerID=" + player + " WHERE gameID=" + ss.str();
+    ss.clear();
+    ss.str(string());
+
+    if (PassQuery(query) != 0) {
+        throw mysql_error(conn);
+    }
+}

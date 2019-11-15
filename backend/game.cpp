@@ -223,6 +223,10 @@ int main (int argc, char* argv []) {
                 shipsLeft [opponentPlayer]--;
 
                 if (shipsLeft [opponentPlayer] == 0) { //Game over
+                    //current player has won the game
+                    
+                    dbc.WriteWinner (playerId [currentPlayer], historyId);
+
                     //write last move to lobby and move tables
                     dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]), lobby.admin_map, lobby.opponent_map, historyId, "f", playerId [currentPlayer]);
 
@@ -230,8 +234,6 @@ int main (int argc, char* argv []) {
                     pseudoInput = to_string (tileX + 1) + "-" + to_string (tileY + 1);
                     pseudoOutput = "2-" + to_string (shipTable [opponentPlayer] [tableWidth * tileY + tileX]);
                     dbc.UpdateMoveTable (historyId, moveId, pseudoInput, pseudoOutput, playerId [currentPlayer]); 
-
-                    //write winner to database (to be implemented)
 
                     break;
                 }

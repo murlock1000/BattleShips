@@ -94,5 +94,5 @@ public:
     void UpdateLobby(int lobbyID, string lobby_status, string user_input, string console_output, string map1, string map2, int historyID, string game_status, int playerID );
     ConsoleReadStruct ConsoleRead(int lobbyID);
     void InitiateDeletion(int lobbyID);
-
+    void WriteWinner(int playerID, int gameID);
 };

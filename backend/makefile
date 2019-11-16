@@ -8,5 +8,8 @@ server :
 game :
 	g++ game.cpp stdcomm-linux.cpp dbconnector/dbconnector.cpp -o game.exe -lmysqlclient
 
-ai :
+ai : register-ai
 	g++ ai/ai_random.cpp -o ai/ai_random.exe
+
+register-ai :
+	g++ ai/register_ai.cpp dbconnector/dbconnector.cpp -o ai/register_ai -lmysqlclient

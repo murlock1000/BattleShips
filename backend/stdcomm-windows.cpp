@@ -102,7 +102,7 @@ int stdRead (HANDLE fileDesc){
 int stdWrite (HANDLE fileDesc, int data){
     char chBuf[BUFSIZE];
 
-    sprintf(chBuf, "%d", data);
+    sprintf(chBuf, "%d%c", data,'\n');
 
     BOOL bSuccess = FALSE;
 

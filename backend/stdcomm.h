@@ -40,7 +40,7 @@ int stdDisconnect (int childPid);
 #include <windows.h>
 
 
-int stdConnect (HANDLE childIO [2], int* childPid, const char* childPath, const char* argument);
+int stdConnect (HANDLE childIO [2], int* childPid, const char* childPath, const char* childProcName, const char* argument);
 //HANDLE[0] = In_Wr write to child's cin
 //HANDLE[1] = Out_Rd read child's cout
 

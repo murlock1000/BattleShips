@@ -1,0 +1,29 @@
+Configuration: Release x64
+
+
+C/C++ -> General -> Additional Include Directories:
+
+C:\Program Files\MySQL\Connector C++ 1.1\include 
+C:\Program Files\MySQL\MySQL Server 8.0\include
+
+
+Linker -> General -> Additional Library Directories:
+
+C:\Program Files\MySQL\Connector C++ 1.1\lib\opt
+C:\Program Files\MySQL\MySQL Server 8.0\lib
+
+
+Linker -> Input -> Additional Dependencies:
+
+mysqlcppconn.lib
+libmysql.lib (dynamic, used for this project) / mysqlclient.lib (static) 
+
+
+
+Add to executable directory:
+libcrypto-1_1-x64.dll
+libssl-1_1-x64.dll
+
+
+
+

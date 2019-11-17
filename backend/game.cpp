@@ -6,9 +6,15 @@
 #include <cstdlib>
 #include <ctime>
 
+//Windows compatibility
+
+#ifdef __linux__
+#define HANDLE int
+#endif
+
 using namespace std;
 
-int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[]) { //Terminates connections
+int disconnect (int playerNumber, HANDLE fdOutput[], HANDLE fdInput[], HANDLE pid[], bool playerType[]) { //Terminates connections
     int success = 0;
 
     for (int i = 0; i < playerNumber; i++) {
@@ -53,8 +59,8 @@ int main (int argc, char* argv []) {
     int shipHealth [playerNumber] [shipNumber];
     int shipTable [playerNumber] [tableWidth * tableHeight];
     int shipsLeft [playerNumber];
-    int fdInput [playerNumber]; //holds input file descriptors.
-    int fdOutput [playerNumber]; //holds output file descriptors.
+    HANDLE fdInput [playerNumber]; //holds input file descriptors.
+    HANDLE fdOutput [playerNumber]; //holds output file descriptors.
     int pid [playerNumber]; //holds ai pids
 
     //initialising players
@@ -90,7 +96,7 @@ int main (int argc, char* argv []) {
             string aiProcName = aiName + ".exe";
             string aiPath = "./ai/" + aiProcName;
             
-            int aiIO [2];
+            HANDLE aiIO [2];
 
             int* aiPid = new int;
 

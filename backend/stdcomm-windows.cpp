@@ -11,7 +11,7 @@
 using namespace std;
 
 
-int stdConnectWin(HANDLE childIO [2], int* childPid, const char* childPath, const char* argument){
+int stdConnect(HANDLE childIO [2], int* childPid, const char* childPath, const char* argument){
     //HANDLE[0] = Out_Rd read child's cout
     //HANDLE[1] = In_Wr write to child's cin
 HANDLE g_hChildStd_IN_Rd = NULL;
@@ -83,14 +83,14 @@ SECURITY_ATTRIBUTES saAttr;
 
 }
 
-int stdReadWin (HANDLE child_OUT_Rd){
+int stdRead (HANDLE fileDesc){
     DWORD dwRead;
    char chBuf[BUFSIZE];
    BOOL bSuccess = FALSE;
 
    for (;;)
    {
-      bSuccess = ReadFile( child_OUT_Rd, chBuf, BUFSIZE, &dwRead, NULL);
+      bSuccess = ReadFile( fileDesc, chBuf, BUFSIZE, &dwRead, NULL);
       if( ! bSuccess || dwRead == 0 ) return -1;
         else break;
    }
@@ -99,17 +99,17 @@ int stdReadWin (HANDLE child_OUT_Rd){
 }
 
 
-int stdWriteWin (HANDLE child_IN_Wr, int data){
+int stdWrite (HANDLE fileDesc, int data){
     char chBuf[BUFSIZE];
 
-    sprintf(chBuf, "%d", data);
+    sprintf(chBuf, "%d%c", data,'\n');
 
     BOOL bSuccess = FALSE;
 
    for (;;)
    {
 
-      bSuccess = WriteFile(child_IN_Wr, chBuf, strlen(chBuf), NULL, NULL);
+      bSuccess = WriteFile(fileDesc, chBuf, strlen(chBuf), NULL, NULL);
 
       if ( ! bSuccess ) return -1;
         else break;
@@ -120,7 +120,7 @@ int stdWriteWin (HANDLE child_IN_Wr, int data){
 }
 
 
-int stdDisconnectWin (int childPid){
+int stdDisconnect (int childPid){
      bool bSuccess;
     HANDLE tmpHandle = OpenProcess(PROCESS_ALL_ACCESS, TRUE, childPid);
     if (NULL != tmpHandle)

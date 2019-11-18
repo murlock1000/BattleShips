@@ -5,7 +5,7 @@
 #include "dbconnector/dbconnector.h" //Provides database communication functions prototypes
 #include <cstdlib>
 #include <ctime>
-#include <windows.h>
+
 //Windows compatibility
 
 #ifdef __linux__

@@ -35,23 +35,19 @@ int disconnect (int playerNumber, HANDLE fdOutput[], HANDLE fdInput[], int pid[]
     return success;
 }
 
-int main (){//int argc, char* argv []) {
+int main (int argc, char* argv []) {
 stringstream ss;
-   /* if (argc != 2) { //must have exactly one argument (not counting process name)
+    if (argc != 2) { //must have exactly one argument (not counting process name)
         cerr << "game: Must be launched with exactly one argument\n";
         return 1;
     }
-*/
+
     DBconnector dbc;
 
-     dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
+    dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
 
-  //  dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
+    int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
 
- //   int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
-
-
-  int lobbyId = 1;
     DBconnector::ConsoleReadStruct lobby = dbc.ConsoleRead (lobbyId); //gets information about lobby
 
     //May be saved in lobby table later

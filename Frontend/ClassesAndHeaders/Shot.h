@@ -1,5 +1,5 @@
 #pragma once
-#include <sfml/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 
 class Shot
 {
@@ -10,4 +10,3 @@ public:
 	Shot(sf::Vector2f, sf::RectangleShape);
 	sf::RectangleShape GetShotRect();
 };
-

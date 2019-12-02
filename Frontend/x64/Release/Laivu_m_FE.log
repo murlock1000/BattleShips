@@ -1,9 +1,1 @@
-﻿  Laivas.cpp
-  Shot.cpp
-  Starting window.cpp
-  Generating code
-  417 of 429 functions (97.2%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  Laivu_m_FE.vcxproj -> C:\Users\Pauli\Documents\GitHub\BattleShipsFrontEnd\Laivu_m_FE\x64\Release\Laivu_m_FE.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.Platform.targets(67,5): error MSB8020: The build tools for v142 (Platform Toolset = 'v142') cannot be found. To build using the v142 build tools, please install v142 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".

@@ -6,10 +6,15 @@
 #include <string>
 #include "ClassesAndHeaders/Shot.h"
 #include "ClassesAndHeaders/Laivas.h"
+#include "ClassesAndHeaders/pch.h"
+#include "ClassesAndHeaders/dbconnector.h"
 
 using namespace std;
 
-
+int userID;
+int lobbyID;
+DBconnector cnn;
+vector<Laivas> Laivai[2];
 
 int ReadFromFile(ifstream& file)
 {
@@ -20,12 +25,77 @@ int ReadFromFile(ifstream& file)
 
 sf::Vector2f GetGridPosition(int width, int height, int x, int y, sf::Vector2f size)
 {
-	sf::Vector2f buffer = sf::Vector2f((float)((x - 0.5375 * width) / size.x), 1 + (float)((y - 0.075 * width) / size.y));
+	sf::Vector2f buffer = sf::Vector2f((float)((x - 0.5375 * width) / size.x), (1.f + (float)((y - 0.075 * width)) / size.y)); ///turetu but kazkur height
 	return (buffer.x > 0 && buffer.x < 10 && buffer.y > 0 && buffer.y < 10) ? buffer : sf::Vector2f(-1, -1);
+}
+
+bool AttempToConnect(string name, string password)
+{
+	return true;
+}
+
+void SetupShips(int lobbyID) {
+	//Duomenys - Kintamieji
+	bool AI[2] = { true, true }; //Ar 1/2 zaidejas - AI
+	int ShipTable[10][10][2];
+	//[y][x][player]
+
+	//duomenų gavimas, kolkas iš failo, reikia pakeisti
+	ifstream Data("Media/Data.txt");
+
+	pair<string,string> map = cnn.ReadMap(lobbyID);
+
+
+		for (int i = 0; i < 10; i++)
+		{
+			for (int j = 0; j < 10; j++)
+			{
+				ShipTable[i][j][0] = map.first[i*10+j];
+				ShipTable[i][j][1] = map.second[i * 10 + j];
+			}
+		}
+
+	//Laivu kurimas
+	for (int k = 0; k < 2; k++) {
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (ShipTable[i][j][k] != 0)
+				{
+					int xSize = 0;
+					int ySize = 0;
+					for (int l = 0; j + l < 10 && ShipTable[i][j + l][k] != 0; l++)
+					{
+						xSize++;
+						ShipTable[i][j + l][k] = 0;
+					}
+					ShipTable[i][j][k] = 1;
+					for (int l = 0; i + l < 10 && ShipTable[i + l][j][k] != 0; l++)
+					{
+						ySize++;
+						ShipTable[i + l][j][k] = 0;
+					}
+					Laivai[k].push_back(Laivas(sf::Vector2f((float)j, (float)i), sf::Vector2f((float)(j + xSize - 1), (float)(i + ySize - 1))));
+
+				}
+			}
+		}
+	}
+
 }
 
 int main()
 {
+
+	try
+	{
+		cnn.Connect("localhost", "user", "password", "battleships");
+	}
+	catch (const std::exception&)
+	{
+		cout << "Failed to connect to database" << endl;
+		return 0;
+	}
+
 	//Pagrindinis langas
 	unsigned int width = 1920 / 2, height = 1920 / 4;
 	sf::RenderWindow window(sf::VideoMode(width, height), "Laivu musis", sf::Style::Resize | sf::Style::Close);
@@ -39,56 +109,20 @@ int main()
 	areaTexture.loadFromFile("Media/Water.jpg");
 	background.setTexture(&areaTexture);
 
+	//Lobby fonas
+	sf::RectangleShape LobbyBackground(sf::Vector2f((float)width, (float)height));
+	sf::Texture LobbyTexture;
+	LobbyTexture.loadFromFile("Media/Laivas_5.png");
+	LobbyBackground.setTexture(&LobbyTexture);
+
 	//Taisykles - Kintamieji
 	const int TableWidth = 10;
 	const int TableHeight = 10;
+	const int LobbyWidth = 2;
+	const int LobbyHeight = 10;
 	const int PlayerCount = 2;
 	const int LaivuCount = 5;
 
-	//Duomenys - Kintamieji
-	bool AI[2] = { true, true }; //Ar 1/2 zaidejas - AI
-	int ShipTable[TableHeight][TableWidth][2];
-	//[y][x][player]
-
-	//duomenų gavimas, kolkas iš failo, reikia pakeisti
-	ifstream Data("Media/Data.txt");
-	for (int k = 0; k < PlayerCount; k++) {
-		AI[k] = ReadFromFile(Data);
-		for (int i = 0; i < TableHeight; i++)
-		{
-			for (int j = 0; j < TableWidth; j++)
-			{
-				ShipTable[i][j][k] = ReadFromFile(Data);
-			}
-		}
-	}
-
-	//Laivu kurimas
-	vector<Laivas> Laivai[PlayerCount];
-	for (int k = 0; k < PlayerCount; k++) {
-		for (int i = 0; i < TableHeight; i++) {
-			for (int j = 0; j < TableWidth; j++) {
-				if (ShipTable[i][j][k] != 0)
-				{
-					int xSize = 0;
-					int ySize = 0;
-					for (int l = 0; j + l < TableWidth && ShipTable[i][j + l][k] != 0; l++)
-					{
-						xSize++;
-						ShipTable[i][j + l][k] = 0;
-					}
-					ShipTable[i][j][k] = 1;
-					for (int l = 0; i + l < TableHeight && ShipTable[i + l][j][k] != 0; l++)
-					{
-						ySize++;
-						ShipTable[i + l][j][k] = 0;
-					}
-					Laivai[k].push_back(Laivas(sf::Vector2f((float)j, (float)i), sf::Vector2f((float)(j + xSize - 1), (float)(i + ySize - 1))));
-
-				}
-			}
-		}
-	}
 
 	//Suviu kurimas
 	vector<Shot> Shots[PlayerCount];
@@ -135,6 +169,24 @@ int main()
 		}
 	}
 
+	sf::RectangleShape LobbyArea(sf::Vector2f((float)0.85 * width, (float)0.85 * height));
+	LobbyArea.setPosition(sf::Vector2f((float)0.075 * width, (float)0.075 * height));
+	LobbyArea.setOutlineColor(sf::Color::Black);
+	LobbyArea.setOutlineThickness(4.f);
+	LobbyArea.setFillColor(sf::Color::Transparent);
+
+	sf::RectangleShape LobbyGrid[LobbyWidth][LobbyHeight];
+	for (int i = 0; i < LobbyWidth; i++) {
+		for (int j = 0; j < LobbyHeight; j++) {
+			sf::Vector2f LobbyGridSize = sf::Vector2f(LobbyArea.getSize().x * 0.5f, LobbyArea.getSize().y * 0.1f);
+			LobbyGrid[i][j].setSize(LobbyGridSize);
+			LobbyGrid[i][j].setPosition(sf::Vector2f(LobbyArea.getPosition().x + LobbyGridSize.x * i, LobbyArea.getPosition().y + LobbyGridSize.y * j));
+			LobbyGrid[i][j].setOutlineColor(sf::Color::Black);
+			LobbyGrid[i][j].setOutlineThickness(4.f);
+			LobbyGrid[i][j].setFillColor(sf::Color::Transparent);
+		}
+	}
+
 	//Laivu Grafiku kurimas
 	for (int k = 0; k < PlayerCount; k++)
 	{
@@ -146,7 +198,7 @@ int main()
 	sf::Texture Textures[4];
 	for (int i = 2; i < 6; i++)
 	{
-		Textures[i-2].loadFromFile("Media/Laivas_"+ std::to_string(i) + ".png");
+		Textures[i - 2].loadFromFile("Media/Laivas_" + std::to_string(i) + ".png");
 	}
 	for (int k = 0; k < PlayerCount; k++)
 	{
@@ -164,63 +216,244 @@ int main()
 		}
 	}
 
+	//font load
+	//sf::Font Comicsas;
+	//Comicsas.loadFromFile("Media/comic.ttf");
+	//sf::Text login;
+	//login.setFont(Comicsas);
+	//login.setString("login");
+	//login.setCharacterSize(24);
+	//login.setFillColor(sf::Color::Black);
+
+	sf::Texture Button_Textures[2];
+	for (int i = 0; i < 2; i++)
+	{
+		Button_Textures[i].loadFromFile("Media/Button_" + std::to_string(i) + ".png");
+	}
+
+	sf::RectangleShape login_button(sf::Vector2f(200, 40));
+	login_button.setPosition(sf::Vector2f(380, 140));
+	login_button.setOutlineColor(sf::Color::Black);
+	login_button.setOutlineThickness(2.f);
+	login_button.setFillColor(sf::Color::Blue);
+	login_button.setTexture(&Button_Textures[0]);
+
+	sf::RectangleShape spectate_button(sf::Vector2f(0.2f * width, 0.07f * height));
+	spectate_button.setPosition(sf::Vector2f(0.4f * width, 0.5f * height));
+	spectate_button.setOutlineColor(sf::Color::Black);
+	spectate_button.setOutlineThickness(2.f);
+	spectate_button.setFillColor(sf::Color::Cyan);
+	spectate_button.setTexture(&Button_Textures[1]);
+
+	int langas = 1;
 	while (window.isOpen())
 	{
-		//Eventu Handlinimas
 		sf::Event event;
-		while (window.pollEvent(event))
+		switch (langas)
 		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-			if (event.type == sf::Event::MouseButtonPressed)
+		case 0: //zaidimas
+			//Eventu Handlinimas
+			while (window.pollEvent(event))
 			{
-				if (event.mouseButton.button == sf::Mouse::Left)
+				if (event.type == sf::Event::Closed)
+					window.close();
+				if (event.type == sf::Event::MouseButtonPressed)
 				{
-					int x = event.mouseButton.x;
-					int y = event.mouseButton.y;
-					sf::Vector2f gridPosition = GetGridPosition(NewWidth, NewHeight, x, y, sf::Vector2f(Area2.getSize().x * 0.1f * ((float)NewWidth/(float)width), Area2.getSize().y * 0.1f * ((float)NewHeight/(float)height)));
-					if (gridPosition.x != -1 && gridPosition.y != -1)
+					if (event.mouseButton.button == sf::Mouse::Left)
 					{
-						//Šuvis
-						Shots[0].push_back(Shot(gridPosition, Grid2[int(gridPosition.x)][int(gridPosition.y)]));
+						int x = event.mouseButton.x;
+						int y = event.mouseButton.y;
+						sf::Vector2f gridPosition = GetGridPosition(NewWidth, NewHeight, x, y, sf::Vector2f(Area2.getSize().x * 0.1f * ((float)NewWidth / (float)width), Area2.getSize().y * 0.1f * ((float)NewHeight / (float)height)));
+						if (gridPosition.x != -1 && gridPosition.y != -1)
+						{
+							//Šuvis
+							Shots[0].push_back(Shot(gridPosition, Grid2[int(gridPosition.x)][int(gridPosition.y)]));
+						}
+					}
+					/*if (event.mouseButton.button == sf::Mouse::Right)
+					{
+						langas = 1;
+					}*/
+				}
+				if (event.type == sf::Event::Resized)
+				{
+					NewWidth = event.size.width;
+					NewHeight = event.size.height;
+				}
+			}
+
+			DBconnector::Rlobby rlobby;
+			cnn.ReadLobby(lobbyID, rlobby);
+
+			string enemyMove;
+			string DidYouMakeIt; //ar pataikei?
+			if (rlobby.curr_player == userID & rlobby.game_status == "e") {
+				enemyMove = rlobby.console_output; 
+				//display enemy move
+				//inform user and wait for his action
+				cnn.WriteMove(lobbyID, "ok");
+			}
+
+			string userInput="";
+
+			if (rlobby.curr_player == userID & rlobby.game_status == "w") {
+
+				if (userInput !="") {
+					cnn.WriteMove(lobbyID, userInput);
+				}
+			}
+
+			if (rlobby.curr_player != userID) {
+				DidYouMakeIt = rlobby.console_output;
+			}
+
+			//Piesimas
+			window.clear();
+			window.draw(background);
+			window.draw(Area1);
+			window.draw(Area2);
+			for (int i = 0; i < TableWidth; i++) {
+				for (int j = 0; j < TableHeight; j++) {
+					window.draw(Grid1[i][j]);
+					window.draw(Grid2[i][j]);
+				}
+			}
+			for (int k = 0; k < PlayerCount; k++)
+			{
+				for (int i = 0; i < LaivuCount; i++)
+				{
+					window.draw(Laivai[k][i].GetLaivasRectangle());
+				}
+			}
+			for (int k = 0; k < PlayerCount; k++)
+			{
+				for (int i = 0; i < Shots[k].size(); i++)
+				{
+					window.draw(Shots[k][i].GetShotRect());
+				}
+
+			}
+			window.display();
+			break;
+		case 1: //login
+			while (window.pollEvent(event))
+			{
+				if (event.type == sf::Event::Closed)
+					window.close();
+				if (event.type == sf::Event::Resized)
+				{
+					NewWidth = event.size.width;
+					NewHeight = event.size.height;
+				}
+				if (event.type == sf::Event::MouseButtonPressed)
+				{
+					if (event.mouseButton.button == sf::Mouse::Left)
+					{
+						int x = event.mouseButton.x / ((float)NewWidth / (float)width);
+						int y = event.mouseButton.y / ((float)NewHeight / (float)height);
+						if (x > 380 && x < 580)
+						{
+							if (y > 140 && y < 180) //login cia //SURAST KAIP PADARYT TEXT BOX
+							{
+								string Name = "Zaidejas"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
+								string Password = "Skupas123";
+								
+								try
+								{
+									userID = cnn.Login(Name);
+									langas = 2; //imest funkcija, kuri chekintu login'a, ir tada grazintu i langas 2 (lobby)
+								}
+								catch (const char* e)
+								{
+									cout << e << endl;
+									langas=1;
+								}
+							}
+							else if (y > 240 && y < 280) //register mygtukas
+							{
+								//kai sukursim tada sita sugalvosim
+							}
+						}
+					}
+					if (event.mouseButton.button == sf::Mouse::Right)
+					{
+						langas = 1;
 					}
 				}
 			}
-			if (event.type == sf::Event::Resized)
+			window.clear();
+			window.draw(background);
+			window.draw(login_button);
+			window.draw(spectate_button);
+			window.display();
+			break;
+		case 2: //lobby
+			while (window.pollEvent(event))
 			{
-				NewWidth = event.size.width;
-				NewHeight = event.size.height;
+				if (event.type == sf::Event::Closed)
+					window.close();
+				if (event.type == sf::Event::Resized)
+				{
+					NewWidth = event.size.width;
+					NewHeight = event.size.height;
+				}
 			}
-		}
-		//Piesimas
-		window.clear();
-		window.draw(background);
-		window.draw(Area1);
-		window.draw(Area2);
-		for (int i = 0; i < TableWidth; i++) {
-			for (int j = 0; j < TableHeight; j++) {
-				window.draw(Grid1[i][j]);
-				window.draw(Grid2[i][j]);
+			window.clear();
+			window.draw(background);
+			window.draw(LobbyArea);
+
+			vector<DBconnector::LobbyTable> lobbies = cnn.ListLobbies(1);
+			
+			for (int i = 0; i < LobbyWidth; i++) {
+				for (int j = 0; j < lobbies.size(); j++) {
+					window.draw(LobbyGrid[i][j]);
+					window.draw(LobbyGrid[i][j]);
+				}
 			}
-		}
-		for (int k = 0; k < PlayerCount; k++)
-		{
-			for (int i = 0; i < LaivuCount; i++)
+			window.display();
+			break;
+
+		case 3: //loading screen
+			while (window.pollEvent(event))
 			{
-				window.draw(Laivai[k][i].GetLaivasRectangle());
+				if (event.type == sf::Event::Closed)
+					window.close();
+				if (event.type == sf::Event::Resized)
+				{
+					NewWidth = event.size.width;
+					NewHeight = event.size.height;
+				}
 			}
-		}
-		for (int k = 0; k < PlayerCount; k++)
-		{
-			for (int i = 0; i < Shots[k].size(); i++)
-			{
-				window.draw(Shots[k][i].GetShotRect());
+			window.clear();
+			window.draw(background);
+			cout << "loaaadinggg"<<endl;
+			window.display();
+			
+			cnn.JoinLobbyAsPlayer(lobbyID, userID);
+
+			DBconnector::Rlobby rlobby;
+				while (true) {
+
+						cnn.ReadLobby(lobbyID, rlobby);
+
+				if (rlobby.console_output == "w" && rlobby.curr_player == userID) {
+					cnn.WriteMove("100char map");
+					break;
+				}
+
+				while (true) {
+					if (rlobby.console_output == "w" && rlobby.curr_player == userID) {
+						SetupShips(lobbyID);
+						break;
+					}
+				}
+				langas = 0;
 			}
 
+		default:
+			return 0;
+			break;
 		}
-		window.display();
-
 	}
-
 	return 0;
 }

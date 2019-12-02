@@ -10,4 +10,3 @@ public:
 	Shot(sf::Vector2f, sf::RectangleShape);
 	sf::RectangleShape GetShotRect();
 };
-

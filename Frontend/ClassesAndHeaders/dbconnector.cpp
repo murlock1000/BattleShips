@@ -324,7 +324,7 @@ void DBconnector::JoinLobbyAsPlayer(int lobbyID, int userID)	//checks if lobby i
 	}
 }
 
-void DBconnector::ReadLobby(int lobbyID, DBconnector::Rlobby &rlobby)	//returns Rlobby struct with game_status, console_output, current_player.
+DBconnector::Rlobby DBconnector::ReadLobby(int lobbyID)	//returns Rlobby struct with game_status, console_output, current_player.
 {
 	//if game_status==w & current_player==userID -> WriteMove &&  read the outcome of previous action.
 	//if game_status==f & current_player==userID -> AcknowledgeEnd
@@ -344,7 +344,7 @@ void DBconnector::ReadLobby(int lobbyID, DBconnector::Rlobby &rlobby)	//returns 
 	}
 
 	MYSQL_ROW row = mysql_fetch_row(result);
-//	Rlobby rlobby;
+	Rlobby rlobby;
 
 	rlobby.game_status = row[0];
 	if (row[1] != NULL) {

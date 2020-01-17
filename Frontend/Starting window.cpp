@@ -265,7 +265,7 @@ int main()
 	spectate_button.setTexture(&Button_Textures[1]);
 
 	DBconnector::Rlobby rlobby;
-	cnn.ReadLobby(lobbyID, rlobby);
+	rlobby = cnn.ReadLobby(lobbyID);
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput = "";
@@ -458,7 +458,7 @@ int main()
 
 				while (true) {
 
-						cnn.ReadLobby(lobbyID, rlobby);
+						rlobby = cnn.ReadLobby(lobbyID);
 
 					if (rlobby.console_output == "w" && rlobby.curr_player == userID) {
 						cnn.WriteMove(lobbyID, "100char map");

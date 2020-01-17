@@ -105,7 +105,7 @@ int main()
 
 	try
 	{
-		cnn.Connect("localhost", "user", "password", "battleships");
+		cnn.Connect("localhost", "root", "password", "battleships");
 	}
 	catch (const std::exception&)
 	{

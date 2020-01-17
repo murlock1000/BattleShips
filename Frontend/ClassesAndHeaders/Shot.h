@@ -3,10 +3,9 @@
 
 class Shot
 {
-private:
+public:
 	sf::Vector2f gridPosition;
 	sf::RectangleShape ShotRect;
-public:
 	Shot(sf::Vector2f, sf::RectangleShape);
 	sf::RectangleShape GetShotRect();
 };

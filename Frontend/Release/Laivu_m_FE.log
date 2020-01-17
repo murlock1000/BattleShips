@@ -1,1 +1,10 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.Platform.targets(67,5): error MSB8020: The build tools for v142 (Platform Toolset = 'v142') cannot be found. To build using the v142 build tools, please install v142 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".
+﻿  Laivas.cpp
+  Shot.cpp
+  Starting window.cpp
+C:\Users\Pauli\Documents\cpp\SFML\Laivu_m_FE\Starting window.cpp(213,22): warning C4018: '<': signed/unsigned mismatch
+  Generating code
+  141 of 429 functions (32.9%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    69 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Laivu_m_FE.vcxproj -> C:\Users\Pauli\Documents\cpp\SFML\Laivu_m_FE\Release\Laivu_m_FE.exe

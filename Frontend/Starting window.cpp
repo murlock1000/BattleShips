@@ -40,9 +40,6 @@ void SetupShips(int lobbyID) {
 	int ShipTable[10][10][2];
 	//[y][x][player]
 
-	//duomenų gavimas, kolkas iš failo, reikia pakeisti
-	ifstream Data("Media/Data.txt");
-
 	pair<string,string> map = cnn.ReadMap(lobbyID);
 
 
@@ -82,6 +79,26 @@ void SetupShips(int lobbyID) {
 	}
 
 }
+
+bool TryToMakeAShot(sf::Vector2f position, vector<Shot> &Shots, sf::RectangleShape gridas[10][10])
+{
+	bool isDuplicate = false;
+	for (int i = 0; i < Shots.size(); i++)
+	{
+		if (Shots[i].gridPosition == position)
+		{
+			isDuplicate = true;
+			return false;
+		}
+	}
+	if (!isDuplicate)
+	{
+		Shots.push_back(Shot(position, gridas[int(position.x)][int(position.y)]));
+		return true;
+	}
+	return false;
+}
+
 
 int main()
 {
@@ -231,6 +248,8 @@ int main()
 		Button_Textures[i].loadFromFile("Media/Button_" + std::to_string(i) + ".png");
 	}
 
+	string Zem = "0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0, 0, 0, 0, 2, 2, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0, 0, 0, 1, 1, 1, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ";
+
 	sf::RectangleShape login_button(sf::Vector2f(200, 40));
 	login_button.setPosition(sf::Vector2f(380, 140));
 	login_button.setOutlineColor(sf::Color::Black);
@@ -244,6 +263,13 @@ int main()
 	spectate_button.setOutlineThickness(2.f);
 	spectate_button.setFillColor(sf::Color::Cyan);
 	spectate_button.setTexture(&Button_Textures[1]);
+
+	DBconnector::Rlobby rlobby;
+	cnn.ReadLobby(lobbyID, rlobby);
+	string enemyMove;
+	string DidYouMakeIt; //ar pataikei?
+	string userInput = "";
+	vector<DBconnector::LobbyTable> lobbies;
 
 	int langas = 1;
 	while (window.isOpen())
@@ -267,7 +293,15 @@ int main()
 						if (gridPosition.x != -1 && gridPosition.y != -1)
 						{
 							//Šuvis
-							Shots[0].push_back(Shot(gridPosition, Grid2[int(gridPosition.x)][int(gridPosition.y)]));
+							if (rlobby.curr_player == userID & rlobby.game_status == "w") {
+								if (TryToMakeAShot(gridPosition, Shots[0], Grid2))
+								{
+									userInput = std::to_string(gridPosition.x) + "-" + std::to_string(gridPosition.y);
+									if (userInput != "") {
+										cnn.WriteMove(lobbyID, userInput);
+									}
+								}
+							}
 						}
 					}
 					/*if (event.mouseButton.button == sf::Mouse::Right)
@@ -282,26 +316,17 @@ int main()
 				}
 			}
 
-			DBconnector::Rlobby rlobby;
-			cnn.ReadLobby(lobbyID, rlobby);
-
-			string enemyMove;
-			string DidYouMakeIt; //ar pataikei?
+		
 			if (rlobby.curr_player == userID & rlobby.game_status == "e") {
 				enemyMove = rlobby.console_output; 
 				//display enemy move
+				cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
+				//TryToMakeAShot(sf::Vector2f(0, 0 /*x koordinate, y koordinate*/), Shots[0], Grid1);
 				//inform user and wait for his action
+				cout << "jusu eile" << endl;
 				cnn.WriteMove(lobbyID, "ok");
 			}
 
-			string userInput="";
-
-			if (rlobby.curr_player == userID & rlobby.game_status == "w") {
-
-				if (userInput !="") {
-					cnn.WriteMove(lobbyID, userInput);
-				}
-			}
 
 			if (rlobby.curr_player != userID) {
 				DidYouMakeIt = rlobby.console_output;
@@ -402,7 +427,7 @@ int main()
 			window.draw(background);
 			window.draw(LobbyArea);
 
-			vector<DBconnector::LobbyTable> lobbies = cnn.ListLobbies(1);
+			lobbies = cnn.ListLobbies(1);
 			
 			for (int i = 0; i < LobbyWidth; i++) {
 				for (int j = 0; j < lobbies.size(); j++) {
@@ -431,15 +456,14 @@ int main()
 			
 			cnn.JoinLobbyAsPlayer(lobbyID, userID);
 
-			DBconnector::Rlobby rlobby;
 				while (true) {
 
 						cnn.ReadLobby(lobbyID, rlobby);
 
-				if (rlobby.console_output == "w" && rlobby.curr_player == userID) {
-					cnn.WriteMove("100char map");
-					break;
-				}
+					if (rlobby.console_output == "w" && rlobby.curr_player == userID) {
+						cnn.WriteMove(lobbyID, "100char map");
+						break;
+					}
 
 				while (true) {
 					if (rlobby.console_output == "w" && rlobby.curr_player == userID) {

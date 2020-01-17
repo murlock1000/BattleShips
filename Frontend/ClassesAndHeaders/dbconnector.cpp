@@ -354,7 +354,7 @@ void DBconnector::ReadLobby(int lobbyID, DBconnector::Rlobby &rlobby)	//returns 
 		rlobby.curr_player = atoi(row[2]);
 	}
 	
-//	return rlobby;
+	return rlobby;
 }
 
 pair<string, string> DBconnector::ReadMap(int lobbyID)	//returns both maps in a lobby as a pair<string, string> (used for spectating). when using always check if pair.first=="finished" -> pair.second = gameID (for history table) and stop ReadingMap (game has finished).

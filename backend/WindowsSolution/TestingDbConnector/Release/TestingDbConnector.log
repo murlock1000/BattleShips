@@ -1,0 +1,9 @@
+﻿  pch.cpp
+  dbconnector.cpp
+C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\TestingDbConnector\dbconnector.h(2,10): fatal error C1083: Cannot open include file: 'mysql.h': No such file or directory
+  game.cpp
+C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\TestingDbConnector\dbconnector.h(2,10): fatal error C1083: Cannot open include file: 'mysql.h': No such file or directory
+  stdcomm-windows.cpp
+C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\TestingDbConnector\stdcomm-windows.cpp(60,15): error C2664: 'BOOL CreateProcessW(LPCWSTR,LPWSTR,LPSECURITY_ATTRIBUTES,LPSECURITY_ATTRIBUTES,BOOL,DWORD,LPVOID,LPCWSTR,LPSTARTUPINFOW,LPPROCESS_INFORMATION)': cannot convert argument 1 from 'const char *' to 'LPCWSTR'
+C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\TestingDbConnector\stdcomm-windows.cpp(60,29): message : Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\processthreadsapi.h(377,1): message : see declaration of 'CreateProcessW'

@@ -105,11 +105,11 @@ int main()
 
 	try
 	{
-		cnn.Connect("localhost", "root", "password", "battleships");
+		cnn.Connect("localhost", "root", "root", "battleships");
 	}
-	catch (const std::exception&)
+	catch (const char* e)
 	{
-		cout << "Failed to connect to database" << endl;
+		cout << e << endl;
 		return 0;
 	}
 
@@ -203,7 +203,7 @@ int main()
 			LobbyGrid[i][j].setFillColor(sf::Color::Transparent);
 		}
 	}
-
+	/*
 	//Laivu Grafiku kurimas
 	for (int k = 0; k < PlayerCount; k++)
 	{
@@ -232,6 +232,7 @@ int main()
 			}
 		}
 	}
+	*/
 
 	//font load
 	//sf::Font Comicsas;
@@ -265,7 +266,7 @@ int main()
 	spectate_button.setTexture(&Button_Textures[1]);
 
 	DBconnector::Rlobby rlobby;
-	rlobby = cnn.ReadLobby(lobbyID);
+	//rlobby = cnn.ReadLobby(lobbyID);
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput = "";
@@ -380,7 +381,7 @@ int main()
 						{
 							if (y > 140 && y < 180) //login cia //SURAST KAIP PADARYT TEXT BOX
 							{
-								string Name = "Zaidejas"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
+								string Name = "Zaidejas1"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
 								string Password = "Skupas123";
 								
 								try
@@ -427,7 +428,16 @@ int main()
 			window.draw(background);
 			window.draw(LobbyArea);
 
-			lobbies = cnn.ListLobbies(1);
+			try
+			{
+				lobbies = cnn.ListLobbies(1);
+			}
+			catch (const char* e)
+			{
+				cout << e << endl;
+				return 0;
+			}
+		
 			
 			for (int i = 0; i < LobbyWidth; i++) {
 				for (int j = 0; j < lobbies.size(); j++) {

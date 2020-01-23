@@ -40,7 +40,8 @@ void Laivas::SetRectangleTexture(sf::Texture& textura)
 
 void Laivas::ConstructRectangle(sf::RectangleShape Area, sf::Vector2f gridsize)
 {
-	float xPosition = Area.getPosition().x + this->positionStart.x * gridsize.x;
+	float xPosition = Area.getPosition().x +
+		this->positionStart.x * gridsize.x;
 	float yPosition = Area.getPosition().y + this->positionStart.y * gridsize.y;
 	LaivasRect.setPosition(sf::Vector2f(xPosition, yPosition));
 	float xSize, ySize;

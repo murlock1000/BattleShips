@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `battleships`.`lobbies` (
   `lobby_status` CHAR(1) NOT NULL DEFAULT 'w',
   `adminID` INT NOT NULL,
   `opponentID` INT NULL,
-  `user_input` VARCHAR(5) NOT NULL DEFAULT '', --setting strings to null is not a good idea and c++ programs tend to dislike it
+  `user_input` VARCHAR(5) NOT NULL DEFAULT '',
   `console_output` VARCHAR(5) NOT NULL DEFAULT '',
   `admin_map` VARCHAR(100) NOT NULL DEFAULT '',
   `opponent_map` VARCHAR(100) NOT NULL DEFAULT '',
@@ -124,3 +124,6 @@ GRANT SELECT, INSERT, TRIGGER, UPDATE, DELETE ON TABLE `battleships`.* TO 'Activ
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+INSERT INTO users(username,is_ai) VALUES('Zaidejas1',0);
+INSERT INTO users(username,is_ai) VALUES('Zaidejas2',0);

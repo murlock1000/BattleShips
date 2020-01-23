@@ -23,6 +23,7 @@ libmysql.lib (dynamic, used for this project) / mysqlclient.lib (static)
 Add to executable directory:
 libcrypto-1_1-x64.dll
 libssl-1_1-x64.dll
+libmysql.dll
 
 
 

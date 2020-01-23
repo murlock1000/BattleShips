@@ -1,23 +1,8 @@
 ﻿  dbconnector.cpp
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(100,65): warning C4838: conversion from 'int' to 'bool' requires a narrowing conversion
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(83,12): warning C4101: 'losses': unreferenced local variable
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(83,6): warning C4101: 'wins': unreferenced local variable
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(84,10): warning C4101: 'is_ai': unreferenced local variable
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(265,15): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(328,1): error C2511: 'void DBconnector::ReadLobby(int,DBconnector::Rlobby &)': overloaded member function not found in 'DBconnector'
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.h(9): message : see declaration of 'DBconnector'
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(333,15): error C2597: illegal reference to non-static member 'DBconnector::ss'
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(333,15): error C3867: 'DBconnector::ss': non-standard syntax; use '&' to create a pointer to member
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(333,5): warning C4552: '<<': result of expression not used
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(338,5): error C2597: illegal reference to non-static member 'DBconnector::query'
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(339,25): error C2597: illegal reference to non-static member 'DBconnector::conn'
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(341,45): error C2597: illegal reference to non-static member 'DBconnector::conn'
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(343,25): error C2597: illegal reference to non-static member 'DBconnector::conn'
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(521,15): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\ClassesAndHeaders\dbconnector.h(2,10): fatal error C1083: Cannot open include file: 'mysql/mysql.h': No such file or directory
+  Laivas.cpp
+  pch.cpp
+  Shot.cpp
   Starting window.cpp
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\ClassesAndHeaders\dbconnector.cpp(622,15): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\Starting window.cpp(296,68): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\Starting window.cpp(320,64): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\Starting window.cpp(377,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\ClassesAndHeaders\dbconnector.h(2,10): fatal error C1083: Cannot open include file: 'mysql/mysql.h': No such file or directory
   Generating Code...
-D:\Simukas\Battleships\BattleShipsFrontEnd\Laivu_m_FE\Starting window.cpp(378,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data

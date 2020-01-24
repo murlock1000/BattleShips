@@ -16,20 +16,63 @@
 
 using namespace std;
 
-int disconnect(int playerNumber, HANDLE fdOutput[], HANDLE fdInput[], int pid[], bool playerType[]) { //Terminates connections
+int disconnect(int playerNumber, int activadedAis, HANDLE fdOutput[], HANDLE fdInput[], int pid[], bool playerType[], int winnerID, DBconnector &dbc, DBconnector::ConsoleReadStruct &lobby,int lobbyId, int historyId, int playerId[]) { //Terminates connections
 	int success = 0;
+	int timeout;
+	bool isNull;
+	if (winnerID == NULL) {
+		isNull = true;
+	}
+	else {
+		isNull = false;
+	}
+	//cout << "end " << isNull << endl;
 
-	for (int i = 0; i < playerNumber; i++) {
-		if (playerType[i]) { //ai
-			stdWrite(fdOutput[i], 4); //Tells AI to exit.
-			if (stdDisconnect(pid[i]) < 0) { //Kills AI in case it hasn't exited yet
-				success = -1;
+	if (winnerID != NULL) {
+		dbc.WriteWinner(winnerID, historyId);
+		for (int i = 0; i < playerNumber; i++) {
+			if (playerType[i]) { //ai
+				stdWrite(fdOutput[i], 4); //Tells AI to exit.
+				if (stdDisconnect(pid[i]) < 0) { //Kills AI in case it hasn't exited yet
+					success = -1;
+				}
+			}
+			else { //frontend
+				dbc.UpdateLobby(lobbyId, "i", "", "", "", "", historyId, "f",playerId[i]);
+				timeout = 500;
+				do { //wait until frontend moves
+					lobby = dbc.ConsoleRead(lobbyId);
+					Sleep(10);
+					timeout--;
+				} while (lobby.game_status != "c" && timeout > 0);
+
+			//to be implemented.
 			}
 		}
-		else { //frontend
-		//to be implemented.
+	}
+	else {
+		for (int i = 0; i < playerNumber; i++) {
+			if (i < activadedAis) {
+				if (playerType[i]) { //ai
+					stdWrite(fdOutput[i], 4); //Tells AI to exit.
+					if (stdDisconnect(pid[i]) < 0) { //Kills AI in case it hasn't exited yet
+						success = -1;
+					}
+				}
+			}
+			else {
+				dbc.UpdateLobby(lobbyId, "i", "", "", "", "", historyId, "e", playerId[i]);
+				timeout = 500;
+				do { //wait until frontend moves
+					lobby = dbc.ConsoleRead(lobbyId);
+					Sleep(10);
+					timeout--;
+				} while (lobby.game_status != "c" && timeout > 0);
+			}
 		}
 	}
+
+	dbc.InitiateDeletion(lobbyId);
 
 	return success;
 }
@@ -44,8 +87,8 @@ int main(int argc, char* argv[]) {
 	DBconnector dbc;
 	dbc.Connect("127.0.0.1", "root", "root", "battleships"); //connecting to database
 
-   // int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
-	int lobbyId = 1;
+    int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
+//	int lobbyId = 1; //debugging purposes
 	DBconnector::ConsoleReadStruct lobby;
 
 	lobby = dbc.ConsoleRead(lobbyId); //gets information about lobby
@@ -129,7 +172,7 @@ int main(int argc, char* argv[]) {
  //   cout << endl;
  */
 
-
+	int winnerID;
 
 
 	for (int i = 0; i < playerNumber; i++) {
@@ -165,8 +208,8 @@ int main(int argc, char* argv[]) {
 
 			string aiProcName = aiName + ".exe";
 			string aiPath = "./ai/" + aiProcName;
-		//	cout << "playerType: " << playerType[i] << " name: " << aiName << endl;
-		//	cout << aiPath << " ph" << endl;
+			//	cout << "playerType: " << playerType[i] << " name: " << aiName << endl;
+			//	cout << aiPath << " ph" << endl;
 			HANDLE aiIO[2];
 
 			int* aiPid = new int;
@@ -175,14 +218,14 @@ int main(int argc, char* argv[]) {
 
 			if (stdConnSuccess < 0) {
 				//If launching an ai process fails, we have to kill parent.
-				//However, before that we must terminate other AIs which may have been lauched before.
-				//We only need to do that to previous players, so we enter i instead of playerNumber.
+				//However, if there are active players waiting for the ai to start, they have to be informed
+				//that the game has ended.
 
-				disconnect(i, fdOutput, fdInput, pid, playerType);
+				disconnect(playerNumber, i, fdOutput, fdInput, pid, playerType, NULL, dbc, lobby, lobbyId,NULL,playerId);
 				cout << "1 "; //tells server game initialisation failed
 				return 1;
 			}
-			else if (stdConnSuccess > 0) { //code executed by child
+			else if (stdConnSuccess > 0) { //code executed by child ????
 				return 0;
 			}
 
@@ -197,7 +240,8 @@ int main(int argc, char* argv[]) {
 			for (int j = 0; j < tableWidth * tableHeight; j++) {
 				intOut = stdRead(fdInput[i]); //store AI's response in a temporary integer for error checking
 				if (intOut == -1) {
-					dbc.InitiateDeletion(lobbyId);
+					disconnect(playerNumber,i, fdOutput, fdInput, pid, playerType, NULL, dbc, lobby, lobbyId, NULL, playerId);
+					//cout << "a" << endl;
 					return -1;
 				}
 				else {
@@ -263,6 +307,8 @@ int main(int argc, char* argv[]) {
 
 	string consoleOutput = "";
 
+	int timeout = 3100;
+
 	while (true) {
 
 		dbc.UpdateLobby(lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //send backend response to database and tell frontend that game is waiting for its input
@@ -272,10 +318,18 @@ int main(int argc, char* argv[]) {
 
 		if (playerType[currentPlayer] == 0) {
 			//frontend
+			timeout = 3100;//30seconds until the opponent wins
 			do { //wait until frontend moves
 				lobby = dbc.ConsoleRead(lobbyId);
-			} while (lobby.game_status != "c");
+				Sleep(10);
+				timeout--;
+			} while (lobby.game_status != "c" && timeout > 0);
 
+			if (timeout == 0) { //opponent wins if user/ his AI does not make a turn in 30 seconds
+				disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, playerId[currentPlayer], dbc, lobby, lobbyId, historyId, playerId);
+			//	cout << "b" << endl;
+				return -1;
+			}
 			//read user's move
 
 			int dashPosition = 0;
@@ -287,7 +341,8 @@ int main(int argc, char* argv[]) {
 			//ai
 			intOut = stdRead(fdInput[currentPlayer]);
 			if (intOut == -1) {
-				dbc.InitiateDeletion(lobbyId);
+				disconnect(playerNumber,playerNumber, fdOutput, fdInput, pid, playerType, playerId[currentPlayer], dbc, lobby, lobbyId, historyId, playerId);
+			//	cout << "c" << endl;
 				return -1;
 			}
 			else {
@@ -296,16 +351,16 @@ int main(int argc, char* argv[]) {
 
 			intOut = stdRead(fdInput[currentPlayer]);
 			if (intOut == -1) {
-				cout << "nope" << endl;
-				dbc.InitiateDeletion(lobbyId);
+				disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, playerId[currentPlayer], dbc, lobby, lobbyId, historyId, playerId);
+				//cout << "d" << endl;
 				return -1;
 			}
 			else {
 				tileY = intOut;
 			}
-		
-		//	cout << "Y: " << tileY << endl;
-			//cout << "X: " << tileX << endl;
+
+			//	cout << "Y: " << tileY << endl;
+				//cout << "X: " << tileX << endl;
 
 		}
 
@@ -333,7 +388,7 @@ int main(int argc, char* argv[]) {
 
 				//	cout << "GAME OVER" << endl;
 
-					dbc.WriteWinner(playerId[currentPlayer], historyId);
+					winnerID = playerId[currentPlayer];
 
 					//write last move to lobby and move tables
 					dbc.UpdateLobby(lobbyId, "i", lobby.user_input, "2-" + to_string(shipTable[opponentPlayer][tableWidth * tileY + tileX]), lobby.admin_map, lobby.opponent_map, historyId, "f", playerId[currentPlayer]);
@@ -394,20 +449,10 @@ int main(int argc, char* argv[]) {
 
 	//disconnecting players
 	//cout << "disconnecting" << endl;
-	disconnect(playerNumber, fdOutput, fdInput, pid, playerType);
 
+	disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, winnerID, dbc, lobby, lobbyId, historyId, playerId);
+	//cout << "e" << endl;
 	//deleting lobby
 
-	if (playerType[0] == 1 && playerType[1] == 1) {
-		dbc.InitiateDeletion(lobbyId);
-	}
-	else {
-
-		do {
-			lobby = dbc.ConsoleRead(lobbyId); //waiting for user to aknowledge end
-		} while (lobby.game_status != "c");
-
-		dbc.InitiateDeletion(lobbyId);
-	}
 	return 0;
 }

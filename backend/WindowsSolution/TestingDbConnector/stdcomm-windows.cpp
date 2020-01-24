@@ -182,9 +182,10 @@ int stdDisconnect(int childPid) {
 		bSuccess = TerminateProcess(tmpHandle, 0);
 	}
 
-	if (!bSuccess) {
-		cout << "failed to create process" << endl;
-		return -1;
+	if (!bSuccess) {//welp can't really do anything
+	//	cout << "failed to create process" << endl;
+		//return -1;
+		return 0;
 	}
 
 	return 0;

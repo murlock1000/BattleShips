@@ -80,7 +80,7 @@ void DBconnector::ChangeName(string newName, int userID)	//changes the username 
 
 DBconnector::UserInfoTable DBconnector::GetUserInfo(int userID)		//returns the user's username, win and loose count in a UserInfoTable struct.
 {
-	cout << "userID: " << userID << endl;
+//	cout << "userID: " << userID << endl;
 	ss << userID;
 	int wins, losses;
     bool is_ai;

@@ -32,13 +32,13 @@
     <ClCompile Include="dbconnector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdcomm-windows.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdcomm-windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

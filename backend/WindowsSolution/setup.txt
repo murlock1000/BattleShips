@@ -1,3 +1,7 @@
+Install 
+MySQL Server 8.0.19
+Connector/C++ 1.1.13
+
 Configuration: Release x64
 
 
@@ -23,6 +27,7 @@ libmysql.lib (dynamic, used for this project) / mysqlclient.lib (static)
 Add to executable directory:
 libcrypto-1_1-x64.dll
 libssl-1_1-x64.dll
+libmysql.dll
 
 
 

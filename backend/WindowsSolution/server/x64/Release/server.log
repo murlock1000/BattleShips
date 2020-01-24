@@ -1,0 +1,5 @@
+﻿  stdcomm-windows.cpp
+C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\server\stdcomm-windows.cpp(68,13): error C2664: 'BOOL CreateProcessW(LPCWSTR,LPWSTR,LPSECURITY_ATTRIBUTES,LPSECURITY_ATTRIBUTES,BOOL,DWORD,LPVOID,LPCWSTR,LPSTARTUPINFOW,LPPROCESS_INFORMATION)': cannot convert argument 1 from 'const char *' to 'LPCWSTR'
+C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\server\stdcomm-windows.cpp(68,27): message : Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\processthreadsapi.h(377,1): message : see declaration of 'CreateProcessW'
+C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\server\stdcomm-windows.cpp(165,66): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data

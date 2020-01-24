@@ -1,6 +1,5 @@
 #include "dbconnector.h"
-#include <mysql.h> //visiem kitiem
-//#include <mysql/mysql.h> //dziugui
+#include <mysql/mysql.h>
 #include <iostream>
 #include <sstream>
 #include <cppconn/statement.h>

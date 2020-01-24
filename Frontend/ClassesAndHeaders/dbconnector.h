@@ -1,6 +1,5 @@
 #pragma once
-//#include <mysql/mysql.h> //dziugui
-#include <mysql.h> //visiem kitiem
+#include <mysql/mysql.h>
 #include <string>
 #include <sstream>
 #include <cppconn/statement.h>

@@ -105,11 +105,11 @@ int main()
 
 	try
 	{
-		cnn.Connect("localhost", "root", "root", "battleships");
+		cnn.Connect("localhost", "root", "password", "battleships");
 	}
-	catch (const char* e)
+	catch (const std::exception&)
 	{
-		cout << e << endl;
+		cout << "Failed to connect to database" << endl;
 		return 0;
 	}
 
@@ -186,24 +186,31 @@ int main()
 		}
 	}
 
+	//lobby area
 	sf::RectangleShape LobbyArea(sf::Vector2f((float)0.85 * width, (float)0.85 * height));
 	LobbyArea.setPosition(sf::Vector2f((float)0.075 * width, (float)0.075 * height));
 	LobbyArea.setOutlineColor(sf::Color::Black);
 	LobbyArea.setOutlineThickness(4.f);
 	LobbyArea.setFillColor(sf::Color::Transparent);
-
-	sf::RectangleShape LobbyGrid[LobbyWidth][LobbyHeight];
+	
+	//lobby sulangavimas
+	sf::Font Comicsas;
+	if(!Comicsas.loadFromFile("Media/arial.ttf")) cout << "error";
+	sf::Text LobbyGrid[LobbyWidth][LobbyHeight];
 	for (int i = 0; i < LobbyWidth; i++) {
 		for (int j = 0; j < LobbyHeight; j++) {
 			sf::Vector2f LobbyGridSize = sf::Vector2f(LobbyArea.getSize().x * 0.5f, LobbyArea.getSize().y * 0.1f);
-			LobbyGrid[i][j].setSize(LobbyGridSize);
+			//LobbyGrid[i][j].setSize(LobbyGridSize);
+			LobbyGrid[i][j].setFont(Comicsas);
+			//LobbyGrid[i][j].setString("login");
+			LobbyGrid[i][j].setCharacterSize(24);
 			LobbyGrid[i][j].setPosition(sf::Vector2f(LobbyArea.getPosition().x + LobbyGridSize.x * i, LobbyArea.getPosition().y + LobbyGridSize.y * j));
-			LobbyGrid[i][j].setOutlineColor(sf::Color::Black);
-			LobbyGrid[i][j].setOutlineThickness(4.f);
-			LobbyGrid[i][j].setFillColor(sf::Color::Transparent);
+			//LobbyGrid[i][j].setOutlineColor(sf::Color::Black);
+			//LobbyGrid[i][j].setOutlineThickness(4.f);
+			LobbyGrid[i][j].setFillColor(sf::Color::Black);
 		}
 	}
-	/*
+
 	//Laivu Grafiku kurimas
 	for (int k = 0; k < PlayerCount; k++)
 	{
@@ -232,17 +239,15 @@ int main()
 			}
 		}
 	}
-	*/
 
 	//font load
-	//sf::Font Comicsas;
-	//Comicsas.loadFromFile("Media/comic.ttf");
 	//sf::Text login;
 	//login.setFont(Comicsas);
 	//login.setString("login");
 	//login.setCharacterSize(24);
 	//login.setFillColor(sf::Color::Black);
 
+	//mygtuko tekstūros
 	sf::Texture Button_Textures[2];
 	for (int i = 0; i < 2; i++)
 	{
@@ -251,6 +256,7 @@ int main()
 
 	string Zem = "0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0, 0, 0, 0, 2, 2, 0, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 4, 0, 5, 0, 0, 0, 1, 1, 1, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ";
 
+	//login mygtukas
 	sf::RectangleShape login_button(sf::Vector2f(200, 40));
 	login_button.setPosition(sf::Vector2f(380, 140));
 	login_button.setOutlineColor(sf::Color::Black);
@@ -258,6 +264,7 @@ int main()
 	login_button.setFillColor(sf::Color::Blue);
 	login_button.setTexture(&Button_Textures[0]);
 
+	//spectate mygtukas
 	sf::RectangleShape spectate_button(sf::Vector2f(0.2f * width, 0.07f * height));
 	spectate_button.setPosition(sf::Vector2f(0.4f * width, 0.5f * height));
 	spectate_button.setOutlineColor(sf::Color::Black);
@@ -266,11 +273,12 @@ int main()
 	spectate_button.setTexture(&Button_Textures[1]);
 
 	DBconnector::Rlobby rlobby;
-	//rlobby = cnn.ReadLobby(lobbyID);
+	rlobby = cnn.ReadLobby(lobbyID);
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput = "";
 	vector<DBconnector::LobbyTable> lobbies;
+	sf::RectangleShape pele;
 
 	int langas = 1;
 	while (window.isOpen())
@@ -361,7 +369,7 @@ int main()
 			}
 			window.display();
 			break;
-		case 1: //login
+		case 1: //login screen
 			while (window.pollEvent(event))
 			{
 				if (event.type == sf::Event::Closed)
@@ -381,7 +389,7 @@ int main()
 						{
 							if (y > 140 && y < 180) //login cia //SURAST KAIP PADARYT TEXT BOX
 							{
-								string Name = "Zaidejas1"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
+								string Name = "Zaidejas"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
 								string Password = "Skupas123";
 								
 								try
@@ -401,7 +409,7 @@ int main()
 							}
 						}
 					}
-					if (event.mouseButton.button == sf::Mouse::Right)
+					if (event.mouseButton.button == sf::Mouse::Right) //šitas nieko nedaro xD
 					{
 						langas = 1;
 					}
@@ -414,6 +422,8 @@ int main()
 			window.display();
 			break;
 		case 2: //lobby
+			
+			int x, y;
 			while (window.pollEvent(event))
 			{
 				if (event.type == sf::Event::Closed)
@@ -423,29 +433,36 @@ int main()
 					NewWidth = event.size.width;
 					NewHeight = event.size.height;
 				}
+				if (event.type == sf::Event::MouseButtonPressed)
+				{
+					if (event.mouseButton.button == sf::Mouse::Left)
+					{
+						x = event.mouseButton.x / ((float)NewWidth / (float)width);
+						y = event.mouseButton.y / ((float)NewHeight / (float)height);
+						pele.setSize(sf::Vector2f(1.f, 1.f));
+						pele.setPosition(sf::Vector2f(x, y));
+					}
+				}
 			}
 			window.clear();
 			window.draw(background);
 			window.draw(LobbyArea);
 
-			try
-			{
-				lobbies = cnn.ListLobbies(1);
-			}
-			catch (const char* e)
-			{
-				cout << e << endl;
-				return 0;
-			}
-	
-			
+			lobbies = cnn.ListLobbies(1);
 			for (int i = 0; i < LobbyWidth; i++) {
 				for (int j = 0; j < lobbies.size(); j++) {
-					cout << lobbies[i].lobbyName << endl;
+					LobbyGrid[i][j].setString(lobbies[j].lobbyName);
+					if (LobbyGrid[i][j].getGlobalBounds().intersects(pele.getGlobalBounds()))
+					{
+						lobbyID = lobbies[j].lobbyID;
+						langas++; //for the memes
+					}
 					window.draw(LobbyGrid[i][j]);
-					window.draw(LobbyGrid[i][j]);
+					//window.draw(LobbyGrid[i][j]);
 				}
 			}
+
+
 			window.display();
 			break;
 

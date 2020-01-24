@@ -4,8 +4,8 @@ C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(321,64)
 C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(378,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
 C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(379,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
   Generating code
-  1 of 575 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
+  2 of 576 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Laivu_m_FE.vcxproj -> C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\x64\Release\Laivu_m_FE.exe

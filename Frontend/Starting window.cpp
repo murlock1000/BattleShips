@@ -437,10 +437,11 @@ int main()
 				cout << e << endl;
 				return 0;
 			}
-		
+	
 			
 			for (int i = 0; i < LobbyWidth; i++) {
 				for (int j = 0; j < lobbies.size(); j++) {
+					cout << lobbies[i].lobbyName << endl;
 					window.draw(LobbyGrid[i][j]);
 					window.draw(LobbyGrid[i][j]);
 				}

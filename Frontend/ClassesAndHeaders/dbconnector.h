@@ -1,5 +1,5 @@
 #pragma once
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include <string>
 #include <sstream>
 #include <cppconn/statement.h>

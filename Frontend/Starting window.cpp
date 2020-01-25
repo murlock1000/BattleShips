@@ -105,7 +105,7 @@ int main()
 
 	try
 	{
-		cnn.Connect("localhost", "root", "password", "battleships");
+		cnn.Connect("localhost", "root", "root", "battleships");
 	}
 	catch (const std::exception&)
 	{
@@ -210,7 +210,7 @@ int main()
 			LobbyGrid[i][j].setFillColor(sf::Color::Black);
 		}
 	}
-
+	/*
 	//Laivu Grafiku kurimas
 	for (int k = 0; k < PlayerCount; k++)
 	{
@@ -239,7 +239,7 @@ int main()
 			}
 		}
 	}
-
+	*/
 	//font load
 	//sf::Text login;
 	//login.setFont(Comicsas);
@@ -271,9 +271,10 @@ int main()
 	spectate_button.setOutlineThickness(2.f);
 	spectate_button.setFillColor(sf::Color::Cyan);
 	spectate_button.setTexture(&Button_Textures[1]);
-
+	
 	DBconnector::Rlobby rlobby;
-	rlobby = cnn.ReadLobby(lobbyID);
+//	rlobby = cnn.ReadLobby(lobbyID);
+	
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput = "";
@@ -389,12 +390,13 @@ int main()
 						{
 							if (y > 140 && y < 180) //login cia //SURAST KAIP PADARYT TEXT BOX
 							{
-								string Name = "Zaidejas"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
+								string Name = "test1"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
 								string Password = "Skupas123";
 								
 								try
 								{
 									userID = cnn.Login(Name);
+									cout << "userID: " << userID << endl;
 									langas = 2; //imest funkcija, kuri chekintu login'a, ir tada grazintu i langas 2 (lobby)
 								}
 								catch (const char* e)
@@ -455,6 +457,7 @@ int main()
 					if (LobbyGrid[i][j].getGlobalBounds().intersects(pele.getGlobalBounds()))
 					{
 						lobbyID = lobbies[j].lobbyID;
+						cout << "Selected lobbyID: " << lobbyID << endl;
 						langas++; //for the memes
 					}
 					window.draw(LobbyGrid[i][j]);

@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	dbc.Connect("127.0.0.1", "root", "root", "battleships"); //connecting to database
 
     int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
-	//int lobbyId = 1; //debugging purposes
+	//int lobbyId = 2; //debugging purposes
 	DBconnector::ConsoleReadStruct lobby;
 
 	lobby = dbc.ConsoleRead(lobbyId); //gets information about lobby
@@ -281,7 +281,15 @@ int main(int argc, char* argv[]) {
 
 			for (int j = 0; j < tableWidth * tableHeight; j++) {
 				//    cout <<"cia "<< userShipTable.substr(j, 1) << endl;
-				shipTable[i][j] = stoi(userShipTable.substr(j, 1));
+				try
+				{
+					shipTable[i][j] = stoi(userShipTable.substr(j, 1)); //try to convert string to int
+				}
+				catch (const std::exception&)
+				{
+					disconnect(playerNumber, i, fdOutput, fdInput, pid, playerType, NULL, dbc, lobby, lobbyId, NULL, playerId); //if input is invalid - close the game
+					return -1;
+				}
 
 				if (shipTable[i][j] != 0) {
 					shipHealth[i][shipTable[i][j] - 1] ++;
@@ -334,8 +342,17 @@ int main(int argc, char* argv[]) {
 
 			int dashPosition = 0;
 			while (lobby.user_input.substr(dashPosition, 1) != "-") dashPosition++;
-			tileX = stoi(lobby.user_input.substr(0, dashPosition));
-			tileY = stoi(lobby.user_input.substr(dashPosition + 1, lobby.user_input.length() - 1));
+			try
+			{
+				tileX = stoi(lobby.user_input.substr(0, dashPosition));
+				tileY = stoi(lobby.user_input.substr(dashPosition + 1, lobby.user_input.length() - 1));
+			}
+			catch (const std::exception&)
+			{
+				disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, playerId[currentPlayer], dbc, lobby, lobbyId, historyId, playerId); //if players output is invalid - he loses
+				return -1;
+			}
+		
 		}
 		else {
 			//ai

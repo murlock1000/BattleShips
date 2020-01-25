@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	dbc.Connect("127.0.0.1", "root", "root", "battleships"); //connecting to database
 
     int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
-//	int lobbyId = 1; //debugging purposes
+	//int lobbyId = 1; //debugging purposes
 	DBconnector::ConsoleReadStruct lobby;
 
 	lobby = dbc.ConsoleRead(lobbyId); //gets information about lobby

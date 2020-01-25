@@ -11,7 +11,7 @@
 using namespace std;
 
 
-int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, const char* childProcName, const char* argument) {
+int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, string argument_s) {
 	//HANDLE[0] = Out_Rd read child's cout
 	//HANDLE[1] = In_Wr write to child's cin
 	HANDLE g_hChildStd_IN_Rd = NULL;
@@ -19,7 +19,7 @@ int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, const ch
 
 	SECURITY_ATTRIBUTES saAttr;
 	OVERLAPPED oOverlap;
-
+	
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 	saAttr.bInheritHandle = TRUE;
 	saAttr.lpSecurityDescriptor = NULL;
@@ -28,27 +28,27 @@ int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, const ch
 
 	if (!CreatePipe(&childIO[0], &g_hChildStd_OUT_Wr, &saAttr, 0))
 	{
-		cout << "StdoutRd CreatePipe" << endl; return 0;
+		cout << "StdoutRd CreatePipe" << endl; return -1;
 	}
 
 	// Ensure the read handle to the pipe for STDOUT is not inherited.
 
 	if (!SetHandleInformation(childIO[0], HANDLE_FLAG_INHERIT, 0))
 	{
-		cout << "Stdout SetHandleInformation" << endl; return 0;
+		cout << "Stdout SetHandleInformation" << endl; return -1;
 	}
 	// Create a pipe for the child process's STDIN.
 
 	if (!CreatePipe(&g_hChildStd_IN_Rd, &childIO[1], &saAttr, 0))
 	{
-		cout << "Stdin CreatePipe" << endl; return 0;
+		cout << "Stdin CreatePipe" << endl; return -1;
 	}
 
 	// Ensure the write handle to the pipe for STDIN is not inherited.
 
 	if (!SetHandleInformation(childIO[1], HANDLE_FLAG_INHERIT, 0))
 	{
-		cout << "Stdin SetHandleInformation" << endl; return 0;
+		cout << "Stdin SetHandleInformation" << endl; return -1;
 	}
 
 	int processID;
@@ -64,9 +64,11 @@ int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, const ch
 	siStartInfo.hStdOutput = g_hChildStd_OUT_Wr;
 	siStartInfo.hStdInput = g_hChildStd_IN_Rd;
 	siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+	
+
 
 	bSuccess = CreateProcess(childPath,
-		const_cast<char*>(argument), // const_cast<char *> (argument),     // command line
+		const_cast<char*>(argument_s.c_str()), // const_cast<char *> (argument),     // command line
 		NULL,          // process security attributes
 		NULL,          // primary thread security attributes
 		TRUE,          // handles are inherited
@@ -86,7 +88,6 @@ int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, const ch
 
 		CloseHandle(piProcInfo.hProcess);
 		CloseHandle(piProcInfo.hThread);
-
 		return 0;
 	}
 

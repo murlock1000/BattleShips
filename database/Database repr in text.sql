@@ -129,5 +129,6 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 INSERT INTO users(username,is_ai) VALUES('ai_random',1);
 INSERT INTO users(username,is_ai) VALUES('ai_random2',1);
+INSERT INTO users(username,is_ai) VALUES('test1',0);
 INSERT INTO lobbies(lobby_name,adminID) VALUES('AI_lobby',1);
 UPDATE lobbies SET opponentID=2, lobby_status='r' WHERE lobbyID=1;

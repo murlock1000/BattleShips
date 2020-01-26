@@ -3,6 +3,6 @@ C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\TestingDbCon
   Generating code
   5 of 210 functions ( 2.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   TestingDbConnector.vcxproj -> C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\x64\Release\game.exe

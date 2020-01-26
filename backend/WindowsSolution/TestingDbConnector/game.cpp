@@ -87,8 +87,8 @@ int main(int argc, char* argv[]) {
 	DBconnector dbc;
 	dbc.Connect("127.0.0.1", "root", "root", "battleships"); //connecting to database
 
-    int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
-	//int lobbyId = 2; //debugging purposes
+    //int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
+	int lobbyId = 3; //debugging purposes
 	DBconnector::ConsoleReadStruct lobby;
 
 	lobby = dbc.ConsoleRead(lobbyId); //gets information about lobby
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
  */
 
 	int winnerID;
-
+int timeout = 3100;
 
 	for (int i = 0; i < playerNumber; i++) {
 		shipsLeft[i] = shipNumber;
@@ -268,22 +268,31 @@ int main(int argc, char* argv[]) {
 		else { //human player initialisation
 
 
-			string userShipTable;
+			string userShipTable="";
 
-			if (i == admin) {
-				userShipTable = lobby.admin_map;
-			}
-			else {
-				userShipTable = lobby.opponent_map;
-			}
 
 			//converting ship string to a ship table
-
+			//cout << "cia: "<< userShipTable << endl;
 			for (int j = 0; j < tableWidth * tableHeight; j++) {
-				//    cout <<"cia "<< userShipTable.substr(j, 1) << endl;
+
+				dbc.UpdateLobby(lobbyId, "r", "", "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId[i]);
+
+				timeout = 3100;//30seconds until the opponent wins
+				do { //wait until frontend moves
+					lobby = dbc.ConsoleRead(lobbyId);
+					Sleep(10);
+					timeout--;
+				} while (lobby.game_status != "c" && timeout > 0);
+
+				if (timeout == 0) { //opponent wins if user/ his AI does not make a turn in 30 seconds
+					disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, NULL, dbc, lobby, lobbyId, NULL, playerId);
+					return -1;
+				}
+				//read user's move
 				try
 				{
-					shipTable[i][j] = stoi(userShipTable.substr(j, 1)); //try to convert string to int
+					//cout <<"userInput: "<< lobby.user_input << endl;
+					shipTable[i][j] = stoi(lobby.user_input); //try to convert string to int
 				}
 				catch (const std::exception&)
 				{
@@ -303,7 +312,7 @@ int main(int argc, char* argv[]) {
 	int opponentPlayer = 1; //playing against the next player
 
 	lobby = dbc.ConsoleRead(lobbyId); //update local info before launching the game proper
-	dbc.UpdateLobby(lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "n", playerId[currentPlayer]); //Set lobby_status to i before telling server initialisation succeeded to prevent it from launching multiple instances of the same lobby
+	dbc.UpdateLobby(lobbyId, "i", "", "", lobby.admin_map, lobby.opponent_map, 0, "n", playerId[currentPlayer]); //Set lobby_status to i before telling server initialisation succeeded to prevent it from launching multiple instances of the same lobby
 
 	cout << "0 " << flush; //Telling server that we have successfully initialised a game (flush force sends a line buffer, otherwise data is only sent when the game finishes)
 
@@ -315,11 +324,11 @@ int main(int argc, char* argv[]) {
 
 	string consoleOutput = "";
 
-	int timeout = 3100;
+	
 
 	while (true) {
 
-		dbc.UpdateLobby(lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //send backend response to database and tell frontend that game is waiting for its input
+		dbc.UpdateLobby(lobbyId, "i", "", lobby.user_input, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //send the previous players move to the other player and wait for his action
 
 		int tileX;
 		int tileY;
@@ -352,6 +361,8 @@ int main(int argc, char* argv[]) {
 				disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, playerId[currentPlayer], dbc, lobby, lobbyId, historyId, playerId); //if players output is invalid - he loses
 				return -1;
 			}
+
+			cout << "zaidejo move: " << tileX << "-" << tileY << endl;
 		
 		}
 		else {
@@ -447,6 +458,20 @@ int main(int argc, char* argv[]) {
 		if (playerType[currentPlayer] == 0) {
 			//send console response to lobby table
 			consoleOutput = pseudoOutput;
+			dbc.UpdateLobby(lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //returning the result of an action
+
+			timeout = 3100;//30seconds until the opponent wins
+			do { //wait until frontend moves
+				lobby = dbc.ConsoleRead(lobbyId);
+				Sleep(10);
+				timeout--;
+			} while (lobby.game_status != "c" && timeout > 0);
+
+			if (timeout == 0) { //opponent wins if user/ his AI does not make a turn in 30 seconds
+				disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, playerId[currentPlayer], dbc, lobby, lobbyId, historyId, playerId);
+				//	cout << "b" << endl;
+				return -1;
+			}
 		}
 		else {
 			//send console response directly to ai

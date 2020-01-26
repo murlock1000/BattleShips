@@ -8,13 +8,14 @@
 #include "ClassesAndHeaders/Laivas.h"
 #include "ClassesAndHeaders/pch.h"
 #include "ClassesAndHeaders/dbconnector.h"
+#include <fstream>
 
 using namespace std;
 
 int userID;
 int lobbyID;
 DBconnector cnn;
-vector<Laivas> Laivai[2];
+vector<Laivas> Laivai;
 
 struct ScreenSizeProperties
 {
@@ -42,53 +43,95 @@ bool AttempToConnect(string name, string password)
 	return true;
 }
 
-void SetupShips(int lobbyID) {
+//void SetupShipsOld(int lobbyID) {
+//	//Duomenys - Kintamieji
+//	bool AI[2] = { true, true }; //Ar 1/2 zaidejas - AI
+//	int ShipTable[10][10][2];
+//	//[y][x][player]
+//
+//	pair<string, string> map = cnn.ReadMap(lobbyID);
+//
+//
+//	for (int i = 0; i < 10; i++)
+//	{
+//		for (int j = 0; j < 10; j++)
+//		{
+//			ShipTable[i][j][0] = map.first[i * 10 + j];
+//			ShipTable[i][j][1] = map.second[i * 10 + j];
+//		}
+//	}
+//
+//	//Laivu kurimas
+//	for (int k = 0; k < 2; k++) {
+//		for (int i = 0; i < 10; i++) {
+//			for (int j = 0; j < 10; j++) {
+//				if (ShipTable[i][j][k] != 0)
+//				{
+//					int xSize = 0;
+//					int ySize = 0;
+//					for (int l = 0; j + l < 10 && ShipTable[i][j + l][k] != 0; l++)
+//					{
+//						xSize++;
+//						ShipTable[i][j + l][k] = 0;
+//					}
+//					ShipTable[i][j][k] = 1;
+//					for (int l = 0; i + l < 10 && ShipTable[i + l][j][k] != 0; l++)
+//					{
+//						ySize++;
+//						ShipTable[i + l][j][k] = 0;
+//					}
+//					Laivai.push_back(Laivas(sf::Vector2f((float)j, (float)i), sf::Vector2f((float)(j + xSize - 1), (float)(i + ySize - 1))));
+//
+//				}
+//			}
+//		}
+//	}
+//
+//}
+
+void SetupShips(string PlayerMap, int TableWidth, int TableHeight) {
 	//Duomenys - Kintamieji
-	bool AI[2] = { true, true }; //Ar 1/2 zaidejas - AI
-	int ShipTable[10][10][2];
-	//[y][x][player]
 
-	pair<string, string> map = cnn.ReadMap(lobbyID);
+	vector<vector<int>> ShipTable(TableHeight);
+	//[y][x]
 
-
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < TableHeight; i++)
 	{
-		for (int j = 0; j < 10; j++)
+		ShipTable[i].resize(TableWidth);
+		for (int j = 0; j < TableWidth; j++)
 		{
-			ShipTable[i][j][0] = map.first[i * 10 + j];
-			ShipTable[i][j][1] = map.second[i * 10 + j];
+			ShipTable[i][j] = PlayerMap[i * 10 + j];
 		}
 	}
 
 	//Laivu kurimas
-	for (int k = 0; k < 2; k++) {
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++) {
-				if (ShipTable[i][j][k] != 0)
-				{
-					int xSize = 0;
-					int ySize = 0;
-					for (int l = 0; j + l < 10 && ShipTable[i][j + l][k] != 0; l++)
-					{
-						xSize++;
-						ShipTable[i][j + l][k] = 0;
-					}
-					ShipTable[i][j][k] = 1;
-					for (int l = 0; i + l < 10 && ShipTable[i + l][j][k] != 0; l++)
-					{
-						ySize++;
-						ShipTable[i + l][j][k] = 0;
-					}
-					Laivai[k].push_back(Laivas(sf::Vector2f((float)j, (float)i), sf::Vector2f((float)(j + xSize - 1), (float)(i + ySize - 1))));
 
+	for (int i = 0; i < TableHeight; i++) {
+		for (int j = 0; j < TableWidth; j++) {
+			if (ShipTable[i][j] != 0)
+			{
+				int xSize = 0;
+				int ySize = 0;
+				for (int l = 0; j + l < 10 && ShipTable[i][j + l] != 0; l++)
+				{
+					xSize++;
+					ShipTable[i][j + l] = 0;
 				}
+				ShipTable[i][j] = 1;
+				for (int l = 0; i + l < 10 && ShipTable[i + l][j] != 0; l++)
+				{
+					ySize++;
+					ShipTable[i + l][j] = 0;
+				}
+				Laivai.push_back(Laivas(sf::Vector2f((float)j, (float)i), sf::Vector2f((float)(j + xSize - 1), (float)(i + ySize - 1))));
+
 			}
 		}
 	}
 
 }
 
-bool TryToMakeAShot(sf::Vector2f position, vector<Shot>& Shots, sf::RectangleShape gridas[10][10])
+bool TryToMakeAShot(sf::Vector2f position, vector<Shot>& Shots, vector<vector<sf::RectangleShape>> gridas)
 {
 	bool isDuplicate = false;
 	for (int i = 0; i < Shots.size(); i++)
@@ -238,7 +281,7 @@ void SetupLobbyListScreen(vector<sf::RectangleShape>& lobbyGraphics, ScreenSizeP
 	}*/
 }
 
-void DisplayLobbies(vector<DBconnector::LobbyTable> lobbies, sf::RenderWindow& window, vector<sf::RectangleShape> graphics, vector<sf::Text> (&LobbyGrid)[2], sf::Font &Comicsas) {
+void DisplayLobbies(vector<DBconnector::LobbyTable> lobbies, sf::RenderWindow& window, vector<sf::RectangleShape> graphics, vector<sf::Text>(&LobbyGrid)[2], sf::Font& Comicsas) {
 
 	sf::Vector2f LobbyGridSize = sf::Vector2f(graphics[1].getSize().x * 0.5f, graphics[1].getSize().y * 0.1f);
 
@@ -314,19 +357,29 @@ void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePrope
 	lobbies = cnn.ListLobbies(1);
 	vector<sf::Text> LobbyGrid[2]; //a cell for game name and opponent name each
 
-	DisplayLobbies(lobbies, window, graphics, LobbyGrid,Comicsas);
+	DisplayLobbies(lobbies, window, graphics, LobbyGrid, Comicsas);
 
-	cout << "size of lobby " << LobbyGrid[0].size() << endl;
+	//cout << "size of lobby " << LobbyGrid[0].size() << endl;
 
 	for (int i = 0; i < 2; i++) {
 		for (int j = 0; j < LobbyGrid[0].size(); j++) {
-			cout << "i and j: " << i << " " << j << endl;
+			//cout << "i and j: " << i << " " << j << endl;
 			if (LobbyGrid[i][j].getGlobalBounds().intersects(pele.getGlobalBounds()))
 			{
 				if (j != 0) {
 					lobbyID = lobbies[j - 1].lobbyID;
 					cout << "Selected lobbyID: " << lobbyID << endl;
+					try
+					{
+						cnn.JoinLobbyAsPlayer(lobbyID, userID);
+					}
+					catch (const char* s)
+					{
+						cout << "error: " << s << endl;
+					}
+					cout << "langas: " << langas << endl;
 					langas++; //for the memes
+					cout << "langasN: " << langas << endl;
 				}
 			}
 			window.draw(LobbyGrid[i][j]);
@@ -337,9 +390,138 @@ void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePrope
 	window.display();
 }
 
+void SetupGameScreen(sf::RenderWindow& window, ScreenSizeProperties& sc, int TableWidth, int TableHeight, vector<vector<sf::RectangleShape>> &Grid1, vector<vector<sf::RectangleShape>> &Grid2, int LaivuCount, sf::Texture Textures[4]) {
+
+	//Vaizdavimo Design'as ir parametrai
+	//Pirmas kvadratas
+	sf::RectangleShape Area1(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
+	Area1.setPosition(sf::Vector2f((float)0.0375 * sc.width, (float)0.075 * sc.height));
+	Area1.setOutlineColor(sf::Color::Black);
+	Area1.setOutlineThickness(2.f);
+	Area1.setFillColor(sf::Color::Transparent);
+
+	//Pirmo kvadrato sulangvavimas
+	Grid1.resize(TableWidth);
+	for (int i = 0; i < TableWidth; i++) {
+		Grid1[i].resize(TableHeight);
+		for (int j = 0; j < TableHeight; j++) {
+			sf::Vector2f gridSize = sf::Vector2f(Area1.getSize().x * 0.1f, Area1.getSize().y * 0.1f);
+			Grid1[i][j].setSize(gridSize);
+			Grid1[i][j].setPosition(sf::Vector2f(Area1.getPosition().x + gridSize.x * i, Area1.getPosition().y + gridSize.y * j));
+			Grid1[i][j].setOutlineColor(sf::Color::Black);
+			Grid1[i][j].setOutlineThickness(1.f);
+			Grid1[i][j].setFillColor(sf::Color::Transparent);
+		}
+	}
+
+
+	//Antras kvadratas
+	sf::RectangleShape Area2(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
+	Area2.setPosition(sf::Vector2f((float)0.5375 * sc.width, (float)0.075 * sc.height));
+	Area2.setOutlineColor(sf::Color::Black);
+	Area2.setOutlineThickness(2.f);
+	Area2.setFillColor(sf::Color::Transparent);
+
+	//Antro kvadrato sulangavimas
+	Grid2.resize(TableWidth);
+	for (int i = 0; i < TableWidth; i++) {
+		Grid2[i].resize(TableHeight);
+		for (int j = 0; j < TableHeight; j++) {
+			sf::Vector2f gridSize = sf::Vector2f(Area2.getSize().x * 0.1f, Area2.getSize().y * 0.1f);
+			Grid2[i][j].setSize(gridSize);
+			Grid2[i][j].setPosition(sf::Vector2f(Area2.getPosition().x + gridSize.x * i, Area2.getPosition().y + gridSize.y * j));
+			Grid2[i][j].setOutlineColor(sf::Color::Black);
+			Grid2[i][j].setOutlineThickness(1.f);
+			Grid2[i][j].setFillColor(sf::Color::Transparent);
+		}
+	}
+	//zaidejo laivu vaizdavimas
+	for (int i = 0; i < LaivuCount; i++)
+	{
+		Laivai[i].ConstructRectangle(Area2, Grid2[0][0].getSize());
+	}
+
+	for (int i = 0; i < LaivuCount; i++)
+	{
+		if (Laivai[i].IsRectangleRotated())
+		{
+			Laivai[i].SetRectangleTexture(Textures[Laivai[i].GetLaivasLength() - 2]);
+			Laivai[i].RotateRectangle(90.f);
+		}
+		else
+		{
+			Laivai[i].SetRectangleTexture(Textures[Laivai[i].GetLaivasLength() - 2]);
+		}
+	}
+
+}
+
+//void DisplayShipsOLD(sf::RenderWindow& window, sf::Event& event, ScreenSizeProperties& sc, int& langas, vector<sf::RectangleShape> graphics) {
+//	//Suviu kurimas
+//	vector<Shot> Shots[PlayerCount];
+//
+//
+//	for (int k = 0; k < PlayerCount; k++)
+//	{
+//		for (int i = 0; i < LaivuCount; i++)
+//		{
+//			(k == 0) ? Laivai[k][i].ConstructRectangle(Area1, Grid1[0][0].getSize()) : Laivai[k][i].ConstructRectangle(Area2, Grid2[0][0].getSize());
+//		}
+//	}
+//	sf::Texture Textures[4];
+//	for (int i = 2; i < 6; i++)
+//	{
+//		Textures[i - 2].loadFromFile("Media/Laivas_" + std::to_string(i) + ".png");
+//	}
+//	for (int k = 0; k < PlayerCount; k++)
+//	{
+//		for (int i = 0; i < LaivuCount; i++)
+//		{
+//			if (Laivai[k][i].IsRectangleRotated())
+//			{
+//				Laivai[k][i].SetRectangleTexture(Textures[Laivai[k][i].GetLaivasLength() - 2]);
+//				Laivai[k][i].RotateRectangle(90.f);
+//			}
+//			else
+//			{
+//				Laivai[k][i].SetRectangleTexture(Textures[Laivai[k][i].GetLaivasLength() - 2]);
+//			}
+//		}
+//	}
+//
+//
+//	/*	//Laivu Grafiku kurimas
+//		for (int k = 0; k < PlayerCount; k++)
+//		{
+//			for (int i = 0; i < LaivuCount; i++)
+//			{
+//				(k == 0) ? Laivai[k][i].ConstructRectangle(Area1, Grid1[0][0].getSize()) : Laivai[k][i].ConstructRectangle(Area2, Grid2[0][0].getSize());
+//			}
+//		}
+//		sf::Texture Textures[4];
+//		for (int i = 2; i < 6; i++)
+//		{
+//			Textures[i - 2].loadFromFile("Media/Laivas_" + std::to_string(i) + ".png");
+//		}
+//		for (int k = 0; k < PlayerCount; k++)
+//		{
+//			for (int i = 0; i < LaivuCount; i++)
+//			{
+//				if (Laivai[k][i].IsRectangleRotated())
+//				{
+//					Laivai[k][i].SetRectangleTexture(Textures[Laivai[k][i].GetLaivasLength() - 2]);
+//					Laivai[k][i].RotateRectangle(90.f);
+//				}
+//				else
+//				{
+//					Laivai[k][i].SetRectangleTexture(Textures[Laivai[k][i].GetLaivasLength() - 2]);
+//				}
+//			}
+//		}*/
+//}
+
 int main()
 {
-
 	try
 	{
 		cnn.Connect("localhost", "root", "root", "battleships");
@@ -375,84 +557,6 @@ int main()
 	const int PlayerCount = 2;
 	const int LaivuCount = 5;
 
-	/*
-	//Suviu kurimas
-	vector<Shot> Shots[PlayerCount];
-
-	//Vaizdavimo Design'as ir parametrai
-	//Pirmas kvadratas
-	sf::RectangleShape Area1(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
-	Area1.setPosition(sf::Vector2f((float)0.0375 * sc.width, (float)0.075 * sc.height));
-	Area1.setOutlineColor(sf::Color::Black);
-	Area1.setOutlineThickness(2.f);
-	Area1.setFillColor(sf::Color::Transparent);
-
-	//Pirmo kvadrato sulangvavimas
-	sf::RectangleShape Grid1[TableWidth][TableHeight];
-	for (int i = 0; i < TableWidth; i++) {
-		for (int j = 0; j < TableHeight; j++) {
-			sf::Vector2f gridSize = sf::Vector2f(Area1.getSize().x * 0.1f, Area1.getSize().y * 0.1f);
-			Grid1[i][j].setSize(gridSize);
-			Grid1[i][j].setPosition(sf::Vector2f(Area1.getPosition().x + gridSize.x * i, Area1.getPosition().y + gridSize.y * j));
-			Grid1[i][j].setOutlineColor(sf::Color::Black);
-			Grid1[i][j].setOutlineThickness(1.f);
-			Grid1[i][j].setFillColor(sf::Color::Transparent);
-		}
-	}
-
-
-	//Antras kvadratas
-	sf::RectangleShape Area2(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
-	Area2.setPosition(sf::Vector2f((float)0.5375 * sc.width, (float)0.075 * sc.height));
-	Area2.setOutlineColor(sf::Color::Black);
-	Area2.setOutlineThickness(2.f);
-	Area2.setFillColor(sf::Color::Transparent);
-
-	//Antro kvadrato sulangavimas
-	sf::RectangleShape Grid2[TableWidth][TableHeight];
-	for (int i = 0; i < TableWidth; i++) {
-		for (int j = 0; j < TableHeight; j++) {
-			sf::Vector2f gridSize = sf::Vector2f(Area2.getSize().x * 0.1f, Area2.getSize().y * 0.1f);
-			Grid2[i][j].setSize(gridSize);
-			Grid2[i][j].setPosition(sf::Vector2f(Area2.getPosition().x + gridSize.x * i, Area2.getPosition().y + gridSize.y * j));
-			Grid2[i][j].setOutlineColor(sf::Color::Black);
-			Grid2[i][j].setOutlineThickness(1.f);
-			Grid2[i][j].setFillColor(sf::Color::Transparent);
-		}
-	}
-
-	*/
-
-	/*
-	//Laivu Grafiku kurimas
-	for (int k = 0; k < PlayerCount; k++)
-	{
-		for (int i = 0; i < LaivuCount; i++)
-		{
-			(k == 0) ? Laivai[k][i].ConstructRectangle(Area1, Grid1[0][0].getSize()) : Laivai[k][i].ConstructRectangle(Area2, Grid2[0][0].getSize());
-		}
-	}
-	sf::Texture Textures[4];
-	for (int i = 2; i < 6; i++)
-	{
-		Textures[i - 2].loadFromFile("Media/Laivas_" + std::to_string(i) + ".png");
-	}
-	for (int k = 0; k < PlayerCount; k++)
-	{
-		for (int i = 0; i < LaivuCount; i++)
-		{
-			if (Laivai[k][i].IsRectangleRotated())
-			{
-				Laivai[k][i].SetRectangleTexture(Textures[Laivai[k][i].GetLaivasLength() - 2]);
-				Laivai[k][i].RotateRectangle(90.f);
-			}
-			else
-			{
-				Laivai[k][i].SetRectangleTexture(Textures[Laivai[k][i].GetLaivasLength() - 2]);
-			}
-		}
-	}
-	*/
 	//font load
 	//sf::Text login;
 	//login.setFont(Comicsas);
@@ -463,94 +567,175 @@ int main()
 	sf::Texture areaTexture;	//must be kept at all times because objects don't keep a copy, but a pointer to it
 	areaTexture.loadFromFile("Media/Water.jpg");
 
-	//Login screen graphics setup'
+	sf::RectangleShape background(sf::Vector2f((float)sc.width, (float)sc.height));
+	background.setTexture(&areaTexture);
 
+
+	//Login screen graphics setup'
 	sf::Texture Button_Textures[2];//same as areaTexture
 	for (int i = 0; i < 2; i++)
 	{
 		Button_Textures[i].loadFromFile("Media/Button_" + std::to_string(i) + ".png");
 	}
 	vector<sf::RectangleShape> LoginGraphics;//= { background,login_button,spectate_button };
-	//sf::RectangleShape *LoginGraphics=new sf::RectangleShape [3];
 	SetupLoginScreen(LoginGraphics, sc, Button_Textures, areaTexture);
 
 
-	//Lobby list graphics setup
 
+	//Lobby list graphics setup
 	vector<sf::RectangleShape> LobbyGraphics;//= { background,LobbyArea };
 	SetupLobbyListScreen(LobbyGraphics, sc, LobbyWidth, LobbyHeight, areaTexture);
+	DBconnector::Rlobby rlobby;
 
 
 
-	//DBconnector::Rlobby rlobby;
+	//loading  screen
+	sf::Font Comicsas;	//loading font
+	if (!Comicsas.loadFromFile("Media/arial.ttf")) cout << "error";
+	sf::Text pInput;
+	pInput.setFont(Comicsas);
+	pInput.setString("Write your map name");
+	pInput.setCharacterSize(24);
+	pInput.setFillColor(sf::Color::Black);
+	pInput.setPosition(sf::Vector2f(250, 140));
+	string mapPath = "./.txt";
+
+	string PlayerMap = "";
+	int timeout = 3000;
 
 	///	rlobby = cnn.ReadLobby(lobbyID);
+
+
+	//Game graphics setup
+
+	sf::Texture Textures[4];
+	for (int i = 2; i < 6; i++)
+	{
+		Textures[i - 2].loadFromFile("Media/Laivas_" + std::to_string(i) + ".png");
+	}
+
+	sf::RectangleShape Area1;
+	sf::RectangleShape Area2;
+	vector<vector<sf::RectangleShape>> Grid1;
+	vector<vector<sf::RectangleShape>> Grid2;
+	//Suviu kurimas
+	vector<Shot> Shots[PlayerCount];//0 - zaidejas 1- priesininkas
+
 
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput = "";
 
 	int langas = 1;
+	int waitingFor = 0;
 	while (window.isOpen())
 	{
 		sf::Event event;
 		switch (langas)
 		{
-		case 0: //zaidimas
-			//Eventu Handlinimas
-		/*	while (window.pollEvent(event))
+		case 0:
+
+			switch (waitingFor)
 			{
-				if (event.type == sf::Event::Closed)
-					window.close();
-				if (event.type == sf::Event::MouseButtonPressed)
+			case 0: //waiting for your turn
+				while (window.pollEvent(event))
 				{
-					if (event.mouseButton.button == sf::Mouse::Left)
+					if (event.type == sf::Event::Closed)
+						window.close();
+
+					if (event.type == sf::Event::Resized)
 					{
-						int x = event.mouseButton.x;
-						int y = event.mouseButton.y;
-						sf::Vector2f gridPosition = GetGridPosition(sc, x, y, sf::Vector2f(Area2.getSize().x * 0.1f * ((float)sc.NewWidth / (float)sc.width), Area2.getSize().y * 0.1f * ((float)sc.NewHeight / (float)sc.height)));
-						if (gridPosition.x != -1 && gridPosition.y != -1)
+						sc.NewWidth = event.size.width;
+						sc.NewHeight = event.size.height;
+					}
+				}
+				try
+				{
+					rlobby = cnn.ReadLobby(lobbyID);
+				}
+				catch (const char* s)
+				{
+					cout << "FAIL: " << s << endl;
+				}
+
+				if (rlobby.curr_player == userID & rlobby.game_status == "w") { //sulauke musu ejimo nuskaitome priesininko ejima
+					enemyMove = rlobby.console_output;
+					//display enemy move
+					cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
+					//TryToMakeAShot(sf::Vector2f(0, 0 //x koordinate, y koordinate), Shots[0], Grid1);
+					//inform user and wait for his action
+					cout << "jusu eile" << endl;
+					//cnn.WriteMove(lobbyID, "ok");
+					waitingFor = 1;
+				}
+				break;
+			case 1:				//waiting for player's move selection
+				while (window.pollEvent(event))
+				{
+					if (event.type == sf::Event::Closed)
+						window.close();
+
+					if (event.type == sf::Event::Resized)
+					{
+						sc.NewWidth = event.size.width;
+						sc.NewHeight = event.size.height;
+					}
+
+					if (event.type == sf::Event::MouseButtonPressed)
+					{
+						if (event.mouseButton.button == sf::Mouse::Left)
 						{
-							//Šuvis
-							if (rlobby.curr_player == userID & rlobby.game_status == "w") {
-								if (TryToMakeAShot(gridPosition, Shots[0], Grid2))
+							int x = event.mouseButton.x;
+							int y = event.mouseButton.y;
+							sf::Vector2f gridPosition = GetGridPosition(sc, x, y, sf::Vector2f(Area2.getSize().x * 0.1f * ((float)sc.NewWidth / (float)sc.width), Area2.getSize().y * 0.1f * ((float)sc.NewHeight / (float)sc.height)));//STEADY AND PRECISE AIM
+							if (gridPosition.x != -1 && gridPosition.y != -1)
+							{
+								//Šuvis GO!
+								if (TryToMakeAShot(gridPosition, Shots[0], Grid1))
 								{
 									userInput = std::to_string(gridPosition.x) + "-" + std::to_string(gridPosition.y);
 									if (userInput != "") {
 										cnn.WriteMove(lobbyID, userInput);
+										waitingFor = 2;
 									}
 								}
+
 							}
 						}
 					}
-					/*if (event.mouseButton.button == sf::Mouse::Right)
-					{
-						langas = 1;
-					}*/
-					/*
-
 				}
-				if (event.type == sf::Event::Resized)
+				break;
+			case 2: //waiting for console's response to the move
+				while (window.pollEvent(event))
 				{
-					sc.NewWidth = event.size.width;
-					sc.NewHeight = event.size.height;
+					if (event.type == sf::Event::Closed)
+						window.close();
+
+					if (event.type == sf::Event::Resized)
+					{
+						sc.NewWidth = event.size.width;
+						sc.NewHeight = event.size.height;
+					}
 				}
-			}
+				try
+				{
+					rlobby = cnn.ReadLobby(lobbyID);
+				}
+				catch (const char* s)
+				{
+					cout << "FAIL: " << s << endl;
+				}
 
+				if (rlobby.curr_player == userID & rlobby.game_status == "w") {
+					DidYouMakeIt = rlobby.console_output;
+					//display result of your action
+					cout << "rezultatas: " << DidYouMakeIt << endl; // mes negalim atvaizduoti pataike ar nepataike... but we can :)
+					waitingFor = 0;
+				}
+				break;
 
-			if (rlobby.curr_player == userID & rlobby.game_status == "e") {
-				enemyMove = rlobby.console_output;
-				//display enemy move
-				cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
-				//TryToMakeAShot(sf::Vector2f(0, 0 //x koordinate, y koordinate), Shots[0], Grid1);
-				//inform user and wait for his action
-				cout << "jusu eile" << endl;
-				cnn.WriteMove(lobbyID, "ok");
-			}
-
-
-			if (rlobby.curr_player != userID) {
-				DidYouMakeIt = rlobby.console_output;
+			default:
+				break;
 			}
 
 			//Piesimas
@@ -558,27 +743,27 @@ int main()
 			window.draw(background);
 			window.draw(Area1);
 			window.draw(Area2);
+
 			for (int i = 0; i < TableWidth; i++) {
 				for (int j = 0; j < TableHeight; j++) {
 					window.draw(Grid1[i][j]);
 					window.draw(Grid2[i][j]);
 				}
 			}
-			for (int k = 0; k < PlayerCount; k++)
+
+			for (int i = 0; i < LaivuCount; i++)//atvaizduojame zaidejo laivus
 			{
-				for (int i = 0; i < LaivuCount; i++)
-				{
-					window.draw(Laivai[k][i].GetLaivasRectangle());
-				}
+				window.draw(Laivai[i].GetLaivasRectangle());
 			}
-			for (int k = 0; k < PlayerCount; k++)
+
+			for (int k = 0; k < PlayerCount; k++)	//atvaizduojame abieju zaideju suvius 
 			{
 				for (int i = 0; i < Shots[k].size(); i++)
 				{
 					window.draw(Shots[k][i].GetShotRect());
 				}
 
-			}*/
+			}
 			window.display();
 			break;
 		case 1: //login screen
@@ -586,13 +771,25 @@ int main()
 			LoginScreen(window, event, sc, langas, LoginGraphics);
 
 			break;
-		case 2: //lobby list
+		case 2: //lobby list //2
 
 			LobbyListScreen(window, event, sc, langas, LobbyGraphics);
 			break;
 
-		case 3: //loading screen
-				/*
+		case 3: //loading screen 3 game.exe ijungiama, irasome failo pavadinima su 100 skaiciu, reprezentuojanciu musu laivu isdestyma, laukiama patvirtinimo ir pradedamas zaidimas
+
+		//	lobbyID = 19;
+
+			try
+			{
+				rlobby = cnn.ReadLobby(lobbyID);
+			}
+			catch (const char* s)
+			{
+				cout << "FAIL: " << s << endl;
+			}
+
+			cout << rlobby.console_output << "-" << rlobby.curr_player << "-" << rlobby.game_status << endl;
 			while (window.pollEvent(event))
 			{
 				if (event.type == sf::Event::Closed)
@@ -602,34 +799,90 @@ int main()
 					sc.NewWidth = event.size.width;
 					sc.NewHeight = event.size.height;
 				}
+				if (rlobby.game_status == "w" && rlobby.curr_player == userID) { //jeigu game.exe bendrauja su mumis
+					pInput.setString(mapPath);
+					if (event.type == sf::Event::TextEntered)
+					{
+						if (event.text.unicode == 8) { //jeigu backspace - istriname
+							if (mapPath.size() > 6) {
+								mapPath = mapPath.substr(0, mapPath.size() - 5);
+								mapPath += ".txt";
+								pInput.setString(mapPath);
+							}
+						}
+						else if (event.text.unicode == 13) { //enter submittina faila
+							ifstream fin(mapPath);
+							char t;
+							cout << "trying" << endl;
+							for (int i = 0; i < 100; i++) { //perduodame 100 numeriu po viena, laukdami patvirtinimo pries issiunciant nauja skaiciu
+								fin >> t;
+								string ts;
+								ts = t;
+								PlayerMap += ts;
+								try
+								{
+									cnn.WriteMove(lobbyID, ts);
+								}
+								catch (const char* s)
+								{
+									//	cout << endl;
+										//cout << "size: " << PlayerMap.size() << endl;
+										//cout << PlayerMap << endl;
+									cout << "error when submitting map: " << s << endl;
+									return -1;
+								}
+								cout << ts << " ";
+
+								timeout = 1000; // laukiame max 10s serveriui patvirtinti musu input
+								do {
+									try
+									{
+										rlobby = cnn.ReadLobby(lobbyID);
+									}
+									catch (const char* s)
+									{
+										cout << "FAIL: " << s << endl;
+									}
+									window.clear();
+									window.draw(background);
+									pInput.setString("Loading...");
+									window.draw(pInput);
+									window.display();
+
+									Sleep(10);
+									timeout--;
+								} while (rlobby.game_status != "w" && timeout > 0);//wait for console to read output
+
+								if (timeout == 0) { //server crashed
+									return -1;
+								}
+							}
+							cout << endl;
+							langas = 0; // nukreipiame vaizda i zaidima
+							cout << "INGAME" << endl;
+							SetupShips(PlayerMap, TableWidth, TableHeight); // gauname vektoriu laivu su ju koordinatemis
+							SetupGameScreen(window, sc, TableWidth, TableHeight, Grid1, Grid2, LaivuCount, Textures); //pradedame zaidimo lauko vaizdavima
+						}
+						else {
+							mapPath = mapPath.substr(0, mapPath.size() - 4);
+							mapPath += event.text.unicode;
+							mapPath += ".txt";
+							pInput.setString(mapPath);
+						}
+					}
+				}
+				else {
+					pInput.setString("Waiting for others...");
+				}
+
 			}
 			window.clear();
 			window.draw(background);
-			cout << "loaaadinggg" << endl;
+			window.draw(pInput);
 			window.display();
-
-			cnn.JoinLobbyAsPlayer(lobbyID, userID);
-
-			while (true) {
-
-				rlobby = cnn.ReadLobby(lobbyID);
-
-				if (rlobby.console_output == "w" && rlobby.curr_player == userID) {
-					cnn.WriteMove(lobbyID, "100char map");
-					break;
-				}
-
-				while (true) {
-					if (rlobby.console_output == "w" && rlobby.curr_player == userID) {
-						SetupShips(lobbyID);
-						break;
-					}
-				}
-				langas = 0;
-			}
-			*/
 			break;
 		default:
+			cout << "WHY " << langas << endl;
 			return 0;
 			break;
 		}

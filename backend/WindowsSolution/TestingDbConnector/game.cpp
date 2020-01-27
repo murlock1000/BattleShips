@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	dbc.Connect("127.0.0.1", "root", "root", "battleships"); //connecting to database
 
     //int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
-	int lobbyId = 3; //debugging purposes
+	int lobbyId = 9; //debugging purposes
 	DBconnector::ConsoleReadStruct lobby;
 
 	lobby = dbc.ConsoleRead(lobbyId); //gets information about lobby
@@ -293,6 +293,8 @@ int timeout = 3100;
 				{
 					//cout <<"userInput: "<< lobby.user_input << endl;
 					shipTable[i][j] = stoi(lobby.user_input); //try to convert string to int
+					userShipTable += to_string(shipTable[i][j]);
+					cout << to_string(shipTable[i][j]) <<" ";
 				}
 				catch (const std::exception&)
 				{
@@ -304,7 +306,19 @@ int timeout = 3100;
 					shipHealth[i][shipTable[i][j] - 1] ++;
 				}
 			}
+
+			cout << endl;
+
+			lobby = dbc.ConsoleRead(lobbyId); //updating local information to prevent overwriting ship tables
+
+			if (i == admin) {
+				dbc.UpdateLobby(lobbyId, "r", lobby.user_input, "", userShipTable, lobby.opponent_map, 0, "n", 0);
+			}
+			else {
+				dbc.UpdateLobby(lobbyId, "r", lobby.user_input, "", lobby.admin_map, userShipTable, 0, "n", 0);
+			}
 		}
+
 
 	}
 

@@ -32,10 +32,13 @@ int ReadFromFile(ifstream& file)
 	return mbuffer;
 }
 
-sf::Vector2f GetGridPosition(ScreenSizeProperties& sc, int x, int y, sf::Vector2f size)
+sf::Vector2i GetGridPosition(ScreenSizeProperties& sc, int x, int y, sf::Vector2f size)
 {
-	sf::Vector2f buffer = sf::Vector2f((float)((x - 0.5375 * sc.width) / size.x), (1.f + (float)((y - 0.075 * sc.width)) / size.y)); ///turetu but kazkur sc.height
-	return (buffer.x > 0 && buffer.x < 10 && buffer.y > 0 && buffer.y < 10) ? buffer : sf::Vector2f(-1, -1);
+	//cout << "pressed xy: " << x << " " << y <<" "<<size.x<<" "<<size.y<< endl;
+	//sf::Vector2i buffer = sf::Vector2i((float)((x - 0.5375 * sc.width) / size.x), (1.f + (float)((y - 0.075 * sc.width)) / size.y)); ///turetu but kazkur sc.height cia savo laukui nuspaust
+	sf::Vector2i buffer = sf::Vector2i((float)((x - 0.0375* sc.width) / size.x), (1.f + (float)((y - 0.075 * sc.width)) / size.y)); ///turetu but kazkur sc.height enemy field 1.
+	//cout << "Buffer: " << buffer.x << " " << buffer.y << endl;
+	return (buffer.x >= 0 && buffer.x < 10 && buffer.y >= 0 && buffer.y < 10) ? buffer : sf::Vector2i(-1, -1);
 }
 
 bool AttempToConnect(string name, string password)
@@ -92,16 +95,24 @@ bool AttempToConnect(string name, string password)
 void SetupShips(string PlayerMap, int TableWidth, int TableHeight) {
 	//Duomenys - Kintamieji
 
+	cout << "h " << TableHeight << " - " << TableWidth << endl;
+
 	vector<vector<int>> ShipTable(TableHeight);
 	//[y][x]
 
+	ShipTable.resize(TableHeight);
+	cout << PlayerMap << endl;
 	for (int i = 0; i < TableHeight; i++)
 	{
 		ShipTable[i].resize(TableWidth);
 		for (int j = 0; j < TableWidth; j++)
 		{
-			ShipTable[i][j] = PlayerMap[i * 10 + j];
+
+			
+			ShipTable[i][j] = PlayerMap[i * 10 + j] - '0';
+			cout << ShipTable[i][j] << " ";
 		}
+		cout << endl;
 	}
 
 	//Laivu kurimas
@@ -131,7 +142,7 @@ void SetupShips(string PlayerMap, int TableWidth, int TableHeight) {
 
 }
 
-bool TryToMakeAShot(sf::Vector2f position, vector<Shot>& Shots, vector<vector<sf::RectangleShape>> gridas)
+bool TryToMakeAShot(sf::Vector2i position, vector<Shot>& Shots, vector<vector<sf::RectangleShape>> gridas)
 {
 	bool isDuplicate = false;
 	for (int i = 0; i < Shots.size(); i++)
@@ -214,6 +225,7 @@ void LoginScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePropertie
 							userID = cnn.Login(Name);
 							cout << "userID: " << userID << endl;
 							langas = 2; //imest funkcija, kuri chekintu login'a, ir tada grazintu i langas 2 (lobby)
+
 						}
 						catch (const char* e)
 						{
@@ -390,11 +402,12 @@ void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePrope
 	window.display();
 }
 
-void SetupGameScreen(sf::RenderWindow& window, ScreenSizeProperties& sc, int TableWidth, int TableHeight, vector<vector<sf::RectangleShape>> &Grid1, vector<vector<sf::RectangleShape>> &Grid2, int LaivuCount, sf::Texture Textures[4]) {
+void SetupGameScreen(sf::RenderWindow& window, ScreenSizeProperties& sc, int TableWidth, int TableHeight, vector<vector<sf::RectangleShape>> &Grid1, vector<vector<sf::RectangleShape>> &Grid2, int LaivuCount, sf::Texture Textures[4], sf::RectangleShape &Area1, sf::RectangleShape &Area2) {
 
 	//Vaizdavimo Design'as ir parametrai
 	//Pirmas kvadratas
-	sf::RectangleShape Area1(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
+
+	Area1.setSize(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));// = new sf::RectangleShape(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
 	Area1.setPosition(sf::Vector2f((float)0.0375 * sc.width, (float)0.075 * sc.height));
 	Area1.setOutlineColor(sf::Color::Black);
 	Area1.setOutlineThickness(2.f);
@@ -416,7 +429,7 @@ void SetupGameScreen(sf::RenderWindow& window, ScreenSizeProperties& sc, int Tab
 
 
 	//Antras kvadratas
-	sf::RectangleShape Area2(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
+	Area2.setSize(sf::Vector2f((float)0.425 * sc.width, (float)0.85 * sc.height));
 	Area2.setPosition(sf::Vector2f((float)0.5375 * sc.width, (float)0.075 * sc.height));
 	Area2.setOutlineColor(sf::Color::Black);
 	Area2.setOutlineThickness(2.f);
@@ -601,6 +614,7 @@ int main()
 	string mapPath = "./.txt";
 
 	string PlayerMap = "";
+	//string PlayerMap = "0011111000000000000000033304440000000000000020000000002000000000200000000020000000000000000000000055";
 	int timeout = 3000;
 
 	///	rlobby = cnn.ReadLobby(lobbyID);
@@ -628,6 +642,10 @@ int main()
 
 	int langas = 1;
 	int waitingFor = 0;
+
+	//SetupShips(PlayerMap, TableWidth, TableHeight); // gauname vektoriu laivu su ju koordinatemis
+	//SetupGameScreen(window, sc, TableWidth, TableHeight, Grid1, Grid2, LaivuCount, Textures,Area1,Area2); //pradedame zaidimo lauko vaizdavima
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -661,11 +679,35 @@ int main()
 				if (rlobby.curr_player == userID & rlobby.game_status == "w") { //sulauke musu ejimo nuskaitome priesininko ejima
 					enemyMove = rlobby.console_output;
 					//display enemy move
+					int x, y;
+					int dashPosition = 0;
+
+					cout << "EnemyMove: " << enemyMove << endl;
+					if (enemyMove.size() > 2) {
+						while (enemyMove.substr(dashPosition, 1) != "-") dashPosition++;
+						try
+						{
+							x = stoi(enemyMove.substr(0, dashPosition));
+							y = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
+							TryToMakeAShot(sf::Vector2i(x, y), Shots[0], Grid1); //display enemy move
+						}
+						catch (const std::exception&)
+						{
+							cout << "server returned invalid message or someone won and the end game function has not been implemented yet" << endl;
+							//return -1;
+						}
+					}
+
+
 					cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
 					//TryToMakeAShot(sf::Vector2f(0, 0 //x koordinate, y koordinate), Shots[0], Grid1);
 					//inform user and wait for his action
 					cout << "jusu eile" << endl;
 					//cnn.WriteMove(lobbyID, "ok");
+
+				
+
+
 					waitingFor = 1;
 				}
 				break;
@@ -687,13 +729,13 @@ int main()
 						{
 							int x = event.mouseButton.x;
 							int y = event.mouseButton.y;
-							sf::Vector2f gridPosition = GetGridPosition(sc, x, y, sf::Vector2f(Area2.getSize().x * 0.1f * ((float)sc.NewWidth / (float)sc.width), Area2.getSize().y * 0.1f * ((float)sc.NewHeight / (float)sc.height)));//STEADY AND PRECISE AIM
+							sf::Vector2i gridPosition = GetGridPosition(sc, x, y, sf::Vector2f(Area1.getSize().x * 0.1f * ((float)sc.NewWidth / (float)sc.width), Area1.getSize().y * 0.1f * ((float)sc.NewHeight / (float)sc.height)));//STEADY AND PRECISE AIM
 							if (gridPosition.x != -1 && gridPosition.y != -1)
 							{
 								//Šuvis GO!
 								if (TryToMakeAShot(gridPosition, Shots[0], Grid1))
 								{
-									userInput = std::to_string(gridPosition.x) + "-" + std::to_string(gridPosition.y);
+									userInput = std::to_string((int)gridPosition.y) + "-" + std::to_string((int)gridPosition.x);
 									if (userInput != "") {
 										cnn.WriteMove(lobbyID, userInput);
 										waitingFor = 2;
@@ -771,6 +813,75 @@ int main()
 			LoginScreen(window, event, sc, langas, LoginGraphics);
 
 			break;
+		/*case 2:
+			//Piesimas
+
+			while (window.pollEvent(event))
+			{
+				if (event.type == sf::Event::Closed)
+					window.close();
+
+				if (event.type == sf::Event::Resized)
+				{
+					sc.NewWidth = event.size.width;
+					sc.NewHeight = event.size.height;
+					//Area1.setSize(sf::Vector2f((float)0.425 * sc.NewWidth, (float)0.85 * sc.NewHeight));
+				//	Area2.setSize(sf::Vector2f((float)0.425 * sc.NewWidth, (float)0.85 * sc.NewHeight));
+				}
+
+				if (event.type == sf::Event::MouseButtonPressed)
+				{
+					if (event.mouseButton.button == sf::Mouse::Left)
+					{
+						int x = event.mouseButton.x;
+						int y = event.mouseButton.y;
+						//cout << "Area " << Area2.getSize().x << endl;
+						sf::Vector2i gridPosition = GetGridPosition(sc, x, y, sf::Vector2f(Area1.getSize().x * 0.1f * ((float)sc.NewWidth / (float)sc.width), Area1.getSize().y * 0.1f * ((float)sc.NewHeight / (float)sc.height)));//STEADY AND PRECISE AIM
+					//	cout << "GridPos: " << gridPosition.x << "-" << gridPosition.y << endl;
+						if (gridPosition.x != -1 && gridPosition.y != -1)
+						{
+							//Šuvis GO!
+							if (TryToMakeAShot(gridPosition, Shots[0], Grid1))
+							{
+								userInput = std::to_string((int)gridPosition.y) + "-" + std::to_string((int)gridPosition.x);
+								cout <<"aimPos: "<< userInput << endl;
+							}
+
+						}
+					}
+				}
+			}
+
+
+			window.clear();
+			window.draw(background);
+			window.draw(Area1);
+			window.draw(Area2);
+
+			for (int i = 0; i < TableWidth; i++) {
+				for (int j = 0; j < TableHeight; j++) {
+					window.draw(Grid1[i][j]);
+					window.draw(Grid2[i][j]);
+				}
+			}
+
+			for (int i = 0; i < LaivuCount; i++)//atvaizduojame zaidejo laivus
+			{
+				//cout << Laivai[i].ilgis << endl;
+				window.draw(Laivai[i].GetLaivasRectangle());
+			}
+
+			for (int k = 0; k < PlayerCount; k++)	//atvaizduojame abieju zaideju suvius 
+			{
+				for (int i = 0; i < Shots[k].size(); i++)
+				{
+					window.draw(Shots[k][i].GetShotRect());
+				}
+
+			}
+			window.display();
+			break;
+			*/
 		case 2: //lobby list //2
 
 			LobbyListScreen(window, event, sc, langas, LobbyGraphics);
@@ -789,7 +900,7 @@ int main()
 				cout << "FAIL: " << s << endl;
 			}
 
-			cout << rlobby.console_output << "-" << rlobby.curr_player << "-" << rlobby.game_status << endl;
+		//	cout << rlobby.console_output << "-" << rlobby.curr_player << "-" << rlobby.game_status << endl;
 			while (window.pollEvent(event))
 			{
 				if (event.type == sf::Event::Closed)
@@ -860,8 +971,10 @@ int main()
 							cout << endl;
 							langas = 0; // nukreipiame vaizda i zaidima
 							cout << "INGAME" << endl;
+							cout << endl;
+							cout << PlayerMap << endl;
 							SetupShips(PlayerMap, TableWidth, TableHeight); // gauname vektoriu laivu su ju koordinatemis
-							SetupGameScreen(window, sc, TableWidth, TableHeight, Grid1, Grid2, LaivuCount, Textures); //pradedame zaidimo lauko vaizdavima
+							SetupGameScreen(window, sc, TableWidth, TableHeight, Grid1, Grid2, LaivuCount, Textures,Area1,Area2); //pradedame zaidimo lauko vaizdavima
 						}
 						else {
 							mapPath = mapPath.substr(0, mapPath.size() - 4);

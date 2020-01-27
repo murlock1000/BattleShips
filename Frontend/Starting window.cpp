@@ -689,7 +689,7 @@ int main()
 						{
 							x = stoi(enemyMove.substr(0, dashPosition));
 							y = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
-							TryToMakeAShot(sf::Vector2i(x, y), Shots[0], Grid1); //display enemy move
+							TryToMakeAShot(sf::Vector2i(x, y), Shots[1], Grid2); //display enemy move
 						}
 						catch (const std::exception&)
 						{

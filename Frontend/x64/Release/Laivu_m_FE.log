@@ -24,10 +24,10 @@ C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(361,35)
               T=float
           ]
 C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(679,65): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(771,65): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(769,65): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
   Generating code
   1 of 900 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    5 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Laivu_m_FE.vcxproj -> C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\x64\Release\Laivu_m_FE.exe

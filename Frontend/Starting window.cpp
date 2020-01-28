@@ -682,31 +682,28 @@ int main()
 					int x, y;
 					int dashPosition = 0;
 
-					cout << "EnemyMove: " << enemyMove << endl;
+					
 					if (enemyMove.size() > 2) {
 						while (enemyMove.substr(dashPosition, 1) != "-") dashPosition++;
 						try
 						{
-							x = stoi(enemyMove.substr(0, dashPosition));
-							y = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
+							y = stoi(enemyMove.substr(0, dashPosition))-1;
+							x = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1))-1;
 							TryToMakeAShot(sf::Vector2i(x, y), Shots[1], Grid2); //display enemy move
 						}
 						catch (const std::exception&)
 						{
-							cout << "server returned invalid message or someone won and the end game function has not been implemented yet" << endl;
+							cout << "inv msg: " <<enemyMove<< endl;
 							//return -1;
 						}
 					}
 
 
-					cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
+					cout << "ai: " << enemyMove << endl; // mes negalim atvaizduoti pataike ar nepataike...
 					//TryToMakeAShot(sf::Vector2f(0, 0 //x koordinate, y koordinate), Shots[0], Grid1);
 					//inform user and wait for his action
-					cout << "jusu eile" << endl;
+				//	cout << "jusu eile" << endl;
 					//cnn.WriteMove(lobbyID, "ok");
-
-				
-
 
 					waitingFor = 1;
 				}
@@ -735,8 +732,9 @@ int main()
 								//Šuvis GO!
 								if (TryToMakeAShot(gridPosition, Shots[0], Grid1))
 								{
-									userInput = std::to_string((int)gridPosition.y) + "-" + std::to_string((int)gridPosition.x);
+									userInput = std::to_string((int)gridPosition.y+1) + "-" + std::to_string((int)gridPosition.x+1);
 									if (userInput != "") {
+										cout << "player: " << userInput << endl;
 										cnn.WriteMove(lobbyID, userInput);
 										waitingFor = 2;
 									}
@@ -772,6 +770,7 @@ int main()
 					DidYouMakeIt = rlobby.console_output;
 					//display result of your action
 					cout << "rezultatas: " << DidYouMakeIt << endl; // mes negalim atvaizduoti pataike ar nepataike... but we can :)
+					cnn.WriteMove(lobbyID,"1");
 					waitingFor = 0;
 				}
 				break;

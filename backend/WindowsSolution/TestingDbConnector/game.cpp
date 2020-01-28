@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	dbc.Connect("127.0.0.1", "root", "root", "battleships"); //connecting to database
 
     //int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
-	int lobbyId = 9; //debugging purposes
+	int lobbyId = 10; //debugging purposes
 	DBconnector::ConsoleReadStruct lobby;
 
 	lobby = dbc.ConsoleRead(lobbyId); //gets information about lobby
@@ -338,11 +338,11 @@ int timeout = 3100;
 
 	string consoleOutput = "";
 
-	
+	string LastMove = "";
 
 	while (true) {
-
-		dbc.UpdateLobby(lobbyId, "i", "", lobby.user_input, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //send the previous players move to the other player and wait for his action
+		cout << "Last Move: " << LastMove << endl;
+		dbc.UpdateLobby(lobbyId, "i", "", LastMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //send the previous players move to the other player and wait for his action
 
 		int tileX;
 		int tileY;
@@ -364,6 +364,7 @@ int timeout = 3100;
 			//read user's move
 
 			int dashPosition = 0;
+			
 			while (lobby.user_input.substr(dashPosition, 1) != "-") dashPosition++;
 			try
 			{
@@ -375,8 +376,9 @@ int timeout = 3100;
 				disconnect(playerNumber, playerNumber, fdOutput, fdInput, pid, playerType, playerId[currentPlayer], dbc, lobby, lobbyId, historyId, playerId); //if players output is invalid - he loses
 				return -1;
 			}
-
-			cout << "zaidejo move: " << tileX << "-" << tileY << endl;
+			LastMove = to_string(tileX) + "-" + to_string(tileY);
+			cout << "playerMov: " << LastMove << endl;
+			cout << "player: " << tileX << "-" << tileY << endl;
 		
 		}
 		else {
@@ -400,7 +402,9 @@ int timeout = 3100;
 			else {
 				tileY = intOut;
 			}
-
+			LastMove = to_string(tileX) + "-" + to_string(tileY);  //saving move for output to the other player
+			cout << "aiMove: " << LastMove << endl;
+			cout << "ai: " << tileX << " : " << tileY << endl;
 			//	cout << "Y: " << tileY << endl;
 				//cout << "X: " << tileX << endl;
 
@@ -473,7 +477,7 @@ int timeout = 3100;
 			//send console response to lobby table
 			consoleOutput = pseudoOutput;
 			dbc.UpdateLobby(lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //returning the result of an action
-
+			cout << "result: " << consoleOutput << endl;
 			timeout = 3100;//30seconds until the opponent wins
 			do { //wait until frontend moves
 				lobby = dbc.ConsoleRead(lobbyId);

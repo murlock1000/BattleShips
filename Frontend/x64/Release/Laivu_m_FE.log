@@ -1,10 +1,53 @@
-﻿  dbconnector.cpp
-C:\Users\Paulius\source\repos\BattleShips\Frontend\ClassesAndHeaders\dbconnector.cpp(100,65): warning C4838: conversion from 'int' to 'bool' requires a narrowing conversion
-C:\Users\Paulius\source\repos\BattleShips\Frontend\ClassesAndHeaders\dbconnector.cpp(83,12): warning C4101: 'losses': unreferenced local variable
-C:\Users\Paulius\source\repos\BattleShips\Frontend\ClassesAndHeaders\dbconnector.cpp(83,6): warning C4101: 'wins': unreferenced local variable
-C:\Users\Paulius\source\repos\BattleShips\Frontend\ClassesAndHeaders\dbconnector.cpp(84,10): warning C4101: 'is_ai': unreferenced local variable
-C:\Users\Paulius\source\repos\BattleShips\Frontend\ClassesAndHeaders\dbconnector.cpp(265,15): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
-C:\Users\Paulius\source\repos\BattleShips\Frontend\ClassesAndHeaders\dbconnector.cpp(521,15): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
-C:\Users\Paulius\source\repos\BattleShips\Frontend\ClassesAndHeaders\dbconnector.cpp(622,15): warning C4244: 'initializing': conversion from 'uint64_t' to 'int', possible loss of data
+﻿  Starting window.cpp
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,85): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,85): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,85): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,85): warning C4244:             T=int
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,85): warning C4244:         ]
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,69): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,69): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,69): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,69): warning C4244:             T=int
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(48,69): warning C4244:         ]
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(298,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(299,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,38): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,38): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,38): warning C4244:             T=float
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,38): warning C4244:         ]
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,35): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,35): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,35): warning C4244:             T=float
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(301,35): warning C4244:         ]
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(412,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(413,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,38): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,38): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,38): warning C4244:             T=float
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,38): warning C4244:         ]
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,35): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,35): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,35): warning C4244:             T=float
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(415,35): warning C4244:         ]
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(677,63): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(701,68): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(711,68): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(775,63): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(838,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(839,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,38): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,38): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,38): warning C4244:             T=float
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,38): warning C4244:         ]
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,35): warning C4244:         with
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,35): warning C4244:         [
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,35): warning C4244:             T=float
+C:\Users\Paulius\source\repos\BattleShips\Frontend\Starting window.cpp(841,35): warning C4244:         ]
   LINK : /LTCG specified but no code generation required; remove /LTCG from the link command line to improve linker performance
   Laivu_m_FE.vcxproj -> C:\Users\Paulius\source\repos\BattleShips\Frontend\x64\Release\Laivu_m_FE.exe

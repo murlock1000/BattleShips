@@ -463,7 +463,7 @@ string DBconnector::GetWinner(int gameID)	//returns winner's username after pass
 {
 	string username;
 	ss << gameID;
-	query = "SELECT username FROM users WHERE userID= SELECT winnerID FROM history WHERE gameID ="+ss.str();
+	query = "SELECT username FROM users WHERE userID= (SELECT winnerID FROM history WHERE gameID ="+ss.str()+")";
 	ss.clear();
 	ss.str(string());
 

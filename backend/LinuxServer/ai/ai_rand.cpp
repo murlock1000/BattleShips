@@ -11,7 +11,7 @@ using namespace std;
 int main(){
 
     cout << "0 " << flush;
-            
+
     int table [100]  = {0, 0, 1, 1, 1, 1, 1, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 3, 3, 3, 0, 4, 4, 4,
@@ -37,7 +37,7 @@ int main(){
         int targetY = (moves [currentMove] / 10);
         int targetX = (moves [currentMove] - 10 * targetY);
 
-        cout << targetX + 1 << " " << targetY + 1 << " " << flush;
+        cout << targetX << " " << targetY << " " << flush;
         char status = '0';
         cin >> status;
         if (status == '4') {

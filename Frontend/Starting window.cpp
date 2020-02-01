@@ -642,7 +642,7 @@ int main()
 
 	int langas = 1;
 	int waitingFor = 0;
-
+	int historyId = 0;
 	//SetupShips(PlayerMap, TableWidth, TableHeight); // gauname vektoriu laivu su ju koordinatemis
 	//SetupGameScreen(window, sc, TableWidth, TableHeight, Grid1, Grid2, LaivuCount, Textures,Area1,Area2); //pradedame zaidimo lauko vaizdavima
 
@@ -682,30 +682,44 @@ int main()
 					int x, y;
 					int dashPosition = 0;
 
-					
+				//	cout << "EnemyMove: " << enemyMove << endl;
 					if (enemyMove.size() > 2) {
 						while (enemyMove.substr(dashPosition, 1) != "-") dashPosition++;
 						try
 						{
-							y = stoi(enemyMove.substr(0, dashPosition))-1;
-							x = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1))-1;
+							x = stoi(enemyMove.substr(0, dashPosition));
+							y = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
 							TryToMakeAShot(sf::Vector2i(x, y), Shots[1], Grid2); //display enemy move
 						}
 						catch (const std::exception&)
 						{
-							cout << "inv msg: " <<enemyMove<< endl;
+							cout << "server returned invalid message or someone won and the end game function has not been implemented yet" << endl;
 							//return -1;
 						}
 					}
 
 
-					cout << "ai: " << enemyMove << endl; // mes negalim atvaizduoti pataike ar nepataike...
+				//	cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
 					//TryToMakeAShot(sf::Vector2f(0, 0 //x koordinate, y koordinate), Shots[0], Grid1);
 					//inform user and wait for his action
 				//	cout << "jusu eile" << endl;
 					//cnn.WriteMove(lobbyID, "ok");
 
+				
+
+
 					waitingFor = 1;
+				}
+				else if (rlobby.curr_player == userID & rlobby.game_status == "f") {
+					historyId = cnn.AcknowledgeEnd(lobbyID, userID, 1);
+					cout << "historyID: " << historyId << endl;
+					cout << "GAME OVER, WINNER IS " << cnn.GetWinner(historyId) << endl;
+						langas = 1;
+				}
+				else if (rlobby.curr_player == userID & rlobby.game_status == "e") {
+
+					cout << "GAME CRASHED" << endl;
+					langas = 1;
 				}
 				break;
 			case 1:				//waiting for player's move selection
@@ -732,9 +746,9 @@ int main()
 								//Šuvis GO!
 								if (TryToMakeAShot(gridPosition, Shots[0], Grid1))
 								{
-									userInput = std::to_string((int)gridPosition.y+1) + "-" + std::to_string((int)gridPosition.x+1);
+									userInput = std::to_string((int)gridPosition.x) + "-" + std::to_string((int)gridPosition.y);
+									cout << "myMove: " << userInput << endl;
 									if (userInput != "") {
-										cout << "player: " << userInput << endl;
 										cnn.WriteMove(lobbyID, userInput);
 										waitingFor = 2;
 									}
@@ -759,7 +773,7 @@ int main()
 				}
 				try
 				{
-					rlobby = cnn.ReadLobby(lobbyID);
+					rlobby = cnn.ReadLobby(lobbyID); 
 				}
 				catch (const char* s)
 				{
@@ -769,8 +783,8 @@ int main()
 				if (rlobby.curr_player == userID & rlobby.game_status == "w") {
 					DidYouMakeIt = rlobby.console_output;
 					//display result of your action
-					cout << "rezultatas: " << DidYouMakeIt << endl; // mes negalim atvaizduoti pataike ar nepataike... but we can :)
-					cnn.WriteMove(lobbyID,"1");
+					cout << "result: " << DidYouMakeIt << endl; // mes negalim atvaizduoti pataike ar nepataike... but we can :)
+					cnn.WriteMove(lobbyID, "");//inform the server that we got the answer
 					waitingFor = 0;
 				}
 				break;

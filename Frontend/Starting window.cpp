@@ -13,6 +13,7 @@
 using namespace std;
 
 int userID;
+string username = "type the username";
 int lobbyID;
 DBconnector cnn;
 vector<Laivas> Laivai;
@@ -36,7 +37,7 @@ sf::Vector2i GetGridPosition(ScreenSizeProperties& sc, int x, int y, sf::Vector2
 {
 	//cout << "pressed xy: " << x << " " << y <<" "<<size.x<<" "<<size.y<< endl;
 	//sf::Vector2i buffer = sf::Vector2i((float)((x - 0.5375 * sc.width) / size.x), (1.f + (float)((y - 0.075 * sc.width)) / size.y)); ///turetu but kazkur sc.height cia savo laukui nuspaust
-	sf::Vector2i buffer = sf::Vector2i((float)((x - 0.0375* sc.width) / size.x), (1.f + (float)((y - 0.075 * sc.width)) / size.y)); ///turetu but kazkur sc.height enemy field 1.
+	sf::Vector2i buffer = sf::Vector2i((float)((x - 0.0375 * sc.width) / size.x), (1.f + (float)((y - 0.075 * sc.width)) / size.y)); ///turetu but kazkur sc.height enemy field 1.
 	//cout << "Buffer: " << buffer.x << " " << buffer.y << endl;
 	return (buffer.x >= 0 && buffer.x < 10 && buffer.y >= 0 && buffer.y < 10) ? buffer : sf::Vector2i(-1, -1);
 }
@@ -108,7 +109,7 @@ void SetupShips(string PlayerMap, int TableWidth, int TableHeight) {
 		for (int j = 0; j < TableWidth; j++)
 		{
 
-			
+
 			ShipTable[i][j] = PlayerMap[i * 10 + j] - '0';
 			cout << ShipTable[i][j] << " ";
 		}
@@ -161,7 +162,7 @@ bool TryToMakeAShot(sf::Vector2i position, vector<Shot>& Shots, vector<vector<sf
 	return false;
 }
 
-void SetupLoginScreen(vector<sf::RectangleShape>& loginGraphics, ScreenSizeProperties sc, sf::Texture Button_Textures[2], sf::Texture& areaTexture) {
+void SetupLoginScreen(vector<sf::RectangleShape>& loginGraphics, ScreenSizeProperties sc, vector<sf::Texture>& Button_Textures, sf::Texture& areaTexture) {
 	//Fonas
 
 	sf::RectangleShape background(sf::Vector2f((float)sc.width, (float)sc.height));
@@ -180,24 +181,33 @@ void SetupLoginScreen(vector<sf::RectangleShape>& loginGraphics, ScreenSizePrope
 	login_button.setTexture(&Button_Textures[0]);
 
 	//spectate mygtukas
-	sf::RectangleShape spectate_button(sf::Vector2f(0.2f * sc.width, 0.07f * sc.height));
-	spectate_button.setPosition(sf::Vector2f(0.4f * sc.width, 0.5f * sc.height));
+	sf::RectangleShape spectate_button(sf::Vector2f(0.2f * sc.width, 0.1f * sc.height));
+	spectate_button.setPosition(sf::Vector2f(0.4f * sc.width, 0.48f * sc.height));
 	spectate_button.setOutlineColor(sf::Color::Black);
 	spectate_button.setOutlineThickness(2.f);
 	spectate_button.setFillColor(sf::Color::Cyan);
 	spectate_button.setTexture(&Button_Textures[1]);
 
+	sf::RectangleShape register_button(sf::Vector2f(0.2f * sc.width, 0.1f * sc.height));
+	register_button.setPosition(sf::Vector2f(0.4f * sc.width, 0.6f * sc.height));
+	register_button.setOutlineColor(sf::Color::Black);
+	register_button.setOutlineThickness(2.f);
+	register_button.setFillColor(sf::Color::Cyan);
+	register_button.setTexture(&Button_Textures[3]);
+
 	loginGraphics.push_back(background);
 	loginGraphics.push_back(login_button);
 	loginGraphics.push_back(spectate_button);
+	loginGraphics.push_back(register_button);
 	//lobbyGraphics[0] = &background;
 //	lobbyGraphics[1] = &login_button;
 	//lobbyGraphics[2] = &spectate_button;
 }
 
-void LoginScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizeProperties& sc, int& langas, vector<sf::RectangleShape>& graphics) {
+void LoginScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizeProperties& sc, int& langas, vector<sf::RectangleShape>& graphics, sf::Text& pInput) {
 	//sf::RectangleShape a = *graphics[0];
-
+	int x, y;
+	sf::RectangleShape pele;
 	while (window.pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed)
@@ -207,38 +217,72 @@ void LoginScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePropertie
 			sc.NewWidth = event.size.width;
 			sc.NewHeight = event.size.height;
 		}
+
+		pInput.setString(username);
+		if (event.type == sf::Event::TextEntered)
+		{
+			if (event.text.unicode == 8) {
+				if (username.size() > 0) {
+					username = username.substr(0, username.size() - 1);
+					pInput.setString(username);
+				}
+			}
+			else {
+				username += event.text.unicode;
+				pInput.setString(username);
+			}
+		}
+
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
 			if (event.mouseButton.button == sf::Mouse::Left)
 			{
-				int x = event.mouseButton.x / ((float)sc.NewWidth / (float)sc.width);
-				int y = event.mouseButton.y / ((float)sc.NewHeight / (float)sc.height);
-				if (x > 380 && x < 580)
-				{
-					if (y > 140 && y < 180) //login cia //SURAST KAIP PADARYT TEXT BOX
-					{
-						string Name = "test1"; //cia kintamieji, kur veliau padarysim, kad galetum irasyti
-						string Password = "Skupas123";
+				x = event.mouseButton.x / ((float)sc.NewWidth / (float)sc.width);
+				y = event.mouseButton.y / ((float)sc.NewHeight / (float)sc.height);
+				pele.setSize(sf::Vector2f(1.f, 1.f));
+				pele.setPosition(sf::Vector2f(x, y));
 
-						try
+				for (int i = 1; i < graphics.size(); i++) {
+					if (graphics[i].getGlobalBounds().intersects(pele.getGlobalBounds())) {
+						switch (i)
 						{
-							userID = cnn.Login(Name);
-							cout << "userID: " << userID << endl;
-							langas = 2; //imest funkcija, kuri chekintu login'a, ir tada grazintu i langas 2 (lobby)
+						case 1:
 
+							try
+							{
+								userID = cnn.Login(username);
+								cout << "userID: " << userID << endl;
+								langas = 2; //imest funkcija, kuri chekintu login'a, ir tada grazintu i langas 2 (lobby)
+
+							}
+							catch (const char* e)
+							{
+								cout << e << endl;
+								langas = 1;
+							}
+							break;
+						case 2:
+							cout << "Move along stranger" << endl;
+							break;
+						case 3:
+							try
+							{
+								userID = cnn.Register(username);
+								langas = 2;
+							}
+							catch (const char* e)
+							{
+								cout << e << endl;
+
+							}
+							break;
+						default:
+							break;
 						}
-						catch (const char* e)
-						{
-							cout << e << endl;
-							langas = 1;
-						}
-					}
-					else if (y > 240 && y < 280) //register mygtukas
-					{
-						//kai sukursim tada sita sugalvosim
 					}
 				}
 			}
+
 			if (event.mouseButton.button == sf::Mouse::Right) //šitas nieko nedaro xD
 			{
 				langas = 1;
@@ -250,10 +294,12 @@ void LoginScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePropertie
 	window.draw(graphics[0]);//background
 	window.draw(graphics[1]);//login_button
 	window.draw(graphics[2]);//spectate_button
+	window.draw(graphics[3]);//register
+	window.draw(pInput);
 	window.display();
 }
 
-void SetupLobbyListScreen(vector<sf::RectangleShape>& lobbyGraphics, ScreenSizeProperties& sc, const int LobbyWidth, const int LobbyHeight, sf::Texture& areaTexture) {
+void SetupLobbyListScreen(vector<sf::RectangleShape>& lobbyGraphics, ScreenSizeProperties& sc, const int LobbyWidth, const int LobbyHeight, vector<sf::Texture>& Button_Textures, sf::Texture& areaTexture) {
 
 	//background texture 
 	sf::RectangleShape background(sf::Vector2f((float)sc.width, (float)sc.height));
@@ -261,7 +307,7 @@ void SetupLobbyListScreen(vector<sf::RectangleShape>& lobbyGraphics, ScreenSizeP
 	lobbyGraphics.push_back(background);
 
 	//lobby area
-	sf::RectangleShape LobbyArea(sf::Vector2f((float)0.85 * sc.width, (float)0.85 * sc.height));
+	sf::RectangleShape LobbyArea(sf::Vector2f((float)0.70 * sc.width, (float)0.85 * sc.height));
 	LobbyArea.setPosition(sf::Vector2f((float)0.075 * sc.width, (float)0.075 * sc.height));
 	LobbyArea.setOutlineColor(sf::Color::Black);
 	LobbyArea.setOutlineThickness(4.f);
@@ -269,28 +315,15 @@ void SetupLobbyListScreen(vector<sf::RectangleShape>& lobbyGraphics, ScreenSizeP
 
 	lobbyGraphics.push_back(LobbyArea);
 
+	sf::RectangleShape CreateLobby_button(sf::Vector2f(180, 50));
+	CreateLobby_button.setPosition(sf::Vector2f((float)0.8 * sc.width, (float)0.075 * sc.height));
+	CreateLobby_button.setOutlineColor(sf::Color::Black);
+	CreateLobby_button.setOutlineThickness(2.f);
+	CreateLobby_button.setFillColor(sf::Color::Blue);
+	CreateLobby_button.setTexture(&Button_Textures[2]);
 
-	//lobby sulangavimas
-	/*
-	LobbyGrid = new sf::Text * [LobbyWidth];
+	lobbyGraphics.push_back(CreateLobby_button);
 
-	for (int i = 0; i < LobbyWidth; i++) {
-		LobbyGrid[i] = new sf::Text[LobbyHeight];
-	}
-	//[LobbyWidth] [LobbyHeight] ;
-	for (int i = 0; i < LobbyWidth; i++) {
-		for (int j = 0; j < LobbyHeight; j++) {
-			sf::Vector2f LobbyGridSize = sf::Vector2f(LobbyArea.getSize().x * 0.5f, LobbyArea.getSize().y * 0.1f);
-			//LobbyGrid[i][j].setSize(LobbyGridSize);
-			LobbyGrid[i][j].setFont(Comicsas);
-			//LobbyGrid[i][j].setString("login");
-			LobbyGrid[i][j].setCharacterSize(24);
-			LobbyGrid[i][j].setPosition(sf::Vector2f(LobbyArea.getPosition().x + LobbyGridSize.x * i, LobbyArea.getPosition().y + LobbyGridSize.y * j));
-			//LobbyGrid[i][j].setOutlineColor(sf::Color::Black);
-			//LobbyGrid[i][j].setOutlineThickness(4.f);
-			LobbyGrid[i][j].setFillColor(sf::Color::Black);
-		}
-	}*/
 }
 
 void DisplayLobbies(vector<DBconnector::LobbyTable> lobbies, sf::RenderWindow& window, vector<sf::RectangleShape> graphics, vector<sf::Text>(&LobbyGrid)[2], sf::Font& Comicsas) {
@@ -360,11 +393,17 @@ void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePrope
 				pele.setSize(sf::Vector2f(1.f, 1.f));
 				pele.setPosition(sf::Vector2f(x, y));
 			}
+
+			if (graphics[2].getGlobalBounds().intersects(pele.getGlobalBounds())) {
+
+				langas = 4;
+			}
 		}
 	}
 	window.clear();
 	window.draw(graphics[0]);//background);
 	window.draw(graphics[1]);//LobbyArea);
+	window.draw(graphics[2]);//CreateLobby);
 
 	lobbies = cnn.ListLobbies(1);
 	vector<sf::Text> LobbyGrid[2]; //a cell for game name and opponent name each
@@ -402,7 +441,7 @@ void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, ScreenSizePrope
 	window.display();
 }
 
-void SetupGameScreen(sf::RenderWindow& window, ScreenSizeProperties& sc, int TableWidth, int TableHeight, vector<vector<sf::RectangleShape>> &Grid1, vector<vector<sf::RectangleShape>> &Grid2, int LaivuCount, sf::Texture Textures[4], sf::RectangleShape &Area1, sf::RectangleShape &Area2) {
+void SetupGameScreen(sf::RenderWindow& window, ScreenSizeProperties& sc, int TableWidth, int TableHeight, vector<vector<sf::RectangleShape>>& Grid1, vector<vector<sf::RectangleShape>>& Grid2, int LaivuCount, sf::Texture Textures[4], sf::RectangleShape& Area1, sf::RectangleShape& Area2) {
 
 	//Vaizdavimo Design'as ir parametrai
 	//Pirmas kvadratas
@@ -585,8 +624,9 @@ int main()
 
 
 	//Login screen graphics setup'
-	sf::Texture Button_Textures[2];//same as areaTexture
-	for (int i = 0; i < 2; i++)
+	vector<sf::Texture> Button_Textures;//same as areaTexture
+	Button_Textures.resize(4);
+	for (int i = 0; i < 4; i++)
 	{
 		Button_Textures[i].loadFromFile("Media/Button_" + std::to_string(i) + ".png");
 	}
@@ -597,7 +637,7 @@ int main()
 
 	//Lobby list graphics setup
 	vector<sf::RectangleShape> LobbyGraphics;//= { background,LobbyArea };
-	SetupLobbyListScreen(LobbyGraphics, sc, LobbyWidth, LobbyHeight, areaTexture);
+	SetupLobbyListScreen(LobbyGraphics, sc, LobbyWidth, LobbyHeight, Button_Textures, areaTexture);
 	DBconnector::Rlobby rlobby;
 
 
@@ -639,7 +679,7 @@ int main()
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput = "";
-
+	string lobbyName = "Write the name of your lobby";
 	int langas = 1;
 	int waitingFor = 0;
 	int historyId = 0;
@@ -682,7 +722,7 @@ int main()
 					int x, y;
 					int dashPosition = 0;
 
-				//	cout << "EnemyMove: " << enemyMove << endl;
+					//	cout << "EnemyMove: " << enemyMove << endl;
 					if (enemyMove.size() > 2) {
 						while (enemyMove.substr(dashPosition, 1) != "-") dashPosition++;
 						try
@@ -699,22 +739,23 @@ int main()
 					}
 
 
-				//	cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
-					//TryToMakeAShot(sf::Vector2f(0, 0 //x koordinate, y koordinate), Shots[0], Grid1);
-					//inform user and wait for his action
-				//	cout << "jusu eile" << endl;
-					//cnn.WriteMove(lobbyID, "ok");
+					//	cout << enemyMove; // mes negalim atvaizduoti pataike ar nepataike...
+						//TryToMakeAShot(sf::Vector2f(0, 0 //x koordinate, y koordinate), Shots[0], Grid1);
+						//inform user and wait for his action
+					//	cout << "jusu eile" << endl;
+						//cnn.WriteMove(lobbyID, "ok");
 
-				
+
 
 
 					waitingFor = 1;
 				}
 				else if (rlobby.curr_player == userID & rlobby.game_status == "f") {
 					historyId = cnn.AcknowledgeEnd(lobbyID, userID, 1);
+					
 					cout << "historyID: " << historyId << endl;
 					cout << "GAME OVER, WINNER IS " << cnn.GetWinner(historyId) << endl;
-						langas = 1;
+					langas = 1;
 				}
 				else if (rlobby.curr_player == userID & rlobby.game_status == "e") {
 
@@ -773,7 +814,7 @@ int main()
 				}
 				try
 				{
-					rlobby = cnn.ReadLobby(lobbyID); 
+					rlobby = cnn.ReadLobby(lobbyID);
 				}
 				catch (const char* s)
 				{
@@ -823,78 +864,10 @@ int main()
 			break;
 		case 1: //login screen
 
-			LoginScreen(window, event, sc, langas, LoginGraphics);
+			LoginScreen(window, event, sc, langas, LoginGraphics, pInput);
 
 			break;
-		/*case 2:
-			//Piesimas
 
-			while (window.pollEvent(event))
-			{
-				if (event.type == sf::Event::Closed)
-					window.close();
-
-				if (event.type == sf::Event::Resized)
-				{
-					sc.NewWidth = event.size.width;
-					sc.NewHeight = event.size.height;
-					//Area1.setSize(sf::Vector2f((float)0.425 * sc.NewWidth, (float)0.85 * sc.NewHeight));
-				//	Area2.setSize(sf::Vector2f((float)0.425 * sc.NewWidth, (float)0.85 * sc.NewHeight));
-				}
-
-				if (event.type == sf::Event::MouseButtonPressed)
-				{
-					if (event.mouseButton.button == sf::Mouse::Left)
-					{
-						int x = event.mouseButton.x;
-						int y = event.mouseButton.y;
-						//cout << "Area " << Area2.getSize().x << endl;
-						sf::Vector2i gridPosition = GetGridPosition(sc, x, y, sf::Vector2f(Area1.getSize().x * 0.1f * ((float)sc.NewWidth / (float)sc.width), Area1.getSize().y * 0.1f * ((float)sc.NewHeight / (float)sc.height)));//STEADY AND PRECISE AIM
-					//	cout << "GridPos: " << gridPosition.x << "-" << gridPosition.y << endl;
-						if (gridPosition.x != -1 && gridPosition.y != -1)
-						{
-							//Šuvis GO!
-							if (TryToMakeAShot(gridPosition, Shots[0], Grid1))
-							{
-								userInput = std::to_string((int)gridPosition.y) + "-" + std::to_string((int)gridPosition.x);
-								cout <<"aimPos: "<< userInput << endl;
-							}
-
-						}
-					}
-				}
-			}
-
-
-			window.clear();
-			window.draw(background);
-			window.draw(Area1);
-			window.draw(Area2);
-
-			for (int i = 0; i < TableWidth; i++) {
-				for (int j = 0; j < TableHeight; j++) {
-					window.draw(Grid1[i][j]);
-					window.draw(Grid2[i][j]);
-				}
-			}
-
-			for (int i = 0; i < LaivuCount; i++)//atvaizduojame zaidejo laivus
-			{
-				//cout << Laivai[i].ilgis << endl;
-				window.draw(Laivai[i].GetLaivasRectangle());
-			}
-
-			for (int k = 0; k < PlayerCount; k++)	//atvaizduojame abieju zaideju suvius 
-			{
-				for (int i = 0; i < Shots[k].size(); i++)
-				{
-					window.draw(Shots[k][i].GetShotRect());
-				}
-
-			}
-			window.display();
-			break;
-			*/
 		case 2: //lobby list //2
 
 			LobbyListScreen(window, event, sc, langas, LobbyGraphics);
@@ -913,11 +886,21 @@ int main()
 				cout << "FAIL: " << s << endl;
 			}
 
-		//	cout << rlobby.console_output << "-" << rlobby.curr_player << "-" << rlobby.game_status << endl;
+			//	cout << rlobby.console_output << "-" << rlobby.curr_player << "-" << rlobby.game_status << endl;
 			while (window.pollEvent(event))
 			{
-				if (event.type == sf::Event::Closed)
+				if (event.type == sf::Event::Closed) {
+					try
+					{
+						cnn.LeaveLobby(lobbyID, userID);
+					}
+					catch (const char* s)
+					{
+						cout << s << endl;
+					}
+
 					window.close();
+				}
 				if (event.type == sf::Event::Resized)
 				{
 					sc.NewWidth = event.size.width;
@@ -987,7 +970,7 @@ int main()
 							cout << endl;
 							cout << PlayerMap << endl;
 							SetupShips(PlayerMap, TableWidth, TableHeight); // gauname vektoriu laivu su ju koordinatemis
-							SetupGameScreen(window, sc, TableWidth, TableHeight, Grid1, Grid2, LaivuCount, Textures,Area1,Area2); //pradedame zaidimo lauko vaizdavima
+							SetupGameScreen(window, sc, TableWidth, TableHeight, Grid1, Grid2, LaivuCount, Textures, Area1, Area2); //pradedame zaidimo lauko vaizdavima
 						}
 						else {
 							mapPath = mapPath.substr(0, mapPath.size() - 4);
@@ -999,6 +982,51 @@ int main()
 				}
 				else {
 					pInput.setString("Waiting for others...");
+				}
+
+			}
+			window.clear();
+			window.draw(background);
+			window.draw(pInput);
+			window.display();
+			break;
+		case 4:
+			while (window.pollEvent(event))
+			{
+				if (event.type == sf::Event::Closed)
+					window.close();
+				if (event.type == sf::Event::Resized)
+				{
+					sc.NewWidth = event.size.width;
+					sc.NewHeight = event.size.height;
+				}
+
+				pInput.setString(lobbyName);
+				if (event.type == sf::Event::TextEntered)
+				{
+					if (event.text.unicode == 8) { //jeigu backspace - istriname
+						if (lobbyName.size() > 0) {
+							lobbyName = lobbyName.substr(0, lobbyName.size() - 1);
+							pInput.setString(lobbyName);
+						}
+					}
+					else if (event.text.unicode == 13) { //enter submittina faila
+						try
+						{
+							cout << "Creating lobby with ID: ";
+							lobbyID = cnn.CreateLobby(lobbyName, userID);
+							cout << lobbyID << endl;
+						}
+						catch (const char* s)
+						{
+							cout << "error creating lobby: " << s << endl;
+						}
+						langas = 3;
+					}
+					else {
+						lobbyName += event.text.unicode;
+						pInput.setString(lobbyName);
+					}
 				}
 
 			}

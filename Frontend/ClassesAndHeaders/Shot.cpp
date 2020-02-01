@@ -1,6 +1,6 @@
 #include "Shot.h"
 
-Shot::Shot(sf::Vector2f gridposition, sf::RectangleShape suvisRect)
+Shot::Shot(sf::Vector2i gridposition, sf::RectangleShape suvisRect)
 {
 	gridPosition = gridposition;
 	ShotRect = suvisRect;

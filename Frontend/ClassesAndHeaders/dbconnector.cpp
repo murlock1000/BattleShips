@@ -153,7 +153,7 @@ void DBconnector::SetUserLobby(int userID, int lobbyID) {	//sets the lobbyID in 
 int DBconnector::CreateLobby(string lobbyName, int userID)	//1.Check if player is already in a lobby (if true, returns lobbyID) 2.Create a lobby 3.Update current_lobbyID in user table 4. return lobbyID
 {
 	int cLobby;
-	try
+	/*try
 	{
 		cLobby = GetLobbyID(userID);
 	}
@@ -161,11 +161,11 @@ int DBconnector::CreateLobby(string lobbyName, int userID)	//1.Check if player i
 	{
 		throw e;
 	}
-
-	if (cLobby != -1) {
+	
+	if (cLobby != -1 && cLobby != NULL) {
 		return cLobby;		//if a player is in a lobby return the lobbyID
 	}
-
+	*/
 	ss << userID;
 	query = "INSERT INTO lobbies(lobby_name,adminID) VALUES('" + lobbyName + "'," + ss.str() + ")";
 	ss.clear();
@@ -218,7 +218,7 @@ void  DBconnector::LeaveLobby(int lobbyID, int userID)	//if user created a lobby
 
 	MYSQL_ROW row = mysql_fetch_row(result);
 
-	cout << "before: " << row[0] << endl;
+	//cout << "before: " << row[0] << endl;
 	if (row[0][0] != 'w') {
 		throw "Already in game";
 	}
@@ -437,7 +437,7 @@ int DBconnector::AcknowledgeEnd(int lobbyID, int userID, bool isUser)	//leaves t
 
 	mysql_free_result(result);
 
-	if (!isUser) {
+	if (isUser) {
 		query = "UPDATE lobbies SET user_input='OK', game_status='c' WHERE lobbyID=" + ss.str();
 
 		if (PassQuery(query) != 0) {

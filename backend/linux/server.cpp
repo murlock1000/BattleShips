@@ -4,8 +4,14 @@
 #include <bits/stdc++.h>
 #include <vector>
 #include "dbconnector/dbconnector.h"
+#include <unistd.h>
+#include <sys/wait.h>
 
 using namespace std;
+
+void zombiePrevention (int signum) {
+    wait (NULL);
+}
 
 int main() {
 
@@ -34,6 +40,9 @@ int main() {
             else if (stdConnSuccess > 0) {
                 //finally ends finished game process
                 return 0;
+            }
+            else {
+                signal (SIGCHLD, zombiePrevention);
             }
         }
     }

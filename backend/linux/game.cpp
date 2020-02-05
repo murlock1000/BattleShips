@@ -6,18 +6,9 @@
 #include <cstdlib>
 #include <ctime>
 
-//Windows compatibility
-
-#ifdef __linux__
-#define HANDLE int
-
-#else
-#include <windows.h>
-#endif
-
 using namespace std;
 
-int disconnect (int playerNumber, HANDLE fdOutput[], HANDLE fdInput[], int pid[], bool playerType[]) { //Terminates connections
+int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[]) { //Terminates connections
     int success = 0;
 
     for (int i = 0; i < playerNumber; i++) {
@@ -64,8 +55,8 @@ stringstream ss;
     int shipHealth [playerNumber] [shipNumber];
     int shipTable [playerNumber] [tableWidth * tableHeight];
     int shipsLeft [playerNumber];
-    HANDLE fdInput [playerNumber]; //holds input file descriptors.
-    HANDLE fdOutput [playerNumber]; //holds output file descriptors.
+    int fdInput [playerNumber]; //holds input file descriptors.
+    int fdOutput [playerNumber]; //holds output file descriptors.
     int pid [playerNumber]; //holds ai pids
 
     //initialising players
@@ -103,7 +94,7 @@ stringstream ss;
             string aiProcName = aiName + ".exe";
             string aiPath = "./ai/" + aiProcName;
 
-            HANDLE aiIO [2];
+            int aiIO [2];
 
             int* aiPid = new int;
 
@@ -334,20 +325,5 @@ stringstream ss;
 
     return 0;
 }
-/*
-
-int main(){
-
-HANDLE io[2]={NULL,NULL};
-int* pid = new int;
-string path="child.exe";
-string name="test";
-
-bool succ = stdConnect(io,pid,path.c_str(),name.c_str(),"0");
-
-stdWrite(io[1],6);
-
-cout<<stdRead(io[0])<<endl;
-*/
 
 

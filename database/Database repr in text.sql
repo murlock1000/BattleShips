@@ -116,10 +116,10 @@ CREATE TABLE IF NOT EXISTS `battleships`.`moves` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-CREATE USER 'ServerAdmin' IDENTIFIED BY 'admin';
+CREATE USER 'ServerAdmin'@'localhost' IDENTIFIED BY 'admin';
 
 GRANT ALL ON `battleships`.* TO 'ServerAdmin';
-CREATE USER 'ActiveUser' IDENTIFIED BY 'admin';
+CREATE USER 'ActiveUser'@'localhost' IDENTIFIED BY 'admin';
 
 GRANT SELECT, INSERT, TRIGGER, UPDATE, DELETE ON TABLE `battleships`.* TO 'ActiveUser';
 

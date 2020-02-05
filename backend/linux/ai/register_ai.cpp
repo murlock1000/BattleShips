@@ -12,7 +12,7 @@ int main (int argc, char* argv []) {
     }
     else { //we have at least one argument provided
         DBconnector dbc;
-        dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connect to the database
+        dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships"); //connect to the database
         for (int i = 1; i < argc; i ++) { //one can provide more than one AI, we need to register them all
             stringstream aiName;
             aiName << argv [i];

@@ -43,6 +43,12 @@ Išsiuntęs savo ėjimą, AI turėtų gauti atsakymą: char nuo '1' iki '4'.
 
 Iš esmės tai yra viskas. Galite pažiūrėti į ai_random.cpp kaip į pavyzdį, kaip kurti AI.
 
-Tiesa, AI programa turi būti išsaugota "ai" aplanke ir turėti trumpinį ".exe" (dėl Windows palaikymo).
+Tiesa, AI programa turi būti išsaugota "ai" aplanke.
+
+Po AI sukūrimo įveskite:
+
+$ ./register_ai [AI pavadinimas]
+
+Nepamirškite sukompiliuoti AI prieš jį naudodami.
 
 Sakiau, kad tai yra gana paprasta, ar ne? :)

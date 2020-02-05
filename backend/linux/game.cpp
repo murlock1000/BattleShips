@@ -91,14 +91,13 @@ stringstream ss;
 
             string aiName = userInfo.username;
 
-            string aiProcName = aiName + ".exe";
-            string aiPath = "./ai/" + aiProcName;
+            string aiPath = "./ai/" + aiName;
 
             int aiIO [2];
 
             int* aiPid = new int;
 
-            int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiProcName.c_str(), "0");
+            int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiName.c_str(), "0");
 
             if (stdConnSuccess < 0) {
                 //If launching an ai process fails, we have to kill parent.

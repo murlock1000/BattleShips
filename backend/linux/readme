@@ -1,0 +1,7 @@
+Kompiliavimo instrukcijos Linux operacinei sistemai
+
+    * Įdiekite MySQL klientą ('Oracle MySQL' arba 'MariaDB')
+    * Įdiekite 'Oracle MySQL Connector/C++' (Pastaba: 'MariaDB' nebepalaiko naujesnių versijų, nei 1.1.9)
+    * Įdiekite 'make' ir 'gcc', jei šios programos dar nėra įdiegtos
+    * Paleiskite 'make' ($ make)
+    * Paleiskite server failą ($ ./server)

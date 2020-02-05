@@ -32,7 +32,7 @@ int main() {
             lobbyId_s << lobbies [i];
             const char* lobbyId_c = lobbyId_s.str().c_str();
 
-            int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", lobbyId_c);
+            int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game", "game", lobbyId_c);
 
             if (stdConnSuccess < 0) {
                  cerr << "ERROR: Failed to launch lobby " << lobbies[i] << "\n";

@@ -35,7 +35,7 @@ stringstream ss;
 
     DBconnector dbc;
 
-    dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
+    dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships"); //connecting to database
 
     int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
 

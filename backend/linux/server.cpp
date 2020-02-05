@@ -16,7 +16,7 @@ void zombiePrevention (int signum) {
 int main() {
 
     DBconnector dbc;
-    dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
+    dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships"); //connecting to database
     
     while (true) {
 

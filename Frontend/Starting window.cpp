@@ -9,6 +9,8 @@
 #include "ClassesAndHeaders/pch.h"
 #include "ClassesAndHeaders/dbconnector.h"
 #include <fstream>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
@@ -605,7 +607,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 							window.draw(texts["mapPath"]);
 							window.display();
 
-							//Sleep(10);
+                            this_thread::sleep_for(chrono::milliseconds(10));
 							timeout--;
 						} while (rlobby.game_status != "w" && timeout > 0);//wait for console to read output
 

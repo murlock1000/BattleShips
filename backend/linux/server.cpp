@@ -35,7 +35,7 @@ int main() {
             int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game", "game", lobbyId_c);
 
             if (stdConnSuccess < 0) {
-                 cerr << "server: Failed to launch lobby " << lobbies[i] << "\n";
+                 cerr << "server: (error) Failed to launch lobby " << lobbies[i] << "\n";
             }
             else if (stdConnSuccess > 0) {
                 //finally ends finished game process

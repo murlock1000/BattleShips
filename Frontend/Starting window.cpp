@@ -605,7 +605,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 							window.draw(texts["mapPath"]);
 							window.display();
 
-							Sleep(10);
+							//Sleep(10);
 							timeout--;
 						} while (rlobby.game_status != "w" && timeout > 0);//wait for console to read output
 
@@ -885,7 +885,7 @@ int main()
 {
 	try
 	{
-		cnn.Connect("localhost", "root", "root", "battleships");
+		cnn.Connect("localhost", "ActiveUser", "admin", "battleships");
 	}
 	catch (const std::exception&)
 	{

@@ -28,3 +28,5 @@ int stdDisconnect (int childPid);
 //This function should terminate a process referred to by a provided process id.
 //It requires child's process id.
 //It should return 0 on success and -1 on failure.
+
+int stdClosePipes (int childIO [2]);

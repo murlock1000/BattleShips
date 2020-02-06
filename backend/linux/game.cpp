@@ -23,6 +23,9 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
         }
     }
 
+    stdClosePipes (fdInput);
+    stdClosePipes (fdOutput);
+
     return success;
 }
 
@@ -157,7 +160,13 @@ stringstream ss;
             //converting ship string to a ship table
 
             for (int j = 0; j < tableWidth * tableHeight; j++) {
-                shipTable [i] [j] = stoi (userShipTable.substr (j, 1));
+                string digit = userShipTable.substr (j, 1);
+                if (digit < "0" || digit > "9") {
+                    cerr << "game: Improper map provided for a human player\n";
+                    cout << "1 " << flush;
+                    return 1;
+                }
+                shipTable [i] [j] = stoi (digit);
 
                 if (shipTable [i] [j] != 0) {
                     shipHealth [i] [shipTable [i] [j] - 1] ++;

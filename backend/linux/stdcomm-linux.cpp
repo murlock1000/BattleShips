@@ -15,12 +15,12 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
     int childInputPipe [2], childOutputPipe [2]; 
 
     if (pipe (childInputPipe) < 0) { //creating a pipe and handling errors
-        cerr << "stdcomm: Failed to launch " << childProcName << " (input pipe)\n"; //errno is set to the last error code. strerror() converts it into a human-readable string.
+        cerr << "stdcomm: (error) Failed to launch " << childProcName << " (input pipe)\n"; //errno is set to the last error code. strerror() converts it into a human-readable string.
         return -1;
     }
 
     if (pipe (childOutputPipe) < 0) { //ditto
-        cerr << "stdcomm: Failed to launch " << childProcName << " (output pipe)\n";
+        cerr << "stdcomm: (error) Failed to launch " << childProcName << " (output pipe)\n";
         return -1;
     }
 
@@ -60,7 +60,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
             close (childIO [0]);
             close (childIO [1]);
 
-            cerr << "stdcomm: Failed to launch " << childProcName << " (file does not exist or quit with an error)\n";
+            cerr << "stdcomm: (error) Failed to launch " << childProcName << " (file does not exist or quit with an error)\n";
             return -1;
         }
     }
@@ -98,7 +98,7 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
     }
 
     else {
-        cerr << "stdcomm: Failed to launch " << childProcName << " (fork)\n";       
+        cerr << "stdcomm: (error) Failed to launch " << childProcName << " (fork)\n";       
         return -1; 
     }
 }
@@ -120,7 +120,7 @@ int stdRead (int fileDesc) {
         buffer[0] = 0;
 
         if (read (fileDesc, buffer, 1) < 0) { //both read and write system calls can only read from/write to a char array.
-            cerr << "stdcomm: Failed to read\n";
+            cerr << "stdcomm: (error) Failed to read\n";
             return -1;
         }
         if (buffer[0] == 32) { //YOU ARE TERMINATED!
@@ -142,7 +142,7 @@ int stdWrite (int fileDesc, int buffer) {
     cBuffer [0] = buffer + 48; //converting int to char.
 
     if (write (fileDesc, cBuffer, 1) < 0) {
-        cerr << "stdcomm: Failed to write\n";
+        cerr << "stdcomm: (error) Failed to write\n";
         return -1;
     }
 
@@ -160,7 +160,7 @@ int stdDisconnect (int childPid) {
             return 0; //Child already terminated itself, safe to return
         }
         else { //Permission denied
-            cerr << "stdcomm: Unexpected error while attempting to terminate a child process\n";
+            cerr << "stdcomm: (error) Unexpected error while attempting to terminate a child process\n";
             return -1;
         }
     }
@@ -172,7 +172,7 @@ int stdDisconnect (int childPid) {
             return 0;
         }
         else {
-            cerr << "stdcomm: Unexpected error while attempting to terminate a child process\n";
+            cerr << "stdcomm: (error) Unexpected error while attempting to terminate a child process\n";
             return -1;
         }
     }
@@ -180,7 +180,7 @@ int stdDisconnect (int childPid) {
     kill (childPid, 9); //Child is being stubborn, we'll have to ask kernel to kill it instead
 
     if (kill (childPid, 0) < 0) { //Apparently that child is a literal Satan's offspring. This program does not have enough godly power to destroy it.
-        cerr << "stdcomm: Unable to kill child process (SIGKILL failed)\n";
+        cerr << "stdcomm: (error) Unable to kill child process (SIGKILL failed)\n";
         return -1;
     }
 

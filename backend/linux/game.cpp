@@ -32,7 +32,7 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
 int main (int argc, char* argv []) {
 stringstream ss;
     if (argc != 2) { //must have exactly one argument (not counting process name)
-        cerr << "game: Must be launched with exactly one argument\n";
+        cerr << "game: (error) Must be launched with exactly one argument\n";
         return 1;
     }
 
@@ -148,6 +148,16 @@ stringstream ss;
 
         else { //human player initialisation
 
+            dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
+
+            cerr << "game: (info) Waiting for frontend to send player " << playerId [i] << " map for lobby " << lobbyId << "\n";
+
+            do {
+                lobby = dbc.ConsoleRead (lobbyId);
+            } while (lobby.game_status != "c");
+
+            cerr << "game: (info) Receiving player " << playerId [i] << " map for lobby " << lobbyId << "\n";
+
             string userShipTable;
 
             if (i == admin) {
@@ -160,18 +170,24 @@ stringstream ss;
             //converting ship string to a ship table
 
             for (int j = 0; j < tableWidth * tableHeight; j++) {
-                string digit = userShipTable.substr (j, 1);
-                if (digit < "0" || digit > "9") {
-                    cerr << "game: Improper map provided for a human player\n";
-                    cout << "1 " << flush;
-                    return 1;
-                }
-                shipTable [i] [j] = stoi (digit);
+                
+                do { 
+                    lobby = dbc.ConsoleRead (lobbyId);
+                } while (lobby.game_status != "c");
+
+                cerr << "game: (info) Received \"" << lobby.user_input << "\"\n";
+
+                shipTable [i] [j] = stoi (lobby.user_input);
 
                 if (shipTable [i] [j] != 0) {
                     shipHealth [i] [shipTable [i] [j] - 1] ++;
                 }
+
+                dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
+
             }
+
+            cerr << "game: (info) Player " << playerId [i] << " map for lobby " << lobbyId << " successfully received\n";
         }
 
     }
@@ -203,9 +219,14 @@ stringstream ss;
 
         if (playerType [currentPlayer] == 0) {
             //frontend
+            
+            cerr << "game: (info) Waiting for player " << playerId [currentPlayer] << " move\n";
+
             do { //wait until frontend moves
                 lobby = dbc.ConsoleRead (lobbyId);
             } while (lobby.game_status != "c");
+
+            cerr << "game: (info) Player " << playerId [currentPlayer] << " move: \"" << lobby.user_input << "\"\n";
 
             //read user's move
 

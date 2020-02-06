@@ -57,6 +57,9 @@ int stdConnect (int childIO [2], int* childPid, const char* childPath, const cha
              
             stdWrite (childIO [1], 0); //now we can finally fail
 
+            close (childIO [0]);
+            close (childIO [1]);
+
             cerr << "stdcomm: Failed to launch " << childProcName << " (file does not exist or quit with an error)\n";
             return -1;
         }
@@ -181,5 +184,11 @@ int stdDisconnect (int childPid) {
         return -1;
     }
 
+    return 0;
+}
+
+int stdClosePipes (int childIO [2]) {
+    close (childIO [0]);
+    close (childIO [1]);
     return 0;
 }

@@ -29,6 +29,14 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
     return success;
 }
 
+int waitForUserResponse (DBconnector& dbc, int lobbyId) {
+    DBconnector::ConsoleReadStruct lobby;
+    do { 
+        lobby = dbc.ConsoleRead (lobbyId);
+    } while (lobby.game_status != "c");
+    return 0;
+}
+
 int main (int argc, char* argv []) {
 stringstream ss;
     if (argc != 2) { //must have exactly one argument (not counting process name)
@@ -152,9 +160,8 @@ stringstream ss;
 
             cerr << "game: (info) Waiting for frontend to send player " << playerId [i] << " map for lobby " << lobbyId << "\n";
 
-            do {
-                lobby = dbc.ConsoleRead (lobbyId);
-            } while (lobby.game_status != "c");
+            waitForUserResponse (dbc, lobbyId);
+            lobby = dbc.ConsoleRead (lobbyId);
 
             cerr << "game: (info) Receiving player " << playerId [i] << " map for lobby " << lobbyId << "\n";
 
@@ -167,13 +174,10 @@ stringstream ss;
                 userShipTable = lobby.opponent_map;
             }
 
-            //converting ship string to a ship table
-
             for (int j = 0; j < tableWidth * tableHeight; j++) {
                 
-                do { 
-                    lobby = dbc.ConsoleRead (lobbyId);
-                } while (lobby.game_status != "c");
+                waitForUserResponse (dbc, lobbyId);
+                lobby = dbc.ConsoleRead (lobbyId);
 
                 cerr << "game: (info) Received \"" << lobby.user_input << "\"\n";
 
@@ -222,10 +226,9 @@ stringstream ss;
             
             cerr << "game: (info) Waiting for player " << playerId [currentPlayer] << " move\n";
 
-            do { //wait until frontend moves
-                lobby = dbc.ConsoleRead (lobbyId);
-            } while (lobby.game_status != "c");
-
+            waitForUserResponse(dbc, lobbyId); //Waiting for frontend to aknowledge result
+            lobby = dbc.ConsoleRead (lobbyId);
+            
             cerr << "game: (info) Player " << playerId [currentPlayer] << " move: \"" << lobby.user_input << "\"\n";
 
             //read user's move
@@ -272,12 +275,12 @@ stringstream ss;
 
                     string pseudoInput, pseudoOutput;
                     ss<<tileX + 1;
-         pseudoInput = ss.str();
-        ss.str("");
+                    pseudoInput = ss.str();
+                    ss.str("");
 
-        ss<<tileY + 1;
-        pseudoInput+=  "-" + ss.str();
-        ss.str("");
+                    ss<<tileY + 1;
+                    pseudoInput+=  "-" + ss.str();
+                    ss.str("");
                     ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
                     pseudoOutput = "2-" + ss.str();
 
@@ -325,6 +328,9 @@ stringstream ss;
         if (playerType [currentPlayer] == 0) {
             //send console response to lobby table
             consoleOutput = pseudoOutput;
+            dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //send backend response to database
+            waitForUserResponse(dbc, lobbyId); //Waiting for frontend to aknowledge result
+            lobby = dbc.ConsoleRead (lobbyId);
         }
         else {
             //send console response directly to ai

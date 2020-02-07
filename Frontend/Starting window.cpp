@@ -740,7 +740,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 						//Šuvis GO!
 						if (TryToMakeAShot(gridPosition, Shots[0], Grid[0]))
 						{
-							userInput = std::to_string((int)gridPosition.x + 1) + "-" + std::to_string((int)gridPosition.y + 1);
+							userInput = std::to_string((int)gridPosition.x) + "-" + std::to_string((int)gridPosition.y);
 							cout << "myMove: " << userInput << endl;
 							if (userInput != "") {
 								cnn.WriteMove(lobbyID, userInput);

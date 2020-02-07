@@ -8,7 +8,15 @@
 
 using namespace std;
 
-int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[]) { //Terminates connections
+int waitForUserResponse (DBconnector &dbc, int lobbyId) {
+    DBconnector::ConsoleReadStruct lobby;
+    do { 
+        lobby = dbc.ConsoleRead (lobbyId);
+    } while (lobby.game_status != "c");
+    return 0;
+}
+
+int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[], int playerId [], DBconnector &dbc, int lobbyId, int historyId) { //Terminates connections
     int success = 0;
 
     for (int i = 0; i < playerNumber; i++) {
@@ -19,7 +27,13 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
             }
         }
         else { //frontend
-        //to be implemented.
+            if (historyId == 0) {
+                dbc.UpdateLobby (lobbyId, "i", "", "", "", "", historyId, "e", playerId [i]);
+            }
+            else {
+                dbc.UpdateLobby (lobbyId, "i", "", "", "", "", historyId, "f", playerId [i]);
+            }
+            waitForUserResponse (dbc, lobbyId);
         }
     }
 
@@ -27,14 +41,6 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
     stdClosePipes (fdOutput);
 
     return success;
-}
-
-int waitForUserResponse (DBconnector& dbc, int lobbyId) {
-    DBconnector::ConsoleReadStruct lobby;
-    do { 
-        lobby = dbc.ConsoleRead (lobbyId);
-    } while (lobby.game_status != "c");
-    return 0;
 }
 
 int main (int argc, char* argv []) {
@@ -115,7 +121,7 @@ stringstream ss;
                 //However, before that we must terminate other AIs which may have been lauched before.
                 //We only need to do that to previous players, so we enter i instead of playerNumber.
 
-                disconnect(i, fdOutput, fdInput, pid, playerType);
+                disconnect(i, fdOutput, fdInput, pid, playerType, playerId, dbc, lobbyId, 0);
                 cout << "1 "; //tells server game initialisation failed
                 return 1;
             }
@@ -126,72 +132,49 @@ stringstream ss;
             pid [i] = *aiPid;
             fdInput [i] = aiIO [0]; //Store each player's fds
             fdOutput [i] = aiIO [1];
-
-            //generating ai ship string which will be sent to history and lobby tables
-
-            string aiShipTable = "";
-
-            for (int j = 0; j < tableWidth * tableHeight; j++) {
-                shipTable [i] [j] = stdRead (fdInput [i]); //reading ship table from ai
-
-                ss<<shipTable [i] [j];
-
-                aiShipTable += ss.str();
-                ss.str("");
-                if (shipTable [i] [j] != 0) {
-                    shipHealth [i] [shipTable [i] [j] - 1] ++;
-                }
-
-            }
-
-            lobby = dbc.ConsoleRead (lobbyId); //updating local information to prevent overwriting ship tables
-
-            if (i == admin) {
-                dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", aiShipTable, lobby.opponent_map, 0, "n", 0);
-            }
-            else {
-                dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, aiShipTable, 0, "n", 0);
-            }
         }
 
         else { //human player initialisation
 
             dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
 
-            cerr << "game: (info) Waiting for frontend to send player " << playerId [i] << " map for lobby " << lobbyId << "\n";
-
             waitForUserResponse (dbc, lobbyId);
             lobby = dbc.ConsoleRead (lobbyId);
 
-            cerr << "game: (info) Receiving player " << playerId [i] << " map for lobby " << lobbyId << "\n";
+        }
 
-            string userShipTable;
+        //generating map string
 
-            if (i == admin) {
-                userShipTable = lobby.admin_map;
+        string mapString = "";
+
+        for (int j = 0; j < tableWidth * tableHeight; j++) {
+            if (playerType [i]) {
+                shipTable [i] [j] = stdRead (fdInput [i]); //reading ship table from ai
             }
             else {
-                userShipTable = lobby.opponent_map;
-            }
-
-            for (int j = 0; j < tableWidth * tableHeight; j++) {
-                
                 waitForUserResponse (dbc, lobbyId);
                 lobby = dbc.ConsoleRead (lobbyId);
 
-                cerr << "game: (info) Received \"" << lobby.user_input << "\"\n";
-
                 shipTable [i] [j] = stoi (lobby.user_input);
-
-                if (shipTable [i] [j] != 0) {
-                    shipHealth [i] [shipTable [i] [j] - 1] ++;
-                }
-
                 dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
+            }
+            ss<<shipTable [i] [j];
 
+            mapString += ss.str();
+            ss.str("");
+            if (shipTable [i] [j] != 0) {
+                shipHealth [i] [shipTable [i] [j] - 1] ++;
             }
 
-            cerr << "game: (info) Player " << playerId [i] << " map for lobby " << lobbyId << " successfully received\n";
+        }
+
+        lobby = dbc.ConsoleRead (lobbyId); //updating local information to prevent overwriting ship tables
+
+        if (i == admin) {
+            dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", mapString, lobby.opponent_map, 0, "n", 0);
+        }
+        else {
+            dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, mapString, 0, "n", 0);
         }
 
     }
@@ -244,9 +227,6 @@ stringstream ss;
             tileY = stdRead (fdInput [currentPlayer]);
         }
 
-        tileX--;
-        tileY--;
-
         int response; //tells move consequences (missed, hit or sunk a ship)
         int subresponse; //tells which ship was sunk (only used when a ship was sunk)
 
@@ -263,14 +243,17 @@ stringstream ss;
                 shipsLeft [opponentPlayer]--;
 
                 if (shipsLeft [opponentPlayer] == 0) { //Game over
+
+                    //write last move to lobby table
+                    ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
+                    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + ss.str(), lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]);
+                    waitForUserResponse(dbc, lobbyId);
+
                     //current player has won the game
 
                     dbc.WriteWinner (playerId [currentPlayer], historyId);
 
-                    //write last move to lobby and move tables
-                    ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
-                    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + ss.str(), lobby.admin_map, lobby.opponent_map, historyId, "f", playerId [currentPlayer]);
-
+                    //write last move to move table
                     ss.str("");
 
                     string pseudoInput, pseudoOutput;
@@ -348,13 +331,9 @@ stringstream ss;
 
     //disconnecting players
 
-    disconnect (playerNumber, fdOutput, fdInput, pid, playerType);
+    disconnect (playerNumber, fdOutput, fdInput, pid, playerType, playerId, dbc, lobbyId, historyId);
 
     //deleting lobby
-
-    do {
-        lobby = dbc.ConsoleRead (lobbyId); //waiting for user to aknowledge end
-    } while (lobby.game_status != "c");
 
     dbc.InitiateDeletion (lobbyId);
 

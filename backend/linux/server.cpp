@@ -28,6 +28,8 @@ int main() {
             int unusedIO [2];
             int* unusedPid = new int;
 
+            cerr << "server: (info) Launching game " << lobbies [i] << "\n";
+
             stringstream lobbyId_s;
             lobbyId_s << lobbies [i];
             const char* lobbyId_c = lobbyId_s.str().c_str();

@@ -37,6 +37,10 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
         }
     }
 
+    //deleting lobby
+
+    dbc.InitiateDeletion (lobbyId);
+
     stdClosePipes (fdInput);
     stdClosePipes (fdOutput);
 
@@ -47,6 +51,7 @@ int main (int argc, char* argv []) {
 stringstream ss;
     if (argc != 2) { //must have exactly one argument (not counting process name)
         cerr << "game: (error) Must be launched with exactly one argument\n";
+        cout << "1 " << flush;
         return 1;
     }
 
@@ -57,6 +62,10 @@ stringstream ss;
     int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
 
     DBconnector::ConsoleReadStruct lobby = dbc.ConsoleRead (lobbyId); //gets information about lobby
+
+    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "n", 0); //Set lobby_status to i before telling server that game launch succeeded to prevent it from launching multiple instances of the same lobby
+
+    cout << "0 " << flush; //Telling server that we have successfully launched a game (flush force sends a line buffer, otherwise data is only sent when the game finishes)
 
     //May be saved in lobby table later
 
@@ -136,7 +145,7 @@ stringstream ss;
 
         else { //human player initialisation
 
-            dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
+            dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
 
             waitForUserResponse (dbc, lobbyId);
             lobby = dbc.ConsoleRead (lobbyId);
@@ -156,7 +165,7 @@ stringstream ss;
                 lobby = dbc.ConsoleRead (lobbyId);
 
                 shipTable [i] [j] = stoi (lobby.user_input);
-                dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
+                dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
             }
             ss<<shipTable [i] [j];
 
@@ -167,15 +176,15 @@ stringstream ss;
             }
 
         }
-
-        lobby = dbc.ConsoleRead (lobbyId); //updating local information to prevent overwriting ship tables
-
+        
         if (i == admin) {
-            dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", mapString, lobby.opponent_map, 0, "n", 0);
+            dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", mapString, lobby.opponent_map, 0, "n", 0);
         }
         else {
-            dbc.UpdateLobby (lobbyId, "r", lobby.user_input, "", lobby.admin_map, mapString, 0, "n", 0);
+            dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, mapString, 0, "n", 0);
         }
+
+        lobby = dbc.ConsoleRead (lobbyId); //updating local information to prevent overwriting ship tables
 
     }
 
@@ -184,15 +193,10 @@ stringstream ss;
     int currentPlayer = 0; //player 1 starts
     int opponentPlayer = 1; //playing against the next player
 
-    lobby = dbc.ConsoleRead (lobbyId); //update local info before launching the game proper
-    dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "n", playerId [currentPlayer]); //Set lobby_status to i before telling server initialisation succeeded to prevent it from launching multiple instances of the same lobby
-
-    cout << "0 " << flush; //Telling server that we have successfully initialised a game (flush force sends a line buffer, otherwise data is only sent when the game finishes)
-
     //--------------------GAME PROPER--------------------
     ss<<lobbyId;
     int historyId = dbc.CreateHistoryTable ("Lobby " + ss.str(), lobby.adminID, lobby.opponentID, lobby.admin_map, lobby.opponent_map);
- ss.str("");
+    ss.str("");
     int moveId = 0;
 
     string consoleOutput = "";
@@ -257,11 +261,11 @@ stringstream ss;
                     ss.str("");
 
                     string pseudoInput, pseudoOutput;
-                    ss<<tileX + 1;
+                    ss<<tileX;
                     pseudoInput = ss.str();
                     ss.str("");
 
-                    ss<<tileY + 1;
+                    ss<<tileY;
                     pseudoInput+=  "-" + ss.str();
                     ss.str("");
                     ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
@@ -298,11 +302,11 @@ stringstream ss;
             pseudoOutput = pseudoOutput + "-" + ss.str();
         ss.str("");
         }
-        ss<<tileX + 1;
+        ss<<tileX;
         string pseudoInput = ss.str();
         ss.str("");
 
-        ss<<tileY + 1;
+        ss<<tileY;
         pseudoInput+=  "-" + ss.str();
         ss.str("");
 
@@ -332,10 +336,6 @@ stringstream ss;
     //disconnecting players
 
     disconnect (playerNumber, fdOutput, fdInput, pid, playerType, playerId, dbc, lobbyId, historyId);
-
-    //deleting lobby
-
-    dbc.InitiateDeletion (lobbyId);
 
     return 0;
 }

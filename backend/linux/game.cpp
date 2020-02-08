@@ -27,7 +27,9 @@ void disconnect (int registeredPlayers, int fdOutput[], int fdInput[], int pid[]
     stdClosePipes (fdOutput);
 }
 
-int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers) {
+int sendError (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId [], bool isPlayerConnected []);
+
+int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId [], bool isPlayerConnected [], int currentPlayer) {
     DBconnector::ConsoleReadStruct lobby;
     int tickCount = timeout * 100;
     do { 
@@ -38,31 +40,32 @@ int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerN
 
     if (tickCount == 0) {
         cerr << "game: (error) Request for client timed out, terminating game " << lobbyId << "\n";
-        disconnect (registeredPlayers, fdOutput, fdInput, pid, playerType, dbc, lobbyId);
+        isPlayerConnected [currentPlayer] = 0;
+        sendError (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected);
         return -1;
     }
     return 0;
 }
 
-int sendError (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId []) {
+int sendError (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId [], bool isPlayerConnected []) {
     for (int i = 0; i < playerNumber; i ++) {
-        if (!playerType [i]) { //human
+        if (!playerType [i] && isPlayerConnected [i]) { //if human player is connected
             dbc.UpdateLobby (lobbyId, "i", "", "", "", "", 0, "e", playerId [i]);
-            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers) < 0) return -1;
+            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected, i) < 0) return -1;
         }
     }
 
     disconnect (registeredPlayers, fdOutput, fdInput, pid, playerType, dbc, lobbyId);
 
-    cerr << "game: (error) Game " << lobbyId << "quit due to an error\n";
+    cerr << "game: (error) Game " << lobbyId << " quit due to an error\n";
     return 0;
 }
 
-int finishGame (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId [], int historyId) {
+int finishGame (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId [], int historyId, bool isPlayerConnected []) {
     for (int i = 0; i < playerNumber; i ++) {
         if (!playerType [i]) {
             dbc.UpdateLobby (lobbyId, "i", "", "", "", "", historyId, "f", playerId [i]);
-            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers) < 0) return -1;
+            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected, i) < 0) return -1;
         }
     }
 
@@ -110,6 +113,7 @@ stringstream ss;
     int fdInput [playerNumber]; //holds input file descriptors.
     int fdOutput [playerNumber]; //holds output file descriptors.
     int pid [playerNumber]; //holds ai pids
+    bool isPlayerConnected [playerNumber];
 
     //initialising players
 
@@ -117,6 +121,7 @@ stringstream ss;
     int admin = rand() % playerNumber; //randomises which player plays first
 
     for (int i = 0; i < playerNumber; i++) {
+        isPlayerConnected [i] = 1;
         shipsLeft [i] = shipNumber;
 
         for (int j = 0; j < shipNumber; j++) {
@@ -156,7 +161,7 @@ stringstream ss;
                 //However, before that we must terminate other AIs which may have been lauched before.
                 //We only need to do that to previous players, so we enter i instead of playerNumber.
 
-                sendError (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId);
+                sendError (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected);
                 return 1;
             }
             else if (stdConnSuccess > 0) { //code executed by child
@@ -172,7 +177,7 @@ stringstream ss;
 
             dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
 
-            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i) < 0) return 1;
+            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected, i) < 0) return 1;
             lobby = dbc.ConsoleRead (lobbyId);
 
         }
@@ -186,7 +191,7 @@ stringstream ss;
                 shipTable [i] [j] = stdRead (fdInput [i]); //reading ship table from ai
             }
             else {
-                if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i) < 0) return 1;
+                if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected, i) < 0) return 1;
                 lobby = dbc.ConsoleRead (lobbyId);
 
                 shipTable [i] [j] = stoi (lobby.user_input);
@@ -236,7 +241,7 @@ stringstream ss;
         if (playerType [currentPlayer] == 0) {
             //frontend
             
-            if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber) < 0) return 1; //Waiting for frontend to aknowledge result
+            if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1; //Waiting for frontend to aknowledge result
             lobby = dbc.ConsoleRead (lobbyId);
             
             //read user's move
@@ -272,7 +277,7 @@ stringstream ss;
                     //write last move to lobby table
                     ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
                     dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + ss.str(), lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]);
-                    if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber) < 0) return 1;
+                    if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1;
 
                     //current player has won the game
 
@@ -337,7 +342,7 @@ stringstream ss;
             //send console response to lobby table
             consoleOutput = pseudoOutput;
             dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //send backend response to database
-            if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber) < 0) return 1; //Waiting for frontend to aknowledge result
+            if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1; //Waiting for frontend to aknowledge result
             lobby = dbc.ConsoleRead (lobbyId);
         }
         else {
@@ -356,7 +361,7 @@ stringstream ss;
 
     //tell all players that game is now finished
 
-    if (finishGame (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, historyId) < 0) return 1;
+    if (finishGame (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, historyId, isPlayerConnected) < 0) return 1;
 
     return 0;
 }

@@ -5,35 +5,17 @@
 #include "dbconnector/dbconnector.h" //Provides database communication functions prototypes
 #include <cstdlib>
 #include <ctime>
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
-int waitForUserResponse (DBconnector &dbc, int lobbyId) {
-    DBconnector::ConsoleReadStruct lobby;
-    do { 
-        lobby = dbc.ConsoleRead (lobbyId);
-    } while (lobby.game_status != "c");
-    return 0;
-}
-
-int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool playerType[], int playerId [], DBconnector &dbc, int lobbyId, int historyId) { //Terminates connections
-    int success = 0;
-
-    for (int i = 0; i < playerNumber; i++) {
+void disconnect (int registeredPlayers, int fdOutput[], int fdInput[], int pid[], bool playerType[], DBconnector &dbc, int lobbyId) { //Terminates connections
+    
+    for (int i = 0; i < registeredPlayers; i ++) {
         if (playerType [i]) { //ai
             stdWrite (fdOutput [i], 4); //Tells AI to exit.
-            if (stdDisconnect (pid [i]) < 0) { //Kills AI in case it hasn't exited yet
-                success = -1;
-            }
-        }
-        else { //frontend
-            if (historyId == 0) {
-                dbc.UpdateLobby (lobbyId, "i", "", "", "", "", historyId, "e", playerId [i]);
-            }
-            else {
-                dbc.UpdateLobby (lobbyId, "i", "", "", "", "", historyId, "f", playerId [i]);
-            }
-            waitForUserResponse (dbc, lobbyId);
+            stdDisconnect (pid [i]); //Kills AI in case it hasn't exited yet
         }
     }
 
@@ -43,8 +25,51 @@ int disconnect (int playerNumber, int fdOutput[], int fdInput[], int pid[], bool
 
     stdClosePipes (fdInput);
     stdClosePipes (fdOutput);
+}
 
-    return success;
+int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers) {
+    DBconnector::ConsoleReadStruct lobby;
+    int tickCount = timeout * 100;
+    do { 
+        lobby = dbc.ConsoleRead (lobbyId);
+        this_thread::sleep_for(chrono::milliseconds(10));
+        tickCount --;
+    } while (lobby.game_status != "c" && tickCount > 0);
+
+    if (tickCount == 0) {
+        cerr << "game: (error) Request for client timed out, terminating game " << lobbyId << "\n";
+        disconnect (registeredPlayers, fdOutput, fdInput, pid, playerType, dbc, lobbyId);
+        return -1;
+    }
+    return 0;
+}
+
+int sendError (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId []) {
+    for (int i = 0; i < playerNumber; i ++) {
+        if (!playerType [i]) { //human
+            dbc.UpdateLobby (lobbyId, "i", "", "", "", "", 0, "e", playerId [i]);
+            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers) < 0) return -1;
+        }
+    }
+
+    disconnect (registeredPlayers, fdOutput, fdInput, pid, playerType, dbc, lobbyId);
+
+    cerr << "game: (error) Game " << lobbyId << "quit due to an error\n";
+    return 0;
+}
+
+int finishGame (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int fdOutput [], int fdInput [], int pid [], bool playerType [], int registeredPlayers, int playerId [], int historyId) {
+    for (int i = 0; i < playerNumber; i ++) {
+        if (!playerType [i]) {
+            dbc.UpdateLobby (lobbyId, "i", "", "", "", "", historyId, "f", playerId [i]);
+            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers) < 0) return -1;
+        }
+    }
+
+    disconnect (registeredPlayers, fdOutput, fdInput, pid, playerType, dbc, lobbyId);
+
+    cerr << "game: (info) Game " << lobbyId << " successfully finished\n";
+    return 0;
 }
 
 int main (int argc, char* argv []) {
@@ -73,6 +98,7 @@ stringstream ss;
     int tableHeight = 10;
     int shipNumber = 5;
     int playerNumber = 2;
+    int timeout = 60;
 
     //--------------------INITIALISATION--------------------
 
@@ -130,8 +156,7 @@ stringstream ss;
                 //However, before that we must terminate other AIs which may have been lauched before.
                 //We only need to do that to previous players, so we enter i instead of playerNumber.
 
-                disconnect(i, fdOutput, fdInput, pid, playerType, playerId, dbc, lobbyId, 0);
-                cout << "1 "; //tells server game initialisation failed
+                sendError (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId);
                 return 1;
             }
             else if (stdConnSuccess > 0) { //code executed by child
@@ -147,7 +172,7 @@ stringstream ss;
 
             dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
 
-            waitForUserResponse (dbc, lobbyId);
+            if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i) < 0) return 1;
             lobby = dbc.ConsoleRead (lobbyId);
 
         }
@@ -161,7 +186,7 @@ stringstream ss;
                 shipTable [i] [j] = stdRead (fdInput [i]); //reading ship table from ai
             }
             else {
-                waitForUserResponse (dbc, lobbyId);
+                if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i) < 0) return 1;
                 lobby = dbc.ConsoleRead (lobbyId);
 
                 shipTable [i] [j] = stoi (lobby.user_input);
@@ -211,13 +236,9 @@ stringstream ss;
         if (playerType [currentPlayer] == 0) {
             //frontend
             
-            cerr << "game: (info) Waiting for player " << playerId [currentPlayer] << " move\n";
-
-            waitForUserResponse(dbc, lobbyId); //Waiting for frontend to aknowledge result
+            if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber) < 0) return 1; //Waiting for frontend to aknowledge result
             lobby = dbc.ConsoleRead (lobbyId);
             
-            cerr << "game: (info) Player " << playerId [currentPlayer] << " move: \"" << lobby.user_input << "\"\n";
-
             //read user's move
 
             int dashPosition = 0;
@@ -251,7 +272,7 @@ stringstream ss;
                     //write last move to lobby table
                     ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
                     dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + ss.str(), lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]);
-                    waitForUserResponse(dbc, lobbyId);
+                    if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber) < 0) return 1;
 
                     //current player has won the game
 
@@ -316,7 +337,7 @@ stringstream ss;
             //send console response to lobby table
             consoleOutput = pseudoOutput;
             dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //send backend response to database
-            waitForUserResponse(dbc, lobbyId); //Waiting for frontend to aknowledge result
+            if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber) < 0) return 1; //Waiting for frontend to aknowledge result
             lobby = dbc.ConsoleRead (lobbyId);
         }
         else {
@@ -333,9 +354,9 @@ stringstream ss;
 
     //--------------------DISCONNECTION--------------------
 
-    //disconnecting players
+    //tell all players that game is now finished
 
-    disconnect (playerNumber, fdOutput, fdInput, pid, playerType, playerId, dbc, lobbyId, historyId);
+    if (finishGame (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, historyId) < 0) return 1;
 
     return 0;
 }

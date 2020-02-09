@@ -50,7 +50,7 @@ int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerN
 
 	else if (lobby.user_input == "moar") {
 		cerr << "game: (debug) \"moar\" request received\n";
-		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", currentPlayer);
+		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [currentPlayer]);
 		return waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected, currentPlayer);
 	}
 	return 0;

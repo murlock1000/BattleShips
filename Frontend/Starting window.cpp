@@ -35,6 +35,8 @@ const int LobbyWidth = 2;
 const int LobbyHeight = 10;
 const int LaivuCount = 5;
 
+int askForMoreTime = 500;
+
 
 int ReadFromFile(ifstream& file)
 {
@@ -572,6 +574,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 					char t;
 					cout << "trying" << endl;
 					PlayerMap = "";//isvalome buvusi map
+					askForMoreTime = 500;
 					for (int i = 0; i < 100; i++) { //perduodame 100 numeriu po viena, laukdami patvirtinimo pries issiunciant nauja skaiciu
 						fin >> t;
 						string ts;
@@ -634,7 +637,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 		}
 		else if (rlobby.game_status == "e" && rlobby.curr_player == userID) {
 			cnn.UpdateLobby (lobbyID, "i", "", "", "", "", 0, "c", 0); //acknowledge error
-			langas = 1;
+			langas = 2;
 		}
 		else {
 			cerr << rlobby.game_status << " " << rlobby.curr_player << " " << userID << "\n";
@@ -646,6 +649,17 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 	window.draw(graphics["background"]);
 	window.draw(texts["mapPath"]);
 	window.display();
+
+
+	if (rlobby.curr_player == userID) {
+		this_thread::sleep_for(chrono::milliseconds(10));
+		askForMoreTime --;
+
+		if (askForMoreTime == 0) {
+			cnn.WriteMove (lobbyID, "moar");
+			askForMoreTime = 500;
+		}
+	}
 }
 
 void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>> (&Grid)[2], map<string, sf::Texture>& textures, int &waitingFor) {
@@ -655,7 +669,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput;
-	cout << "waiting for: " << waitingFor << endl;
+	//cout << "waiting for: " << waitingFor << endl;
 
 	DBconnector::Rlobby rlobby;
 	switch (waitingFor)
@@ -718,7 +732,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 		else if (rlobby.curr_player == userID & rlobby.game_status == "e") {
 			cnn.UpdateLobby (lobbyID, "i", "", "", "", "", 0, "c", 0); //acknowledge error
 			cout << "GAME CRASHED" << endl;
-			langas = 1;
+			langas = 2;
 		}
 		break;
 	case 1:				//waiting for player's move selection
@@ -750,6 +764,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 							if (userInput != "") {
 								cnn.WriteMove(lobbyID, userInput);
 								waitingFor = 2;
+								askForMoreTime = 500;
 							}
 						}
 
@@ -757,6 +772,15 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 				}
 			}
 		}
+
+		this_thread::sleep_for(chrono::milliseconds(10));
+		askForMoreTime --;
+
+		if (askForMoreTime == 0) {
+			cnn.WriteMove (lobbyID, "moar");
+			askForMoreTime = 500;
+		}
+
 		break;
 	case 2: //waiting for console's response to the move
 		while (window.pollEvent(event))

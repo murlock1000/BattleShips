@@ -37,7 +37,6 @@ int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerN
 		this_thread::sleep_for(chrono::milliseconds(10));
 		tickCount --;
 	} while (lobby.game_status != "c" && tickCount > 0);
-
 	if (tickCount == 0) {
 		cerr << "game: (error) Request for client timed out, terminating game " << lobbyId << "\n";
 		isPlayerConnected [currentPlayer] = 0;
@@ -45,12 +44,13 @@ int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerN
 		return -1;
 	}
 
-	//If user input is required a client is expected to send "moartimepls" request every 5 seconds.
+	//If user input is required a client is expected to send "moar" request every 5 seconds.
 	//Upon receiving this request the server will reset the tick count
 	//This is used solely to tell server that the client is still connected and just needs more time.
 
-	else if (lobby.user_input == "moartimepls") {
-		cerr << "MOAR TIME PLS\n";
+	else if (lobby.user_input == "moar") {
+		cerr << "game: (debug) \"moar\" request received\n";
+		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", currentPlayer);
 		return waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected, currentPlayer);
 	}
 	return 0;

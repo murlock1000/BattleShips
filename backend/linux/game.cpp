@@ -44,6 +44,15 @@ int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerN
         sendError (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected);
         return -1;
     }
+
+    //If user input is required a client is expected to send "moartimepls" request every 5 seconds.
+    //Upon receiving this request the server will reset the tick count
+    //This is used solely to tell server that the client is still connected and just needs more time.
+
+    else if (lobby.user_input == "moartimepls") {
+        cerr << "MOAR TIME PLS\n";
+        return waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected, currentPlayer);
+    }
     return 0;
 }
 
@@ -101,7 +110,7 @@ stringstream ss;
     int tableHeight = 10;
     int shipNumber = 5;
     int playerNumber = 2;
-    int timeout = 60;
+    int timeout = 30;
 
     //--------------------INITIALISATION--------------------
 
@@ -120,7 +129,23 @@ stringstream ss;
     srand (time(NULL));
     int admin = rand() % playerNumber; //randomises which player plays first
 
+    //We should get players' ID first before attempting to communicate with them.
+    //This means that if initialisation of any player fails, all clients can be warned about failure.
+
     for (int i = 0; i < playerNumber; i++) {
+        if (i == admin) {
+            playerId [i] = lobby.adminID;
+        }
+
+        else {
+            playerId [i] = lobby.opponentID;
+        }
+    }
+
+    //Now we can properly initialise players
+
+    for (int i = 0; i < playerNumber; i ++) {
+
         isPlayerConnected [i] = 1;
         shipsLeft [i] = shipNumber;
 
@@ -132,17 +157,14 @@ stringstream ss;
 
         if (i == admin) {
             userInfo = dbc.GetUserInfo (lobby.adminID);
-            playerId [i] = lobby.adminID;
         }
 
 
         else {
             userInfo = dbc.GetUserInfo (lobby.opponentID);
-            playerId [i] = lobby.opponentID;
         }
 
         playerType [i] = userInfo.is_ai;
-
 
         if (playerType [i]) { //ai initialisation
 

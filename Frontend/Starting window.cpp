@@ -632,7 +632,12 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 				}
 			}
 		}
+        else if (rlobby.game_status == "e" && rlobby.curr_player == userID) {
+            cnn.UpdateLobby (lobbyID, "i", "", "", "", "", 0, "c", 0); //acknowledge error
+            langas = 1;
+        }
 		else {
+            cerr << rlobby.game_status << " " << rlobby.curr_player << " " << userID << "\n";
 			texts["mapPath"].setString("Waiting for others...");
 		}
 
@@ -711,7 +716,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 			langas = 2;
 		}
 		else if (rlobby.curr_player == userID & rlobby.game_status == "e") {
-
+            cnn.UpdateLobby (lobbyID, "i", "", "", "", "", 0, "c", 0); //acknowledge error
 			cout << "GAME CRASHED" << endl;
 			langas = 1;
 		}

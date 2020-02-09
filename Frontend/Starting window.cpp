@@ -35,6 +35,8 @@ const int LobbyWidth = 2;
 const int LobbyHeight = 10;
 const int LaivuCount = 5;
 
+int askForMoreTime = 500;
+
 
 int ReadFromFile(ifstream& file)
 {
@@ -637,7 +639,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 			langas = 1;
 		}
 		else {
-			cerr << rlobby.game_status << " " << rlobby.curr_player << " " << userID << "\n";
+			//cerr << rlobby.game_status << " " << rlobby.curr_player << " " << userID << "\n";
 			texts["mapPath"].setString("Waiting for others...");
 		}
 
@@ -655,7 +657,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 	string enemyMove;
 	string DidYouMakeIt; //ar pataikei?
 	string userInput;
-	cout << "waiting for: " << waitingFor << endl;
+	//cout << "waiting for: " << waitingFor << endl;
 
 	DBconnector::Rlobby rlobby;
 	switch (waitingFor)
@@ -750,6 +752,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 							if (userInput != "") {
 								cnn.WriteMove(lobbyID, userInput);
 								waitingFor = 2;
+								askForMoreTime = 500;
 							}
 						}
 
@@ -757,6 +760,15 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 				}
 			}
 		}
+
+		this_thread::sleep_for(chrono::milliseconds(10));
+		askForMoreTime --;
+
+		if (askForMoreTime == 0) {
+			cnn.WriteMove (lobbyID, "moar");
+			askForMoreTime = 500;
+		}
+
 		break;
 	case 2: //waiting for console's response to the move
 		while (window.pollEvent(event))

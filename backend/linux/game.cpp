@@ -61,6 +61,7 @@ int sendError (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, int
 		if (!playerType [i] && isPlayerConnected [i]) { //if human player is connected
 			dbc.UpdateLobby (lobbyId, "i", "", "", "", "", 0, "e", playerId [i]);
 			if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected, i) < 0) return -1;
+			isPlayerConnected [i] = 0;
 		}
 	}
 

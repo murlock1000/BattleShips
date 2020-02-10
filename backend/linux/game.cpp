@@ -241,8 +241,6 @@ stringstream ss;
 
 	}
 
-
-
 	int currentPlayer = 0; //player 1 starts
 	int opponentPlayer = 1; //playing against the next player
 
@@ -253,10 +251,11 @@ stringstream ss;
 	int moveId = 0;
 
 	string consoleOutput = "";
+	string enemyMove = "";
 
 	while (true) {
 
-		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //send backend response to database and tell frontend that game is waiting for its input
+		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //send backend response to database and tell frontend that game is waiting for its input
 
 		int tileX;
 		int tileY;
@@ -268,6 +267,8 @@ stringstream ss;
 			lobby = dbc.ConsoleRead (lobbyId);
 			
 			//read user's move
+			
+			enemyMove = lobby.user_input;
 
 			int dashPosition = 0;
 			while (lobby.user_input.substr(dashPosition, 1) != "-") dashPosition++;

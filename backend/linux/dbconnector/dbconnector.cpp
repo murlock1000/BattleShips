@@ -16,17 +16,17 @@ DBconnector::~DBconnector()
 }
 
 ///userside functions
-void DBconnector::Connect(string ip, string username, string pass, string database)		// connects to database with user credentials. requires database ip, username, password, database name.
+int DBconnector::Connect(string ip, string username, string pass, string database)		// connects to database with user credentials. requires database ip, username, password, database name.
 {
 	conn = mysql_init(0);
 
 	conn = mysql_real_connect(conn, ip.c_str(), username.c_str(), pass.c_str(), database.c_str(), 3306, NULL, 0);
 	if (conn)
 	{
-		//cout << "Connected!" << endl;
+		return 0;
 	}
 	else {
-		throw "Failed To connect";
+		return -1;
 	}
 }
 

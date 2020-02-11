@@ -5,19 +5,19 @@
 #include <vector>
 #include "dbconnector/dbconnector.h"
 
+//Windows compatibility
+
+#ifdef __linux__
+#define HANDLE int
+#endif
+
 using namespace std;
 
 int main() {
 
 	DBconnector dbc;
-
-	if (dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships") < 0) { //connecting to database
-		cerr << "server: (error) Unable to connect to database\n";
-		return 1;
-	}
+	dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
 	
-	cerr << "server: (info) Server is active, looking for pending lobbies\n";
-
 	while (true) {
 
 		vector<int> lobbies = dbc.GetReadyLobbies(); //getting that lobby info
@@ -28,8 +28,6 @@ int main() {
 			HANDLE unusedIO [2];
 			int* unusedPid = new int;
 
-			cerr << "server: (info) Launching game " << lobbies [i] << "\n";
-
 			stringstream lobbyId_s;
 			lobbyId_s << lobbies [i];
 			const char* lobbyId_c = lobbyId_s.str().c_str();
@@ -37,7 +35,7 @@ int main() {
 			int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", lobbyId_c);
 
 			if (stdConnSuccess < 0) {
-				 cerr << "server: (error) Failed to launch lobby " << lobbies[i] << "\n";
+				 cout << "ERROR: Failed to launch lobby " << lobbies[i] << "\n";
 			}
 			else if (stdConnSuccess > 0) {
 				//finally ends finished game process

@@ -1,5 +1,5 @@
 #pragma once
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <string>
 #include <sstream>
 #include <cppconn/statement.h>
@@ -25,7 +25,7 @@ public:
 		string username;
 		int wins;
 		int losses;
-        bool is_ai;
+		bool is_ai;
 	};
 
 	struct LobbyTable {
@@ -59,17 +59,17 @@ public:
 	};
 
 	struct ConsoleReadStruct{
-        int adminID;
-        int opponentID=-1;
-        string user_input="";
-        string admin_map="";
-        string opponent_map="";
-        string game_status="";
+		int adminID;
+		int opponentID=-1;
+		string user_input="";
+		string admin_map="";
+		string opponent_map="";
+		string game_status="";
 	};
 
 	DBconnector();
 	~DBconnector();
-	void Connect(string ip,string username,string password,string dbName);
+	int Connect(string ip,string username,string password,string dbName);
 	int Register(string username);
 	int Login(string username);
 	void ChangeName(string newUsername, int userID);
@@ -88,11 +88,11 @@ public:
 
 	int RegisterAI(string username);
 	int CreateAIlobby(string lobbyName, int AI_ID);
-    vector<int> GetReadyLobbies();
-    int CreateHistoryTable(string game_name, int player1_ID, int player2_ID, string map1, string map2);
-    void UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID);
-    void UpdateLobby(int lobbyID, string lobby_status, string user_input, string console_output, string map1, string map2, int historyID, string game_status, int playerID );
-    ConsoleReadStruct ConsoleRead(int lobbyID);
-    void InitiateDeletion(int lobbyID);
-    void WriteWinner(int playerID, int gameID);
+	vector<int> GetReadyLobbies();
+	int CreateHistoryTable(string game_name, int player1_ID, int player2_ID, string map1, string map2);
+	void UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID);
+	void UpdateLobby(int lobbyID, string lobby_status, string user_input, string console_output, string map1, string map2, int historyID, string game_status, int playerID );
+	ConsoleReadStruct ConsoleRead(int lobbyID);
+	void InitiateDeletion(int lobbyID);
+	void WriteWinner(int playerID, int gameID);
 };

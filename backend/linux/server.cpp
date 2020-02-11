@@ -16,8 +16,14 @@ void zombiePrevention (int signum) {
 int main() {
 
 	DBconnector dbc;
-	dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships"); //connecting to database
+
+	if (dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships") < 0) { //connecting to database
+		cerr << "server: (error) Unable to connect to database\n";
+		return 1;
+	}
 	
+	cerr << "server: (info) Server is active, looking for pending lobbies\n";
+
 	while (true) {
 
 		vector<int> lobbies = dbc.GetReadyLobbies(); //getting that lobby info

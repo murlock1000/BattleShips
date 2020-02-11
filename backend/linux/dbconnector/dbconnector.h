@@ -69,7 +69,7 @@ public:
 
 	DBconnector();
 	~DBconnector();
-	void Connect(string ip,string username,string password,string dbName);
+	int Connect(string ip,string username,string password,string dbName);
 	int Register(string username);
 	int Login(string username);
 	void ChangeName(string newUsername, int userID);

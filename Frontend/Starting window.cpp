@@ -555,22 +555,18 @@ void SetupGameScreen(sf::RenderWindow& window, vector<vector<sf::RectangleShape>
 
 }
 
-void initiateAI(string aiPath, int &langas, sf::RenderWindow& window, vector<vector<sf::RectangleShape>>(&Grid)[2], map<string, sf::RectangleShape>& graphics, map<string, sf::Texture>& textures) {
-
+void initiateAI(string aiPath, int &langas, sf::RenderWindow& window, vector<vector<sf::RectangleShape>>(&Grid)[2], map<string, sf::RectangleShape>& graphics, map<string, sf::Texture>& textures, map <string, sf::Text>& texts) {
+	DBconnector::Rlobby rlobby;
 	//fdInput[i] = aiIO[0]; //Store each player's fds
 	//fdOutput[i] = aiIO[1];
 	stringstream ss;
 	int stdConnSuccess = stdConnect(aiIO, &aiPid, aiPath.c_str(), aiPath.c_str(), "0");
 
 	if (stdConnSuccess < 0) {
-		stdWrite(aiIO[1], 4); //Tells AI to exit.
 		langas = 2;
 		cout << "error launching AI" << endl;
 	}
 	
-	langas = 0; // nukreipiame vaizda i zaidima
-	cout << "INGAME" << endl;
-
 	//map reading
 	string PlayerMap = "";
 
@@ -578,8 +574,37 @@ void initiateAI(string aiPath, int &langas, sf::RenderWindow& window, vector<vec
 
 		ss << stdRead(aiIO[0]);	//reading ship table from ai
 		PlayerMap += ss.str();
+		cnn.WriteMove (lobbyID, ss.str());
 		ss.str("");
+
+		int timeout = 1000; // laukiame max 10s serveriui patvirtinti musu input
+		do {
+			try
+			{
+				rlobby = cnn.ReadLobby(lobbyID);
+			}
+			catch (const char* s)
+			{
+				cout << "FAIL: " << s << endl;
+			}
+			window.clear();
+			window.draw(graphics["background"]);
+			texts["mapPath"].setString("Loading...");
+			window.draw(texts["mapPath"]);
+			window.display();
+
+			this_thread::sleep_for(chrono::milliseconds(10));
+			timeout--;
+		} while (rlobby.game_status != "w" && timeout > 0);//wait for console to read output
+
+		if (timeout == 0) { //server crashed
+			cout << "server crashed (question mark)" << endl;
+			langas = 2;//going back to lobby list
+		}
 	}
+
+	langas = 0; // nukreipiame vaizda i zaidima
+	cout << "INGAME" << endl;
 
 	SetupShips(PlayerMap); // gauname vektoriu laivu su ju koordinatemis
 	SetupGameScreen(window, Grid, graphics, textures);
@@ -668,16 +693,10 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 			if (event.type == sf::Event::TextEntered)
 			{
 				if (event.text.unicode == 8) { //jeigu backspace - istriname
-					if (mapPath.size() > 6) {
-						mapPath = mapPath.substr(0, mapPath.size() - 5);
-						if (ManualMode) {
-							mapPath += ".txt";
-						}
-						else {
-							mapPath += ".exe";
-						}
-						texts["mapPath"].setString(mapPath);
+					if (mapPath.size() > 2) {
+						mapPath = mapPath.substr(0, mapPath.size() - 1);
 					}
+					texts["mapPath"].setString(mapPath);
 				}
 				else if (event.text.unicode == 13) { //enter submittina faila
 					if (ManualMode) {
@@ -738,14 +757,12 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 						SetupGameScreen(window, Grid, graphics, textures);
 					}
 					else {
-						initiateAI(PlayerMap,langas, window, Grid, graphics, textures);
+						initiateAI(mapPath, langas, window, Grid, graphics, textures, texts);
 					}
 					
 				}
 				else {
-					mapPath = mapPath.substr(0, mapPath.size() - 4);
-					mapPath += event.text.unicode;
-					mapPath += ".txt";
+					mapPath +=event.text.unicode;
 					texts["mapPath"].setString(mapPath);
 				}
 			}
@@ -1102,7 +1119,7 @@ int main()
 	//Suviu kurimas
 	vector<Shot> Shots[2];//0 - zaidejas 1- priesininkas
 
-	string mapPath = "./.txt";
+	string mapPath = "./";
 	string PlayerMap = "";
 	string lobbyName = "Lobby name";
 	int waitingFor = 0;

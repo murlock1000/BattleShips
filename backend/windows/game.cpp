@@ -238,7 +238,7 @@ stringstream ss;
 
 	while (true) {
 
-		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //send backend response to database and tell frontend that game is waiting for its input
+		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "move", lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //tell frontend that game is waiting for its input
 
 		int tileX;
 		int tileY;
@@ -331,9 +331,9 @@ stringstream ss;
 		string pseudoOutput = ss.str(); //pseudoInput and pseudoOutput are used to send data that has not necessarily been generated to moves table
 		ss.str("");
 		if (response == 3) {
-				ss<<subresponse;
+			ss<<subresponse;
 			pseudoOutput = pseudoOutput + "-" + ss.str();
-		ss.str("");
+			ss.str("");
 		}
 		ss<<tileX;
 		string pseudoInput = ss.str();
@@ -357,8 +357,16 @@ stringstream ss;
 			stdWrite (fdOutput [currentPlayer], response);
 		}
 
-		currentPlayer = (currentPlayer + 1) % playerNumber; //Next player's turn
-		opponentPlayer = (currentPlayer + 1) % playerNumber;
++		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "enemy", lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell opponent that current player made a shot
++		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1;
++
++		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell frontend that game is waiting for its input
++		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1;
++
++		if (response == 1) {
++			currentPlayer = (currentPlayer + 1) % playerNumber; //If no ship was hit it's the next player's turn
++			opponentPlayer = (currentPlayer + 1) % playerNumber;
++		}
 
 		moveId ++;
 

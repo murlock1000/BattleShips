@@ -332,9 +332,9 @@ stringstream ss;
 		string pseudoOutput = ss.str(); //pseudoInput and pseudoOutput are used to send data that has not necessarily been generated to moves table
 		ss.str("");
 		if (response == 3) {
-				ss<<subresponse;
-				pseudoOutput = pseudoOutput + "-" + ss.str();
-				ss.str("");
+			ss<<subresponse;
+			pseudoOutput = pseudoOutput + "-" + ss.str();
+			ss.str("");
 		}
 		ss<<tileX;
 		string pseudoInput = ss.str();

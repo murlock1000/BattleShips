@@ -50,7 +50,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -169,12 +169,14 @@
     <ClCompile Include="ClassesAndHeaders\pch.cpp" />
     <ClCompile Include="ClassesAndHeaders\Shot.cpp" />
     <ClCompile Include="Starting window.cpp" />
+    <ClCompile Include="stdcomm-windows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassesAndHeaders\dbconnector.h" />
     <ClInclude Include="ClassesAndHeaders\Laivas.h" />
     <ClInclude Include="ClassesAndHeaders\pch.h" />
     <ClInclude Include="ClassesAndHeaders\Shot.h" />
+    <ClInclude Include="stdcomm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

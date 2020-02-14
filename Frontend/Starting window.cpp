@@ -11,6 +11,7 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
+#include "stdcomm.h" //Provides AI communication functions prototypes
 
 using namespace std;
 
@@ -19,6 +20,11 @@ string username = "type the username";
 int lobbyID;
 DBconnector cnn;
 vector<Laivas> Laivai;
+
+//AI STUFF
+
+HANDLE aiIO[2];
+int aiPid;
 
 struct ScreenSizeProperties
 {
@@ -62,13 +68,13 @@ bool AttempToConnect(string name, string password)
 void SetupShips(string PlayerMap) {
 	//Duomenys - Kintamieji
 
-	cout << "h " << TableHeight << " - " << TableWidth << endl;
+	//cout << "h " << TableHeight << " - " << TableWidth << endl;
 
 	vector<vector<int>> ShipTable(TableHeight);
 	//[y][x]
 
 	ShipTable.resize(TableHeight);
-	cout << PlayerMap << endl;
+//	cout << PlayerMap << endl;
 	for (int i = 0; i < TableHeight; i++)
 	{
 		ShipTable[i].resize(TableWidth);
@@ -77,7 +83,7 @@ void SetupShips(string PlayerMap) {
 
 
 			ShipTable[i][j] = PlayerMap[i * 10 + j] - '0';
-			cout << ShipTable[i][j] << " ";
+			//cout << ShipTable[i][j] << " ";
 		}
 		cout << endl;
 	}
@@ -197,6 +203,30 @@ void SetupApplicationGraphics(map<string, sf::RectangleShape>& graphics, map<str
 	user_txt.setFillColor(sf::Color::Black);
 	user_txt.setPosition(sf::Vector2f(200, 100));
 	texts["username"] = user_txt;
+
+#pragma endregion Login_design
+
+#pragma region Ask_design
+	///ask if ai or manual
+
+	//askAi button
+	sf::RectangleShape askAi_button(sf::Vector2f(200, 40));
+	login_button.setPosition(sf::Vector2f(380, 140));
+	login_button.setOutlineColor(sf::Color::Black);
+	login_button.setOutlineThickness(2.f);
+	login_button.setFillColor(sf::Color::Blue);
+	login_button.setTexture(&textures["askAi"]);
+	graphics["askAi_btn"] = login_button;
+
+	//askManual button
+	sf::RectangleShape askManual_button(sf::Vector2f(0.2f * sc.width, 0.1f * sc.height));
+	register_button.setPosition(sf::Vector2f(0.4f * sc.width, 0.6f * sc.height));
+	register_button.setOutlineColor(sf::Color::Black);
+	register_button.setOutlineThickness(2.f);
+	register_button.setFillColor(sf::Color::Cyan);
+	register_button.setTexture(&textures["askManual"]);
+	graphics["askManual_btn"] = register_button;
+
 
 #pragma endregion Login_design
 
@@ -460,9 +490,9 @@ void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, int& langas, ma
 					{
 						cout << "error: " << s << endl;
 					}
-					cout << "langas: " << langas << endl;
-					langas++; //for the memes
-					cout << "langasN: " << langas << endl;
+
+					langas = 5;
+
 				}
 			}
 			window.draw(LobbyGrid[i][j]);
@@ -525,8 +555,83 @@ void SetupGameScreen(sf::RenderWindow& window, vector<vector<sf::RectangleShape>
 
 }
 
-void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,string &mapPath, string& PlayerMap, vector<vector<sf::RectangleShape>>(&Grid)[2], map<string, sf::Texture>& textures) {
-	//	lobbyID = 19;
+void initiateAI(string aiPath, int &langas, sf::RenderWindow& window, vector<vector<sf::RectangleShape>>(&Grid)[2], map<string, sf::RectangleShape>& graphics, map<string, sf::Texture>& textures) {
+
+	//fdInput[i] = aiIO[0]; //Store each player's fds
+	//fdOutput[i] = aiIO[1];
+	stringstream ss;
+	int stdConnSuccess = stdConnect(aiIO, aiPid, aiPath.c_str(), aiPath.c_str(), "0");
+
+	if (stdConnSuccess < 0) {
+		stdWrite(aiIO[1], 4); //Tells AI to exit.
+		langas = 2;
+		cout << "error launching AI" << endl;
+	}
+	
+	langas = 0; // nukreipiame vaizda i zaidima
+	cout << "INGAME" << endl;
+
+	//map reading
+	string PlayerMap = "";
+
+	for (int j = 0; j < TableHeight*TableWidth; j++) {
+
+		ss << stdRead(aiIO[0]);	//reading ship table from ai
+		PlayerMap += ss.str();
+		ss.str("");
+	}
+
+	SetupShips(PlayerMap); // gauname vektoriu laivu su ju koordinatemis
+	SetupGameScreen(window, Grid, graphics, textures);
+}
+
+void AiOrManual(sf::RenderWindow& window, sf::Event& event, int& langas, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, bool &ManualMode) {	//window for ai, manual selections
+
+	int x, y;
+	sf::RectangleShape pele;
+	while (window.pollEvent(event))
+	{
+		if (event.type == sf::Event::Closed)
+			window.close();
+		if (event.type == sf::Event::Resized)
+		{
+			sc.NewWidth = event.size.width;
+			sc.NewHeight = event.size.height;
+		}
+
+		if (event.type == sf::Event::MouseButtonPressed)
+		{
+			if (event.mouseButton.button == sf::Mouse::Left)
+			{
+				x = event.mouseButton.x / ((float)sc.NewWidth / (float)sc.width);
+				y = event.mouseButton.y / ((float)sc.NewHeight / (float)sc.height);
+				pele.setSize(sf::Vector2f(1.f, 1.f));
+				pele.setPosition(sf::Vector2f(x, y));
+
+
+				if ((graphics["askAi_btn"].getGlobalBounds()).intersects(pele.getGlobalBounds())) {
+					ManualMode = 0;
+					langas = 3;
+				}
+				else if (graphics["askManual_btn"].getGlobalBounds().intersects(pele.getGlobalBounds())) {
+					ManualMode = 1;
+					langas = 3;
+				}
+
+			}
+
+		}
+	}
+
+	window.clear();
+	window.draw(graphics["background"]);
+	window.draw(graphics["askAi_btn"]);
+	window.draw(graphics["askManual_btn"]);
+	window.display();
+}
+
+void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,string &mapPath, string& PlayerMap, vector<vector<sf::RectangleShape>>(&Grid)[2], map<string, sf::Texture>& textures, bool ManualMode) {
+	
 	int timeout;
 
 	DBconnector::Rlobby rlobby;
@@ -565,67 +670,77 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 				if (event.text.unicode == 8) { //jeigu backspace - istriname
 					if (mapPath.size() > 6) {
 						mapPath = mapPath.substr(0, mapPath.size() - 5);
-						mapPath += ".txt";
+						if (ManualMode) {
+							mapPath += ".txt";
+						}
+						else {
+							mapPath += ".exe";
+						}
 						texts["mapPath"].setString(mapPath);
 					}
 				}
 				else if (event.text.unicode == 13) { //enter submittina faila
-					ifstream fin(mapPath);
-					char t;
-					cout << "trying" << endl;
-					PlayerMap = "";//isvalome buvusi map
-					askForMoreTime = 500;
-					for (int i = 0; i < 100; i++) { //perduodame 100 numeriu po viena, laukdami patvirtinimo pries issiunciant nauja skaiciu
-						fin >> t;
-						string ts;
-						ts = t;
-						PlayerMap += ts;
-						try
-						{
-							cnn.WriteMove(lobbyID, ts);
-						}
-						catch (const char* s)
-						{
-							//	cout << endl;
-								//cout << "size: " << PlayerMap.size() << endl;
-								//cout << PlayerMap << endl;
-							cout << "error when submitting map: " << s << endl;
-							langas = 2;//going back to lobby list
-						}
-						cout << ts << " ";
-
-						timeout = 1000; // laukiame max 10s serveriui patvirtinti musu input
-						do {
+					if (ManualMode) {
+						ifstream fin(mapPath);
+						char t;
+						cout << "trying" << endl;
+						PlayerMap = "";//isvalome buvusi map
+						askForMoreTime = 500;
+						for (int i = 0; i < 100; i++) { //perduodame 100 numeriu po viena, laukdami patvirtinimo pries issiunciant nauja skaiciu
+							fin >> t;
+							string ts;
+							ts = t;
+							PlayerMap += ts;
 							try
 							{
-								rlobby = cnn.ReadLobby(lobbyID);
+								cnn.WriteMove(lobbyID, ts);
 							}
 							catch (const char* s)
 							{
-								cout << "FAIL: " << s << endl;
+								//	cout << endl;
+									//cout << "size: " << PlayerMap.size() << endl;
+									//cout << PlayerMap << endl;
+								cout << "error when submitting map: " << s << endl;
+								langas = 2;//going back to lobby list
 							}
-							window.clear();
-							window.draw(graphics["background"]);
-							texts["mapPath"].setString("Loading...");
-							window.draw(texts["mapPath"]);
-							window.display();
+							cout << ts << " ";
 
-							this_thread::sleep_for(chrono::milliseconds(10));
-							timeout--;
-						} while (rlobby.game_status != "w" && timeout > 0);//wait for console to read output
+							timeout = 1000; // laukiame max 10s serveriui patvirtinti musu input
+							do {
+								try
+								{
+									rlobby = cnn.ReadLobby(lobbyID);
+								}
+								catch (const char* s)
+								{
+									cout << "FAIL: " << s << endl;
+								}
+								window.clear();
+								window.draw(graphics["background"]);
+								texts["mapPath"].setString("Loading...");
+								window.draw(texts["mapPath"]);
+								window.display();
 
-						if (timeout == 0) { //server crashed
-							cout << "server crashed (question mark)" << endl;
-							langas = 2;//going back to lobby list
+								this_thread::sleep_for(chrono::milliseconds(10));
+								timeout--;
+							} while (rlobby.game_status != "w" && timeout > 0);//wait for console to read output
+
+							if (timeout == 0) { //server crashed
+								cout << "server crashed (question mark)" << endl;
+								langas = 2;//going back to lobby list
+							}
 						}
+
+						langas = 0; // nukreipiame vaizda i zaidima
+						cout << "INGAME" << endl;
+
+						SetupShips(PlayerMap); // gauname vektoriu laivu su ju koordinatemis
+						SetupGameScreen(window, Grid, graphics, textures);
 					}
-					cout << endl;
-					langas = 0; // nukreipiame vaizda i zaidima
-					cout << "INGAME" << endl;
-					cout << endl;
-					cout << PlayerMap << endl;
-					SetupShips(PlayerMap); // gauname vektoriu laivu su ju koordinatemis
-					SetupGameScreen(window, Grid, graphics, textures);
+					else {
+						initiateAI(PlayerMap,langas, window, Grid, graphics, textures);
+					}
+					
 				}
 				else {
 					mapPath = mapPath.substr(0, mapPath.size() - 4);
@@ -672,6 +787,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 	//cout << "waiting for: " << waitingFor << endl;
 
 	DBconnector::Rlobby rlobby;
+	//cout << "waitingFor: " << waitingFor << endl;
 	switch (waitingFor)
 	{
 	case 0: //waiting for your turn
@@ -706,9 +822,10 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 				while (enemyMove.substr(dashPosition, 1) != "-") dashPosition++;
 				try
 				{
-					x = stoi(enemyMove.substr(0, dashPosition));
-					y = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
-					TryToMakeAShot(sf::Vector2i(x, y), Shots[1], Grid[1]); //display enemy move
+					y = stoi(enemyMove.substr(0, dashPosition));
+					x = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
+					TryToMakeAShot(sf::Vector2i(y, x), Shots[1], Grid[1]); //display enemy move
+					cout << "enemyMove: " << x << " " << y << endl;
 				}
 				catch (const std::exception&)
 				{
@@ -759,7 +876,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 						//Šuvis GO!
 						if (TryToMakeAShot(gridPosition, Shots[0], Grid[0]))
 						{
-							userInput = std::to_string((int)gridPosition.x) + "-" + std::to_string((int)gridPosition.y);
+							userInput = std::to_string((int)gridPosition.x) + "-" + std::to_string((int)gridPosition.y); 
 							cout << "myMove: " << userInput << endl;
 							if (userInput != "") {
 								cnn.WriteMove(lobbyID, userInput);
@@ -773,7 +890,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 			}
 		}
 
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(4));
 		askForMoreTime --;
 
 		if (askForMoreTime == 0) {
@@ -885,7 +1002,7 @@ void NewLobbyScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::
 					texts["lobbyName"].setString(lobbyName);
 				}
 			}
-			else if (event.text.unicode == 13) { //enter submittina faila
+			else if (event.text.unicode == 13) { //enter submittina lobby pavadinima
 				try
 				{
 					cout << "Creating lobby with ID: ";
@@ -896,7 +1013,7 @@ void NewLobbyScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::
 				{
 					cout << "error creating lobby: " << s << endl;
 				}
-				langas = 3;
+				langas = 5;
 			}
 			else {
 				lobbyName += event.text.unicode;
@@ -979,6 +1096,7 @@ int main()
 	int waitingFor = 0;
 	int langas = 1;
 	int historyId = 0;
+	bool ManualMode = 1;
 
 	while (window.isOpen())
 	{
@@ -1001,11 +1119,16 @@ int main()
 
 		case 3: //loading screen game.exe ijungiama, irasome failo pavadinima su 100 skaiciu, reprezentuojanciu musu laivu isdestyma, laukiama patvirtinimo ir pradedamas zaidimas
 
-			LoadingScreen(window, event, graphics, texts, langas,mapPath,PlayerMap,Grid,textures);
+			LoadingScreen(window, event, graphics, texts, langas,mapPath,PlayerMap,Grid,textures,ManualMode);
 			break;
 		case 4: //New created lobby screen 
 			
 			NewLobbyScreen(window,event,graphics,texts,langas,lobbyName);
+			break;
+		
+		case 5: //ask the user if he wants to use his AI or play manually
+
+			AiOrManual(window, event, langas, graphics, texts, ManualMode);
 			break;
 		default:
 			cout << "why u do dis " << langas << endl;

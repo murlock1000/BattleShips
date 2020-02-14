@@ -33,7 +33,7 @@ int waitForUserResponse(DBconnector& dbc, int lobbyId, int timeout, int playerNu
 	int tickCount = timeout * 100;
 	do {
 		lobby = dbc.ConsoleRead(lobbyId);
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(4));
 		tickCount--;
 	} while (lobby.game_status != "c" && tickCount > 0);
 	if (tickCount == 0) {
@@ -197,8 +197,18 @@ int main(int argc, char* argv[]) {
 			pid[i] = *aiPid;
 			fdInput[i] = aiIO[0]; //Store each player's fds
 			fdOutput[i] = aiIO[1];
-		}
 
+			int intOut = stdRead(fdInput[i]);
+			cout << "READING SINGLE INT: " << intOut << endl;
+			if (intOut != 0) {
+				cout << "AI DID NOT START CORRECTLY" << endl;
+				sendError(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected);
+				//cout << "a" << endl;
+				return -1;
+
+			}
+		}
+		
 		else { //human player initialisation
 
 			dbc.UpdateLobby(lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId[i]);
@@ -208,6 +218,8 @@ int main(int argc, char* argv[]) {
 
 		}
 
+
+
 		//generating map string
 
 		string mapString = "";
@@ -215,6 +227,7 @@ int main(int argc, char* argv[]) {
 		for (int j = 0; j < tableWidth * tableHeight; j++) {
 			if (playerType[i]) {
 				shipTable[i][j] = stdRead(fdInput[i]); //reading ship table from ai
+				cout << shipTable[i][j] << " ";
 			}
 			else {
 				if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected, i) < 0) return 1;
@@ -232,6 +245,7 @@ int main(int argc, char* argv[]) {
 			}
 
 		}
+		cout << endl;
 
 		if (i == admin) {
 			dbc.UpdateLobby(lobbyId, "i", lobby.user_input, "", mapString, lobby.opponent_map, 0, "n", 0);
@@ -258,7 +272,8 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 
-		dbc.UpdateLobby(lobbyId, "i", lobby.user_input, enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //send backend response to database and tell frontend that game is waiting for its input
+		cout <<"enemyMove: "<< enemyMove << endl;
+		dbc.UpdateLobby(lobbyId, "i", "", enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId[currentPlayer]); //send backend response to database and tell frontend that game is waiting for its input
 
 		int tileX;
 		int tileY;
@@ -280,9 +295,13 @@ int main(int argc, char* argv[]) {
 		}
 		else {
 			//ai
-			tileX = stdRead(fdInput[currentPlayer]);
+			tileX = stdRead(fdInput[currentPlayer]);	//why are tileX and tileY swapped? idk
 			tileY = stdRead(fdInput[currentPlayer]);
+
+			enemyMove = to_string(tileY) + '-' + to_string(tileX);
 		}
+		if (playerType[currentPlayer] == 0) cout <<"player: "<< tileY << " " << tileX << endl;
+		if (playerType[currentPlayer] == 1) cout << "AI: " << tileY << " " << tileX << endl;
 
 		int response; //tells move consequences (missed, hit or sunk a ship)
 		int subresponse; //tells which ship was sunk (only used when a ship was sunk)

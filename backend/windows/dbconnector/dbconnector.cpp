@@ -1,5 +1,5 @@
 #include "dbconnector.h"
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <iostream>
 #include <sstream>
 #include <cppconn/statement.h>
@@ -16,17 +16,17 @@ DBconnector::~DBconnector()
 }
 
 ///userside functions
-void DBconnector::Connect(string ip, string username, string pass, string database)		// connects to database with user credentials. requires database ip, username, password, database name.
+int DBconnector::Connect(string ip, string username, string pass, string database)		// connects to database with user credentials. requires database ip, username, password, database name.
 {
 	conn = mysql_init(0);
 
 	conn = mysql_real_connect(conn, ip.c_str(), username.c_str(), pass.c_str(), database.c_str(), 3306, NULL, 0);
 	if (conn)
 	{
-		//cout << "Connected!" << endl;
+		return 0;
 	}
 	else {
-		throw "Failed To connect";
+		return -1;
 	}
 }
 
@@ -81,12 +81,12 @@ DBconnector::UserInfoTable DBconnector::GetUserInfo(int userID)		//returns the u
 {
 	ss << userID;
 	int wins, losses;
-    bool is_ai;
+	bool is_ai;
 	query = "SELECT username, wins, losses, is_ai FROM users WHERE userID=" + ss.str();
 
-    if (PassQuery (query) != 0) {
-        throw mysql_error(conn);
-    }
+	if (PassQuery (query) != 0) {
+		throw mysql_error(conn);
+	}
 
 	ss.clear();
 	ss.str(string());
@@ -604,14 +604,14 @@ vector<int> DBconnector::GetReadyLobbies()
 {
 	vector<int> lobbyIDs;
 	query = "SELECT lobbyID FROM lobbies WHERE lobby_status='r'";
-    try {
+	try {
 	if (PassQuery(query) != 0) {
 		throw mysql_error(conn);
 	}
-    }
-    catch (int e) {
-        cout << e << "\n";
-    }
+	}
+	catch (int e) {
+		cout << e << "\n";
+	}
 	MYSQL_RES* result = mysql_store_result(conn);
 
 	if (result == NULL) {
@@ -663,7 +663,7 @@ int DBconnector::CreateHistoryTable(string game_name, int player1_ID, int player
 	return historyID;
 }
 
-void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID)  //gameid - historyID, moveID-from 0 to N, move_pos - userInput, move_res - consoleOutput, playerID- currentPlayer.
+void DBconnector::UpdateMoveTable(int gameID, int moveID, string move_pos, string move_res, int player_ID)	//gameid - historyID, moveID-from 0 to N, move_pos - userInput, move_res - consoleOutput, playerID- currentPlayer.
 {
 	ss << moveID;
 	string temp1 = ss.str();
@@ -712,10 +712,10 @@ DBconnector::ConsoleReadStruct DBconnector::ConsoleRead(int lobbyID)
 	ConsoleReadStruct crs;
 	ss << lobbyID;
 	query = "SELECT adminID, opponentID, user_input, admin_map, opponent_map, game_status FROM lobbies WHERE lobbyID="+ss.str();
-    
-    if (PassQuery(query) != 0) {
-        throw mysql_error(conn);
-    }
+	
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
 
 	ss.clear();
 	ss.str(string());
@@ -749,16 +749,16 @@ void DBconnector::InitiateDeletion(int lobbyID)
 }
 
 void DBconnector::WriteWinner (int playerID, int gameID) {
-    ss << playerID;
-    string player = ss.str();
-    ss.clear();
-    ss.str(string());
-    ss << gameID;
-    query = "UPDATE history SET winnerID=" + player + " WHERE gameID=" + ss.str();
-    ss.clear();
-    ss.str(string());
+	ss << playerID;
+	string player = ss.str();
+	ss.clear();
+	ss.str(string());
+	ss << gameID;
+	query = "UPDATE history SET winnerID=" + player + " WHERE gameID=" + ss.str();
+	ss.clear();
+	ss.str(string());
 
-    if (PassQuery(query) != 0) {
-        throw mysql_error(conn);
-    }
+	if (PassQuery(query) != 0) {
+		throw mysql_error(conn);
+	}
 }

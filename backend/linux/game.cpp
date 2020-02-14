@@ -156,14 +156,7 @@ stringstream ss;
 
 		DBconnector::UserInfoTable userInfo; //get info about user
 
-		if (i == admin) {
-			userInfo = dbc.GetUserInfo (lobby.adminID);
-		}
-
-
-		else {
-			userInfo = dbc.GetUserInfo (lobby.opponentID);
-		}
+		userInfo = dbc.GetUserInfo (playerId [i]);
 
 		playerType [i] = userInfo.is_ai;
 

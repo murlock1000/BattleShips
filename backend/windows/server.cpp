@@ -5,43 +5,45 @@
 #include <vector>
 #include "dbconnector/dbconnector.h"
 
-//Windows compatibility
-
-#ifdef __linux__
-#define HANDLE int
-#endif
-
 using namespace std;
 
 int main() {
 
-    DBconnector dbc;
-    dbc.Connect ("127.0.0.1", "root", "password", "battleships"); //connecting to database
-    
-    while (true) {
+	DBconnector dbc;
 
-        vector<int> lobbies = dbc.GetReadyLobbies(); //getting that lobby info
-        for (int i = 0; i < lobbies.size(); i++) {
+	if (dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships") < 0) { //connecting to database
+		cerr << "server: (error) Unable to connect to database\n";
+		return 1;
+	}
+	
+	cerr << "server: (info) Server is active, looking for pending lobbies\n";
 
-            //cout << "Lobby " << lobbies[i] << " ready\n";
+	while (true) {
 
-            HANDLE unusedIO [2];
-            int* unusedPid = new int;
+		vector<int> lobbies = dbc.GetReadyLobbies(); //getting that lobby info
+		for (int i = 0; i < lobbies.size(); i++) {
 
-            stringstream lobbyId_s;
-            lobbyId_s << lobbies [i];
-            const char* lobbyId_c = lobbyId_s.str().c_str();
+			//cout << "Lobby " << lobbies[i] << " ready\n";
 
-            int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", lobbyId_c);
+			HANDLE unusedIO [2];
+			int* unusedPid = new int;
 
-            if (stdConnSuccess < 0) {
-                 cout << "ERROR: Failed to launch lobby " << lobbies[i] << "\n";
-            }
-            else if (stdConnSuccess > 0) {
-                //finally ends finished game process
-                return 0;
-            }
-        }
-    }
-    return 0;
+			cerr << "server: (info) Launching game " << lobbies [i] << "\n";
+
+			stringstream lobbyId_s;
+			lobbyId_s << lobbies [i];
+			const char* lobbyId_c = lobbyId_s.str().c_str();
+
+			int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game.exe", "game.exe", lobbyId_c);
+
+			if (stdConnSuccess < 0) {
+				 cerr << "server: (error) Failed to launch lobby " << lobbies[i] << "\n";
+			}
+			else if (stdConnSuccess > 0) {
+				//finally ends finished game process
+				return 0;
+			}
+		}
+	}
+	return 0;
 }

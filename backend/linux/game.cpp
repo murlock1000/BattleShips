@@ -1,5 +1,4 @@
 #include <iostream> //do i really need to tell what this header provides?
-//#include <bits/stdc++.h> //provides string to char* conversion utility.
 #include <string>
 #include "stdcomm.h" //Provides AI communication functions prototypes
 #include "dbconnector/dbconnector.h" //Provides database communication functions prototypes

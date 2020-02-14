@@ -425,7 +425,7 @@ void DisplayLobbies(vector<DBconnector::LobbyTable> &lobbies, sf::RenderWindow& 
 
 }
 
-void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, int& langas, map<string, sf::RectangleShape>& graphics, map<string, sf::Font> &fonts, map<string, sf::Text>& texts) {
+void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, int& langas, map<string, sf::RectangleShape>& graphics, map<string, sf::Font> &fonts, map<string, sf::Text>& texts, bool &ownsLobby) {
 	int x, y;
 	sf::RectangleShape pele;
 	vector<DBconnector::LobbyTable> lobbies;
@@ -482,15 +482,8 @@ void LobbyListScreen(sf::RenderWindow& window, sf::Event& event, int& langas, ma
 				if (j != 0) {
 					lobbyID = lobbies[j - 1].lobbyID;
 					cout << "Selected lobbyID: " << lobbyID << endl;
-					try
-					{
-						cnn.JoinLobbyAsPlayer(lobbyID, userID);
-					}
-					catch (const char* s)
-					{
-						cout << "error: " << s << endl;
-					}
 
+					ownsLobby = 0;
 					langas = 5;
 
 				}
@@ -610,7 +603,7 @@ void initiateAI(string aiPath, int &langas, sf::RenderWindow& window, vector<vec
 	SetupGameScreen(window, Grid, graphics, textures);
 }
 
-void AiOrManual(sf::RenderWindow& window, sf::Event& event, int& langas, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, bool &ManualMode) {	//window for ai, manual selections
+void AiOrManual(sf::RenderWindow& window, sf::Event& event, int& langas, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, bool &ManualMode, bool &ownsLobby, string lobbyName) {	//window for ai, manual selections
 
 	int x, y;
 	sf::RectangleShape pele;
@@ -636,10 +629,58 @@ void AiOrManual(sf::RenderWindow& window, sf::Event& event, int& langas, map<str
 
 				if ((graphics["askAi_btn"].getGlobalBounds()).intersects(pele.getGlobalBounds())) {
 					ManualMode = 0;
+
+					if (!ownsLobby) {
+
+						try
+						{
+							cnn.JoinLobbyAsPlayer(lobbyID, userID);
+						}
+						catch (const char* s)
+						{
+							cout << "error: " << s << endl;
+						}
+					}
+					else {
+						try
+						{
+							cout << "Creating lobby with ID: ";
+							lobbyID = cnn.CreateLobby(lobbyName, userID);
+							cout << lobbyID << endl;
+						}
+						catch (const char* s)
+						{
+						cout << "error creating lobby: " << s << endl;
+						}
+					}
 					langas = 3;
 				}
 				else if (graphics["askManual_btn"].getGlobalBounds().intersects(pele.getGlobalBounds())) {
 					ManualMode = 1;
+
+					if (!ownsLobby) {
+
+						try
+						{
+							cnn.JoinLobbyAsPlayer(lobbyID, userID);
+						}
+						catch (const char* s)
+						{
+							cout << "error: " << s << endl;
+						}
+					}
+					else {
+						try
+						{
+							cout << "Creating lobby with ID: ";
+							lobbyID = cnn.CreateLobby(lobbyName, userID);
+							cout << lobbyID << endl;
+						}
+						catch (const char* s)
+						{
+						cout << "error creating lobby: " << s << endl;
+						}
+					}
 					langas = 3;
 				}
 
@@ -991,7 +1032,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 	window.display();
 }
 
-void NewLobbyScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas, string& lobbyName) {
+void NewLobbyScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas, string& lobbyName, bool &ownsLobby) {
 	
 	int x, y;
 	sf::RectangleShape pele;
@@ -1032,16 +1073,7 @@ void NewLobbyScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::
 				}
 			}
 			else if (event.text.unicode == 13) { //enter submittina lobby pavadinima
-				try
-				{
-					cout << "Creating lobby with ID: ";
-					lobbyID = cnn.CreateLobby(lobbyName, userID);
-					cout << lobbyID << endl;
-				}
-				catch (const char* s)
-				{
-					cout << "error creating lobby: " << s << endl;
-				}
+				ownsLobby = 1;
 				langas = 5;
 			}
 			else {
@@ -1126,6 +1158,7 @@ int main()
 	int langas = 1;
 	int historyId = 0;
 	bool ManualMode = 1;
+	bool ownsLobby = 0;
 
 	while (window.isOpen())
 	{
@@ -1143,7 +1176,7 @@ int main()
 
 		case 2: //lobby list
 
-			LobbyListScreen(window, event, langas, graphics,fonts,texts);
+			LobbyListScreen(window, event, langas, graphics,fonts,texts, ownsLobby);
 			break;
 
 		case 3: //loading screen game.exe ijungiama, irasome failo pavadinima su 100 skaiciu, reprezentuojanciu musu laivu isdestyma, laukiama patvirtinimo ir pradedamas zaidimas
@@ -1152,12 +1185,12 @@ int main()
 			break;
 		case 4: //New created lobby screen 
 			
-			NewLobbyScreen(window,event,graphics,texts,langas,lobbyName);
+			NewLobbyScreen(window,event,graphics,texts,langas,lobbyName, ownsLobby);
 			break;
 		
 		case 5: //ask the user if he wants to use his AI or play manually
 
-			AiOrManual(window, event, langas, graphics, texts, ManualMode);
+			AiOrManual(window, event, langas, graphics, texts, ManualMode, ownsLobby, lobbyName);
 			break;
 		default:
 			cout << "why u do dis " << langas << endl;

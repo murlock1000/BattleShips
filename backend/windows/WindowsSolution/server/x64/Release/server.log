@@ -1,7 +1,1 @@
-﻿  server.cpp
-  Generating code
-  1 of 214 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    3 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  server.vcxproj -> C:\Users\pauli\Documents\GitHub\BattleShips\backend\WindowsSolution\x64\Release\server.exe
+﻿  server.vcxproj -> C:\Users\pauli\Documents\GitHub\BattleShips\backend\windows\WindowsSolution\x64\Release\server.exe

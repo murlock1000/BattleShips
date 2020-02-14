@@ -8,3 +8,5 @@ Laivas_3
 Laivas_4
 Laivas_5
 back
+askAi
+askManual

@@ -695,29 +695,42 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 			cout << "FAIL: " << s << endl;
 		}
 
-		if (rlobby.curr_player == userID & rlobby.game_status == "w") { //sulauke musu ejimo nuskaitome priesininko ejima
-			enemyMove = rlobby.console_output;
-			//display enemy move
-			int x, y;
-			int dashPosition = 0;
+		if (rlobby.curr_player == userID && rlobby.game_status == "w") {
 
-			//	cout << "EnemyMove: " << enemyMove << endl;
-			if (enemyMove.size() > 2) {
-				while (enemyMove.substr(dashPosition, 1) != "-") dashPosition++;
-				try
-				{
-					x = stoi(enemyMove.substr(0, dashPosition));
-					y = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
-					TryToMakeAShot(sf::Vector2i(x, y), Shots[1], Grid[1]); //display enemy move
+			if (rlobby.console_output == "enemy") { //server tells client where enemy shot
+				cnn.WriteMove (lobbyID, "");
+
+				do {
+					rlobby = cnn.ReadLobby (lobbyID);
+				} while (rlobby.game_status != "w");
+
+				cerr << "ENEMY MOVE: " << rlobby.console_output << "\n";
+				enemyMove = rlobby.console_output;
+				//display enemy move
+				int x, y;
+				int dashPosition = 0;
+
+				//	cout << "EnemyMove: " << enemyMove << endl;
+				if (enemyMove.size() > 2) {
+					while (enemyMove.substr(dashPosition, 1) != "-") dashPosition++;
+					try
+					{
+						x = stoi(enemyMove.substr(0, dashPosition));
+						y = stoi(enemyMove.substr(dashPosition + 1, enemyMove.length() - 1));
+						TryToMakeAShot(sf::Vector2i(x, y), Shots[1], Grid[1]); //display enemy move
+					}
+					catch (const std::exception&)
+					{
+						cout << "server returned invalid message or someone won and the end game function has not been implemented yet" << endl;
+						//return -1;
+					}
 				}
-				catch (const std::exception&)
-				{
-					cout << "server returned invalid message or someone won and the end game function has not been implemented yet" << endl;
-					//return -1;
-				}
+				cnn.WriteMove (lobbyID, "");
+			}
+			else if (rlobby.console_output == "move") { //server tells client it's its turn
+				waitingFor = 1;
 			}
 
-			waitingFor = 1;
 		}
 		else if (rlobby.curr_player == userID & rlobby.game_status == "f") {
 			historyId = cnn.AcknowledgeEnd(lobbyID, userID, 1);

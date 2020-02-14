@@ -30,6 +30,9 @@
     <ClCompile Include="ClassesAndHeaders\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdcomm-windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassesAndHeaders\Shot.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ClassesAndHeaders\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdcomm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

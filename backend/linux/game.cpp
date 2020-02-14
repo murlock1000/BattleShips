@@ -359,10 +359,10 @@ stringstream ss;
 		}
 
 		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "enemy", lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell opponent that current player made a shot
-		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1;
+		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, opponentPlayer) < 0) return 1;
 
 		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell frontend that game is waiting for its input
-		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1;
+		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, opponentPlayer) < 0) return 1;
 
 		if (response == 1) {
 			currentPlayer = (currentPlayer + 1) % playerNumber; //If no ship was hit it's the next player's turn

@@ -560,7 +560,7 @@ void initiateAI(string aiPath, int &langas, sf::RenderWindow& window, vector<vec
 	//fdInput[i] = aiIO[0]; //Store each player's fds
 	//fdOutput[i] = aiIO[1];
 	stringstream ss;
-	int stdConnSuccess = stdConnect(aiIO, aiPid, aiPath.c_str(), aiPath.c_str(), "0");
+	int stdConnSuccess = stdConnect(aiIO, &aiPid, aiPath.c_str(), aiPath.c_str(), "0");
 
 	if (stdConnSuccess < 0) {
 		stdWrite(aiIO[1], 4); //Tells AI to exit.

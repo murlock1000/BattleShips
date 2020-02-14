@@ -1,7 +1,6 @@
 #include <iostream>
 #include "stdcomm.h"
 #include <string>
-#include <bits/stdc++.h>
 #include <vector>
 #include "dbconnector/dbconnector.h"
 #include <unistd.h>

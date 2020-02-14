@@ -187,15 +187,6 @@ stringstream ss;
 			fdOutput [i] = aiIO [1];
 		}
 
-		else { //human player initialisation
-
-			dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
-
-			if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected, i) < 0) return 1;
-			lobby = dbc.ConsoleRead (lobbyId);
-
-		}
-
 		//generating map string
 
 		string mapString = "";
@@ -205,11 +196,12 @@ stringstream ss;
 				shipTable [i] [j] = stdRead (fdInput [i]); //reading ship table from ai
 			}
 			else {
+				dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
+
 				if (waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected, i) < 0) return 1;
 				lobby = dbc.ConsoleRead (lobbyId);
 
 				shipTable [i] [j] = stoi (lobby.user_input);
-				dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [i]);
 			}
 			ss<<shipTable [i] [j];
 

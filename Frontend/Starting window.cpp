@@ -115,14 +115,18 @@ void SetupShips(string PlayerMap) {
 
 }
 
-void ClearCatche(int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>>(&Grid)[2], int& waitingFor) {
+void ClearCache(int& historyId, vector<Shot>(&Shots)[2], vector <Laivas> &Laivai, vector<vector<sf::RectangleShape>>(&Grid)[2], int& waitingFor, string playerMap) {
+	//It's spelled "cache"
 	
 	for (int i = 0; i < 2;i++) {
 		Shots[i].clear();
 	}
 
+	Laivai.clear();
+
 	waitingFor = 0;
 	historyId = 0;
+	playerMap = "";
 }
 
 bool TryToMakeAShot(sf::Vector2i position, vector<Shot>& Shots, vector<vector<sf::RectangleShape>> gridas)
@@ -835,7 +839,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 	}
 }
 
-void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>> (&Grid)[2], map<string, sf::Texture>& textures, int &waitingFor) {
+void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>> (&Grid)[2], map<string, sf::Texture>& textures, int &waitingFor, string playerMap) {
 
 	
 	//variables for debbuging
@@ -912,13 +916,14 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 			cout << "historyID: " << historyId << endl;
 			cout << "GAME OVER, WINNER IS " << cnn.GetWinner(historyId) << endl;
 
-			ClearCatche(historyId,Shots,Grid,waitingFor);
+			ClearCache(historyId,Shots, Laivai, Grid,waitingFor, playerMap);
 
 			langas = 2;
 		}
 		else if (rlobby.curr_player == userID & rlobby.game_status == "e") {
 			cnn.UpdateLobby (lobbyID, "i", "", "", "", "", 0, "c", 0); //acknowledge error
 			cout << "GAME CRASHED" << endl;
+			ClearCache (historyId, Shots, Laivai, Grid, waitingFor, playerMap);
 			langas = 2;
 		}
 		break;
@@ -1167,7 +1172,7 @@ int main()
 		{
 		case 0: //game screen
 			
-			GameScreen(window,event,graphics,texts,langas,historyId,Shots,Grid,textures,waitingFor);
+			GameScreen(window,event,graphics,texts,langas,historyId,Shots,Grid,textures,waitingFor, PlayerMap);
 			break;
 		case 1: //login screen
 

@@ -40,9 +40,7 @@ const int TableHeight = 10;
 const int LobbyWidth = 2;
 const int LobbyHeight = 10;
 const int LaivuCount = 5;
-
-int askForMoreTime = 500;
-
+const int timeUntilMoarRequest = 5;
 
 int ReadFromFile(ifstream& file)
 {
@@ -700,7 +698,7 @@ void AiOrManual(sf::RenderWindow& window, sf::Event& event, int& langas, map<str
 	window.display();
 }
 
-void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,string &mapPath, string& PlayerMap, vector<vector<sf::RectangleShape>>(&Grid)[2], map<string, sf::Texture>& textures, bool ManualMode) {
+void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,string &mapPath, string& PlayerMap, vector<vector<sf::RectangleShape>>(&Grid)[2], map<string, sf::Texture>& textures, bool ManualMode, int &askForMoreTime) {
 	
 	int timeout;
 
@@ -749,7 +747,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 						char t;
 						cout << "trying" << endl;
 						PlayerMap = "";//isvalome buvusi map
-						askForMoreTime = 500;
+						askForMoreTime = timeUntilMoarRequest * 100;
 						for (int i = 0; i < 100; i++) { //perduodame 100 numeriu po viena, laukdami patvirtinimo pries issiunciant nauja skaiciu
 							fin >> t;
 							string ts;
@@ -834,12 +832,12 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 
 		if (askForMoreTime == 0) {
 			cnn.WriteMove (lobbyID, "moar");
-			askForMoreTime = 500;
+			askForMoreTime = timeUntilMoarRequest * 100;
 		}
 	}
 }
 
-void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>> (&Grid)[2], map<string, sf::Texture>& textures, int &waitingFor, string playerMap) {
+void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>> (&Grid)[2], map<string, sf::Texture>& textures, int &waitingFor, string playerMap, int &askForMoreTime) {
 
 	
 	//variables for debbuging
@@ -956,7 +954,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 							if (userInput != "") {
 								cnn.WriteMove(lobbyID, userInput);
 								waitingFor = 2;
-								askForMoreTime = 500;
+								askForMoreTime = timeUntilMoarRequest * 100;
 							}
 						}
 
@@ -970,7 +968,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 
 		if (askForMoreTime == 0) {
 			cnn.WriteMove (lobbyID, "moar");
-			askForMoreTime = 500;
+			askForMoreTime = timeUntilMoarRequest * 100;
 		}
 
 		break;
@@ -1164,6 +1162,7 @@ int main()
 	int historyId = 0;
 	bool ManualMode = 1;
 	bool ownsLobby = 0;
+	int askForMoreTime = timeUntilMoarRequest * 100;
 
 	while (window.isOpen())
 	{
@@ -1172,7 +1171,7 @@ int main()
 		{
 		case 0: //game screen
 			
-			GameScreen(window,event,graphics,texts,langas,historyId,Shots,Grid,textures,waitingFor, PlayerMap);
+			GameScreen(window,event,graphics,texts,langas,historyId,Shots,Grid,textures,waitingFor, PlayerMap, askForMoreTime);
 			break;
 		case 1: //login screen
 
@@ -1186,7 +1185,7 @@ int main()
 
 		case 3: //loading screen game.exe ijungiama, irasome failo pavadinima su 100 skaiciu, reprezentuojanciu musu laivu isdestyma, laukiama patvirtinimo ir pradedamas zaidimas
 
-			LoadingScreen(window, event, graphics, texts, langas,mapPath,PlayerMap,Grid,textures,ManualMode);
+			LoadingScreen(window, event, graphics, texts, langas,mapPath,PlayerMap,Grid,textures,ManualMode, askForMoreTime);
 			break;
 		case 4: //New created lobby screen 
 			

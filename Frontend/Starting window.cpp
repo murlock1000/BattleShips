@@ -837,7 +837,7 @@ void LoadingScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::R
 	}
 }
 
-void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>> (&Grid)[2], map<string, sf::Texture>& textures, int &waitingFor, string playerMap, int &askForMoreTime) {
+void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::RectangleShape>& graphics, map<string, sf::Text>& texts, int& langas,int& historyId, vector<Shot>(&Shots)[2], vector<vector<sf::RectangleShape>> (&Grid)[2], map<string, sf::Texture>& textures, int &waitingFor, string playerMap, int &askForMoreTime, bool &Manual) {
 
 	
 	//variables for debbuging
@@ -916,12 +916,17 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 
 			ClearCache(historyId,Shots, Laivai, Grid,waitingFor, playerMap);
 
+			if (!Manual) stdWrite (aiIO [1], 4);
+
 			langas = 2;
 		}
 		else if (rlobby.curr_player == userID & rlobby.game_status == "e") {
 			cnn.UpdateLobby (lobbyID, "i", "", "", "", "", 0, "c", 0); //acknowledge error
 			cout << "GAME CRASHED" << endl;
 			ClearCache (historyId, Shots, Laivai, Grid, waitingFor, playerMap);
+
+			if (!Manual) stdWrite (aiIO [1], 4);
+
 			langas = 2;
 		}
 		break;
@@ -937,7 +942,7 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 				sc.NewHeight = event.size.height;
 			}
 
-			if (event.type == sf::Event::MouseButtonPressed)
+			if (event.type == sf::Event::MouseButtonPressed && Manual)
 			{
 				if (event.mouseButton.button == sf::Mouse::Left)
 				{
@@ -961,6 +966,19 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 					}
 				}
 			}
+		}
+
+		if (!Manual) {
+			cerr << "READING AI MOVE\n";
+			int aiInputX = stdRead (aiIO [0]);
+			cerr << "READ X = " << aiInputX << "\n";
+			int aiInputY = stdRead (aiIO [0]);
+			cerr << "READ Y = " << aiInputY << "\n";
+			if (TryToMakeAShot (sf::Vector2i (aiInputX, aiInputY), Shots [0], Grid [0]));
+			cerr << "AI MOVE: " << aiInputX << " " << aiInputY << "\n";
+			cnn.WriteMove (lobbyID, std::to_string (aiInputX) + "-" + std::to_string (aiInputY));
+			waitingFor = 2;
+			askForMoreTime = timeUntilMoarRequest * 100;
 		}
 
 		this_thread::sleep_for(chrono::milliseconds(4));
@@ -998,6 +1016,20 @@ void GameScreen(sf::RenderWindow& window, sf::Event& event, map<string, sf::Rect
 			//display result of your action
 			cout << "result: " << DidYouMakeIt << endl; // mes negalim atvaizduoti pataike ar nepataike... but we can :)
 			cnn.WriteMove(lobbyID, "");//inform the server that we got the answer
+
+			int response;
+			if (DidYouMakeIt.substr (0, 1) == "2") {
+				int dashPosition = 0;
+				while (DidYouMakeIt.substr(dashPosition, 1) != "-") dashPosition++;
+				response = stoi (DidYouMakeIt.substr (0, dashPosition));
+			}
+			else {
+				response = stoi (DidYouMakeIt.substr (0, 1));
+			}
+
+			cerr << "SENDING RESPONSE TO AI: " << response + 1 << "\n";
+
+			if (!Manual) stdWrite (aiIO [1], response + 1);
 			waitingFor = 0;
 		}
 		break;
@@ -1171,7 +1203,7 @@ int main()
 		{
 		case 0: //game screen
 			
-			GameScreen(window,event,graphics,texts,langas,historyId,Shots,Grid,textures,waitingFor, PlayerMap, askForMoreTime);
+			GameScreen(window,event,graphics,texts,langas,historyId,Shots,Grid,textures,waitingFor, PlayerMap, askForMoreTime, ManualMode);
 			break;
 		case 1: //login screen
 

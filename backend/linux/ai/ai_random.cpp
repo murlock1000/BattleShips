@@ -37,7 +37,7 @@ int main(){
         int targetY = (moves [currentMove] / 10);
         int targetX = (moves [currentMove] - 10 * targetY);
 
-        cout << targetX + 1 << " " << targetY + 1 << " " << flush;
+        cout << targetX << " " << targetY << " " << flush;
         char status = '0';
         cin >> status;
         if (status == '4') {

@@ -1,0 +1,81 @@
+.initErrorView {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 10px;
+  text-align: center;
+}
+
+.initErrorIcon {
+  font-size: 2rem;
+  padding-bottom: 10px;
+}
+
+.initErrorText {
+  padding-bottom: 10px;
+}
+
+.initErrorDetails {
+  font-family: monospace;
+}
+
+.loginView {
+  max-width: 300px;
+  text-align: center;
+}
+
+.gameName {
+  margin: 0;
+}
+
+.loginErrorWrapper {
+  padding-top: 10px;
+}
+
+.loginError {
+  background: #D50000;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.loginFields {
+  padding: 10px 0;
+}
+
+.loginFieldWrapper {
+  padding: 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.loginField {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  outline: none;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #fff;
+}
+.loginField::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.loginButton {
+  border: 0;
+  border-radius: 5px;
+  background: #2962FF;
+  color: #fff;
+  outline: none;
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.loginButton:hover {
+  background: #1565C0;
+}
+
+/*# sourceMappingURL=login.css.map */

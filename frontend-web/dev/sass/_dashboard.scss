@@ -1,0 +1,119 @@
+@use 'base';
+@use 'colors' as c;
+
+.dashboard {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 10px;
+  & > div {
+    padding-bottom: 10px;
+  }
+}
+
+.sectionHeader {
+  margin: 0;
+  padding: 10px 0;
+}
+
+.statsTiles {
+  display: flex;
+}
+
+.statsTileWrapper {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.statsTile {
+  padding: 10px;
+  border-radius: 5px;
+  .tileCounter {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  &.gameCount {
+    background: c.$primary;
+  }
+  &.wins {
+    background: c.$green;
+  }
+  &.losses {
+    background: #e53935;
+  }
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.tableTitle {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.refreshBtn {
+  @extend %button-reset;
+  padding: 10px 15px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 25px;
+  display: flex;
+  &:hover {
+    background: rgba(255,255,255,0.4);
+  }
+}
+
+.refreshIcon {
+  padding-right: 5px;
+}
+
+.finishedGamesTable {
+  border-collapse: collapse;
+  th, td {
+    white-space: nowrap;
+  }
+  thead {
+    background: c.$primary;
+    th {
+      padding: 10px;
+      text-align: left;
+    }
+    th.historyPlay {
+      text-align: center;
+    }
+    th:last-child {
+      width: 100%;
+    }
+  }
+  tbody {
+    tr:nth-child(odd) {
+      background: rgba(255,255,255,0.1);
+    }
+    tr:nth-child(even) {
+      background: rgba(255,255,255,0.2);
+    }
+    tr:hover {
+      background: rgba(255,255,255,0.4);
+      cursor: pointer;
+      td.historyPlay {
+        .playInactive {
+          display: none;
+        }
+        .playActive {
+          display: inline-block;
+        }
+      }
+    }
+    td {
+      padding: 10px;
+    }
+    td.historyPlay {
+      font-size: 1.5rem;
+      .playActive {
+        display: none;
+      }
+    }
+  }
+}

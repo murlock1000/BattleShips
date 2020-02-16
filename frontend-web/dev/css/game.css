@@ -1,0 +1,476 @@
+.logoutBox, .gameButton, .refreshBtn {
+  outline: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.initErrorView {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 10px;
+  text-align: center;
+}
+
+.initErrorIcon {
+  font-size: 2rem;
+  padding-bottom: 10px;
+}
+
+.initErrorText {
+  padding-bottom: 10px;
+}
+
+.initErrorDetails {
+  font-family: monospace;
+}
+
+.loginView {
+  max-width: 300px;
+  text-align: center;
+}
+
+.gameName {
+  margin: 0;
+}
+
+.loginErrorWrapper {
+  padding-top: 10px;
+}
+
+.loginError {
+  background: #D50000;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.loginFields {
+  padding: 10px 0;
+}
+
+.loginFieldWrapper {
+  padding: 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.loginField {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  outline: none;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #fff;
+}
+.loginField::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.loginButton {
+  border: 0;
+  border-radius: 5px;
+  background: #2962FF;
+  color: #fff;
+  outline: none;
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.loginButton:hover {
+  background: #1565C0;
+}
+
+.dashboard {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+.dashboard > div {
+  padding-bottom: 10px;
+}
+
+.sectionHeader {
+  margin: 0;
+  padding: 10px 0;
+}
+
+.statsTiles {
+  display: flex;
+}
+
+.statsTileWrapper {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.statsTile {
+  padding: 10px;
+  border-radius: 5px;
+}
+.statsTile .tileCounter {
+  font-size: 2rem;
+  font-weight: bold;
+}
+.statsTile.gameCount {
+  background: #2962FF;
+}
+.statsTile.wins {
+  background: #00C853;
+}
+.statsTile.losses {
+  background: #e53935;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.tableTitle {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.refreshBtn {
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 25px;
+  display: flex;
+}
+.refreshBtn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.refreshIcon {
+  padding-right: 5px;
+}
+
+.finishedGamesTable {
+  border-collapse: collapse;
+}
+.finishedGamesTable th, .finishedGamesTable td {
+  white-space: nowrap;
+}
+.finishedGamesTable thead {
+  background: #2962FF;
+}
+.finishedGamesTable thead th {
+  padding: 10px;
+  text-align: left;
+}
+.finishedGamesTable thead th.historyPlay {
+  text-align: center;
+}
+.finishedGamesTable thead th:last-child {
+  width: 100%;
+}
+.finishedGamesTable tbody tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.1);
+}
+.finishedGamesTable tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.2);
+}
+.finishedGamesTable tbody tr:hover {
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+}
+.finishedGamesTable tbody tr:hover td.historyPlay .playInactive {
+  display: none;
+}
+.finishedGamesTable tbody tr:hover td.historyPlay .playActive {
+  display: inline-block;
+}
+.finishedGamesTable tbody td {
+  padding: 10px;
+}
+.finishedGamesTable tbody td.historyPlay {
+  font-size: 1.5rem;
+}
+.finishedGamesTable tbody td.historyPlay .playActive {
+  display: none;
+}
+
+.gameContainerFixed {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.gameContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.gameHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  background: #000;
+}
+
+.playerName {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.player1Header {
+  display: flex;
+  align-items: center;
+}
+.player1Header .playerName {
+  padding-right: 10px;
+}
+
+.player2Header {
+  display: flex;
+  align-items: center;
+}
+.player2Header .playerName {
+  padding-left: 10px;
+}
+
+.aiBox {
+  padding: 0 5px;
+  border-radius: 5px;
+  background: #fff;
+  color: #000;
+}
+
+.gameTitle {
+  text-align: center;
+}
+
+.gameName {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.showType {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.showTypeIcon {
+  padding-right: 5px;
+}
+
+.mainWrapper {
+  position: relative;
+}
+
+.moveListContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.moveList {
+  height: 100%;
+  overflow-y: auto;
+  display: inline-block;
+  text-align: center;
+}
+
+.moveItem {
+  margin-bottom: 2px;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+.moveItem:hover, .moveItem.active {
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+}
+.moveItem.miss {
+  color: #fff;
+}
+.moveItem.hit {
+  color: #FFD600;
+}
+.moveItem.sink {
+  color: #FF1744;
+}
+.moveItem.done {
+  opacity: 0.6;
+}
+
+.movePlayer {
+  font-weight: bold;
+}
+
+.replayBoards {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.spectatorBoard {
+  flex: 1;
+  display: inline-block;
+}
+.spectatorBoard:first-child {
+  padding-right: 5px;
+}
+.spectatorBoard:last-child {
+  padding-left: 5px;
+}
+
+.boardRow {
+  width: 100%;
+  display: flex;
+}
+
+.boardSquareOuter {
+  width: 10%;
+  padding-bottom: 10%;
+  position: relative;
+}
+
+.boardSquareInner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 8%;
+}
+
+.boardSquare {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.boardSquare.active {
+  box-shadow: 0 0 2px 3px #fff;
+}
+.boardSquare.destroyed {
+  opacity: 0.6;
+}
+.boardSquare.empty {
+  background: rgba(255, 255, 255, 0.2);
+}
+.boardSquare.destroyer {
+  background: #9E9E9E;
+}
+.boardSquare.submarine {
+  background: #FDD835;
+}
+.boardSquare.cruiser {
+  background: #26C6DA;
+}
+.boardSquare.battleship {
+  background: #2962FF;
+}
+.boardSquare.carrier {
+  background: #F4511E;
+}
+
+.gameFooter {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.gameButton {
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+.gameButton.return {
+  background: #F44336;
+}
+.gameButton.return:hover {
+  background: #D50000;
+}
+.gameButton.next {
+  background: #2962FF;
+}
+.gameButton.next:hover {
+  background: #1565C0;
+}
+
+.navbarWrapper {
+  background: #2979FF;
+}
+
+.mwContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.navColLeft .gameName {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.navColRight {
+  height: 100%;
+}
+
+.logoutBox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  top: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  border-radius: 25px;
+}
+.logoutBox:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+.logoutBox .username {
+  font-weight: bold;
+  padding: 0 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  font-family: "Changa", sans-serif;
+}
+
+.floatingBox {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/*# sourceMappingURL=game.css.map */

@@ -1,0 +1,2 @@
+# Ignore all files with "local" in the filename, such as the database configuration file
+#local

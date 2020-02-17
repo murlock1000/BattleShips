@@ -1,7 +1,7 @@
 <?php
 $DB = [
-  'user' => 'REPLACE_WITH_MYSQL_USERNAME',
-  'password' => 'REPLACE_WITH_MYSQL_PASSWORD',
+  'user' => 'bs_admin',
+  'password' => 'BattleShipsIT1000',
   'dbname' => 'battleships',
 ];
 ?>

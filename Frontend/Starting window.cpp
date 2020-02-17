@@ -1129,11 +1129,11 @@ int main()
 {
 	try
 	{
-		cnn.Connect("localhost", "ActiveUser", "admin", "battleships");
+		cnn.Connect("localhost", "root", "root", "battleships");
 	}
-	catch (const std::exception&)
+	catch (const char* e)
 	{
-		cout << "Failed to connect to database" << endl;
+		cout << "Failed to connect to database: " <<e<< endl;
 		return 0;
 	}
 

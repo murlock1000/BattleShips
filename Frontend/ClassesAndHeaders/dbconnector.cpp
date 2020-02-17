@@ -26,7 +26,7 @@ void DBconnector::Connect(string ip, string username, string pass, string databa
 		//cout << "Connected!" << endl;
 	}
 	else {
-		throw "Failed To connect";
+		throw mysql_error(conn);
 	}
 }
 

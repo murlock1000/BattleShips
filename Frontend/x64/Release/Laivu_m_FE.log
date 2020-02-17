@@ -1,62 +1,62 @@
 ﻿  Starting window.cpp
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(58,85): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(56,85): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(58,69): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(56,69): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(332,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(333,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(335,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(334,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(335,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(337,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(335,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(337,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(446,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(447,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(449,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(448,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(449,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(451,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(449,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(451,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(606,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(607,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(609,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(626,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(627,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(629,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(609,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(629,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(814,63): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(839,68): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(849,68): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(923,63): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(986,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(987,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(989,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(911,68): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(923,68): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(1014,63): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(977,80): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(1091,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(1092,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(1094,38): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(989,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\pauli\Documents\GitHub\BattleShips\Frontend\Starting window.cpp(1094,35): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float

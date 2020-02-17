@@ -12,7 +12,7 @@
 using namespace std;
 
 
-int stdConnect(HANDLE childIO[2], int childPid, const char* childPath, const char* childProcName, const char* argument) {
+int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, const char* childProcName, const char* argument) {
 	//HANDLE[0] = Out_Rd read child's cout
 	//HANDLE[1] = In_Wr write to child's cin
 	HANDLE g_hChildStd_IN_Rd = NULL;
@@ -83,7 +83,7 @@ int stdConnect(HANDLE childIO[2], int childPid, const char* childPath, const cha
 	}
 	else
 	{
-		childPid = (int)piProcInfo.dwProcessId;
+		*childPid = (int)piProcInfo.dwProcessId;
 
 		CloseHandle(piProcInfo.hProcess);
 		CloseHandle(piProcInfo.hThread);

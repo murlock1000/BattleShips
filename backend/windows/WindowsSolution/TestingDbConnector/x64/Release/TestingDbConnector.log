@@ -1,8 +1,1 @@
-﻿  game.cpp
-C:\Users\pauli\Documents\GitHub\BattleShips\backend\windows\WindowsSolution\TestingDbConnector\game.cpp(140,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  Generating code
-  16 of 263 functions ( 6.1%) were compiled, the rest were copied from previous compilation.
-    12 functions were new in current compilation
-    65 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  TestingDbConnector.vcxproj -> C:\Users\pauli\Documents\GitHub\BattleShips\backend\windows\WindowsSolution\x64\Release\game.exe
+﻿  TestingDbConnector.vcxproj -> C:\Users\pauli\Documents\GitHub\BattleShips\backend\windows\WindowsSolution\x64\Release\game.exe

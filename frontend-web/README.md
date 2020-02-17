@@ -5,7 +5,6 @@ Built with Javascript-based React library and uses PHP as a backend for communic
 ### Roadmap
 
 - [ ] Login screen
-<<<<<<< HEAD
   - [x] Allow registered users to login into the game
   - [ ] Allow registration of new users
 - [ ] Player actions
@@ -34,7 +33,7 @@ These instructions assume that you have the credentials to a working MYSQL-compa
       4. Close the windows of Environment Variables and Advanced System Options. The step you have completed allows you to use PHP in the command-line just by typing `php` as opposed to typing the full path (`C:\Users\<yourname>\php\php.exe` in our example) when you want to start the PHP server
    5. Navigate to `dev` directory in Windows Explorer (`path\to\battleships\frontend-web\dev`, where `php.ini` resides)
    6. Inside the `dev` directory Shift + Right-Click on empty space and select `Open command window here`
-   7. Type `php -S localhost:8000 -c php.ini` (this assumes that you have added PHP installation directory to your path in step 4)
+   7. Type `php -S localhost:8000 -c php.ini` (this assumes that you have added PHP installation directory to your path in step iv)
    8. The PHP's local development WEB server is now started. You can now go to `localhost:8000` in your web browser to launch the WEB frontend
-   9. In order to cleanly stop the server, press <kbd>Ctrl + C</kbd> in the command prompt.
+   9. In order to cleanly stop the server, press <kbd>Ctrl+C</kbd> in the command prompt.
 4. Instructions for Linux coming soon

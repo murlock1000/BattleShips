@@ -5,6 +5,7 @@ Built with Javascript-based React library and uses PHP as a backend for communic
 ### Roadmap
 
 - [ ] Login screen
+<<<<<<< HEAD
   - [x] Allow registered users to login into the game
   - [ ] Allow registration of new users
 - [ ] Player actions
@@ -15,7 +16,6 @@ Built with Javascript-based React library and uses PHP as a backend for communic
   - [ ] Replay finished games
     - [x] Manual switching through moves
     - [ ] Automatic replay (moves are automatically switched at specified time intervals)
-      - [ ] Initate a game between two AIs from the frontend
 
 ### Installation instructions
 

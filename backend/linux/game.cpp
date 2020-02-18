@@ -186,8 +186,6 @@ stringstream ss;
 			pid [i] = *aiPid;
 			fdInput [i] = aiIO [0]; //Store each player's fds
 			fdOutput [i] = aiIO [1];
-	
-			stdRead (fdInput [i]); //read a 0 from the AI
 		}
 
 		//generating map string

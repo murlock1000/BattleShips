@@ -239,14 +239,14 @@ stringstream ss;
 
 	while (true) {
 
-		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "move", lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //tell frontend that game is waiting for its input
-
 		int tileX;
 		int tileY;
 
 		if (playerType [currentPlayer] == 0) {
 			//frontend
 			
+			dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "move", lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //tell frontend that game is waiting for its input
+
 			if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1; //Waiting for frontend to aknowledge result
 			lobby = dbc.ConsoleRead (lobbyId);
 			
@@ -263,6 +263,8 @@ stringstream ss;
 			//ai
 			tileX = stdRead (fdInput [currentPlayer]);
 			tileY = stdRead (fdInput [currentPlayer]);
+
+			enemyMove = std::to_string (tileX) + "-" + std::to_string (tileY);
 		}
 
 		int response; //tells move consequences (missed, hit or sunk a ship)
@@ -282,10 +284,13 @@ stringstream ss;
 
 				if (shipsLeft [opponentPlayer] == 0) { //Game over
 
-					//write last move to lobby table
-					ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
-					dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + ss.str(), lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]);
-					if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1;
+					if (playerType [currentPlayer] == 0) {
+						//write last move to lobby table
+
+						ss<<shipTable [opponentPlayer] [tableWidth * tileY + tileX];
+						dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "2-" + ss.str(), lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]);
+						if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1;
+					}
 
 					//current player has won the game
 
@@ -352,17 +357,17 @@ stringstream ss;
 			dbc.UpdateLobby (lobbyId, "i", lobby.user_input, consoleOutput, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [currentPlayer]); //send backend response to database
 			if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, currentPlayer) < 0) return 1; //Waiting for frontend to aknowledge result
 			lobby = dbc.ConsoleRead (lobbyId);
+
+			dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "enemy", lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell opponent that current player made a shot
+			if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, opponentPlayer) < 0) return 1;
+
+			dbc.UpdateLobby (lobbyId, "i", lobby.user_input, enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell frontend that game is waiting for its input
+			if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, opponentPlayer) < 0) return 1;
 		}
 		else {
 			//send console response directly to ai
 			stdWrite (fdOutput [currentPlayer], response);
 		}
-
-		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "enemy", lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell opponent that current player made a shot
-		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, opponentPlayer) < 0) return 1;
-
-		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, enemyMove, lobby.admin_map, lobby.opponent_map, historyId, "w", playerId [opponentPlayer]); //tell frontend that game is waiting for its input
-		if (waitForUserResponse(dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, playerNumber, playerId, isPlayerConnected, opponentPlayer) < 0) return 1;
 
 		if (response == 1) {
 			currentPlayer = (currentPlayer + 1) % playerNumber; //If no ship was hit it's the next player's turn

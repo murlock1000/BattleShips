@@ -1,2 +1,5 @@
+# Ignore the node_modules dependencies folder. Developer should install dependencies locally
+node_modules/
+
 # Ignore all files with "local" in the filename, such as the database configuration file
 *.local.*

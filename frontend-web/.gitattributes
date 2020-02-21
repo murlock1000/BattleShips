@@ -1,0 +1,2 @@
+# Allways commit Linux-style line endings to ensure cross-platform compatibility
+* text=auto eol=lf

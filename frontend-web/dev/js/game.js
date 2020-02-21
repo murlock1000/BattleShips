@@ -826,8 +826,8 @@ var ReplayView = function (_React$Component5) {
         var move = moves[i];
         bi = move.pid == p1 ? 1 : 0;
         var pos = move.pos.split('-');
-        var x = parseInt(pos[0]) - 1;
-        var y = parseInt(pos[1]) - 1;
+        var x = parseInt(pos[0]);
+        var y = parseInt(pos[1]);
         activeCell[0] = x;
         activeCell[1] = y;
         switch (move.res[0]) {
@@ -839,21 +839,28 @@ var ReplayView = function (_React$Component5) {
             break;
           case '2':
             var shipType = move.res[2];
-            if (x != 0 && maps[bi][y][x - 1] == shipType) {
-              while (x >= 0 && maps[bi][y][x] == shipType) {
-                boards[bi][y][x--] = '3';
+            if (x >= 0 && maps[bi][y][x - 1] == shipType) {
+              var currx = x;
+              while (currx >= 0 && maps[bi][y][currx] == shipType) {
+                boards[bi][y][currx--] = '3';
               }
-            } else if (x != 9 && maps[bi][y][x + 1] == shipType) {
-              while (x <= 9 && maps[bi][y][x] == shipType) {
-                boards[bi][y][x++] = '3';
+            }
+            if (x != 9 && maps[bi][y][x + 1] == shipType) {
+              var _currx = x;
+              while (_currx <= 9 && maps[bi][y][_currx] == shipType) {
+                boards[bi][y][_currx++] = '3';
               }
-            } else if (y != 0 && maps[bi][y - 1][x] == shipType) {
-              while (y >= 0 && maps[bi][y][x] == shipType) {
-                boards[bi][y--][x] = '3';
+            }
+            if (y != 0 && maps[bi][y - 1][x] == shipType) {
+              var curry = y;
+              while (curry >= 0 && maps[bi][curry][x] == shipType) {
+                boards[bi][curry--][x] = '3';
               }
-            } else if (y != 9 && maps[bi][y + 1][x] == shipType) {
-              while (y <= 9 && maps[bi][y][x] == shipType) {
-                boards[bi][y++][x] = '3';
+            }
+            if (y != 9 && maps[bi][y + 1][x] == shipType) {
+              var _curry = y;
+              while (_curry <= 9 && maps[bi][_curry][x] == shipType) {
+                boards[bi][_curry++][x] = '3';
               }
             }
             break;

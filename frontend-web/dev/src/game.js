@@ -541,8 +541,8 @@ class ReplayView extends React.Component {
       let move = moves[i];
       bi = move.pid == p1 ? 1 : 0;
       let pos = move.pos.split('-');
-      let x = parseInt(pos[0]) - 1;
-      let y = parseInt(pos[1]) - 1;
+      let x = parseInt(pos[0]);
+      let y = parseInt(pos[1]);
       activeCell[0] = x;
       activeCell[1] = y;
       switch (move.res[0]) {
@@ -554,21 +554,28 @@ class ReplayView extends React.Component {
           break;
         case '2':
           let shipType = move.res[2];
-          if (x != 0 && maps[bi][y][x-1] == shipType) {
-            while (x >= 0 && maps[bi][y][x] == shipType) {
-              boards[bi][y][x--] = '3';
+          if (x >= 0 && maps[bi][y][x-1] == shipType) {
+            let currx = x;
+            while (currx >= 0 && maps[bi][y][currx] == shipType) {
+              boards[bi][y][currx--] = '3';
             }
-          } else if (x != 9 && maps[bi][y][x+1] == shipType) {
-            while (x <= 9 && maps[bi][y][x] == shipType) {
-              boards[bi][y][x++] = '3';
+          }
+          if (x != 9 && maps[bi][y][x+1] == shipType) {
+            let currx = x;
+            while (currx <= 9 && maps[bi][y][currx] == shipType) {
+              boards[bi][y][currx++] = '3';
             }
-          } else if (y != 0 && maps[bi][y-1][x] == shipType) {
-            while (y >= 0 && maps[bi][y][x] == shipType) {
-              boards[bi][y--][x] = '3';
+          }
+          if (y != 0 && maps[bi][y-1][x] == shipType) {
+            let curry = y;
+            while (curry >= 0 && maps[bi][curry][x] == shipType) {
+              boards[bi][curry--][x] = '3';
             }
-          } else if (y != 9 && maps[bi][y+1][x] == shipType) {
-            while (y <= 9 && maps[bi][y][x] == shipType) {
-              boards[bi][y++][x] = '3';
+          }
+          if (y != 9 && maps[bi][y+1][x] == shipType) {
+            let curry = y;
+            while (curry <= 9 && maps[bi][curry][x] == shipType) {
+              boards[bi][curry++][x] = '3';
             }
           }
           break;

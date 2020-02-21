@@ -4,6 +4,8 @@
   "description": "Web-based frontend package for Battleships.",
   "main": "index.js",
   "scripts": {
+    "sass-watch": "sass --watch dev/sass:dev/css",
+    "babel-watch": "npx babel --watch dev/src --out-dir dev/js --presets react-app/prod",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Gustas Zilinskas",

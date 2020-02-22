@@ -393,7 +393,12 @@
   justify-content: space-between;
 }
 
+.gameFooterColRight {
+  display: flex;
+}
+
 .gameButton {
+  margin-left: 10px;
   padding: 10px 20px;
   font-weight: bold;
   font-size: 1.5rem;
@@ -404,10 +409,10 @@
 .gameButton.return:hover {
   background: #D50000;
 }
-.gameButton.next {
+.gameButton.next, .gameButton.prev {
   background: #2962FF;
 }
-.gameButton.next:hover {
+.gameButton.next:hover, .gameButton.prev:hover {
   background: #1565C0;
 }
 

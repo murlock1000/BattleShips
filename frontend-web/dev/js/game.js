@@ -624,6 +624,8 @@ function MoveItem(props) {
   var classes = classNames((_classNames2 = {
     'moveItem': true
   }, _defineProperty(_classNames2, itemType, true), _defineProperty(_classNames2, 'done', props.isDone), _defineProperty(_classNames2, 'active', props.isActive), _classNames2));
+  var posx = parseInt(props.pos[0]) + 1;
+  var posy = parseInt(props.pos[1]) + 1;
   return React.createElement(
     'div',
     { className: classes, onClick: props.onClick },
@@ -635,7 +637,7 @@ function MoveItem(props) {
     React.createElement(
       'span',
       { className: 'movePos' },
-      ' (' + props.pos[0] + '; ' + props.pos[1] + ') '
+      ' (' + posx + '; ' + posy + ') '
     ),
     React.createElement(
       'span',
@@ -712,7 +714,8 @@ function GameFooter(props) {
     React.createElement(
       'div',
       { className: 'gameFooterColRight' },
-      React.createElement(GameButton, { type: 'next', text: 'NEXT MOVE', onClick: props.onNextMoveClick })
+      React.createElement(GameButton, { type: 'prev', text: 'PREV', onClick: props.prevMove }),
+      React.createElement(GameButton, { type: 'next', text: 'NEXT', onClick: props.nextMove })
     )
   );
 }
@@ -738,11 +741,12 @@ var ReplayView = function (_React$Component5) {
       activeBoard: -1,
       activeCell: [-1, -1]
     };
+    _this5.getMoveListWidth = _this5.getMoveListWidth.bind(_this5);
+    _this5.parseMapFromString = _this5.parseMapFromString.bind(_this5);
     _this5.loadGameHistory = _this5.loadGameHistory.bind(_this5);
     _this5.calculateMove = _this5.calculateMove.bind(_this5);
     _this5.nextMove = _this5.nextMove.bind(_this5);
-    _this5.parseMapFromString = _this5.parseMapFromString.bind(_this5);
-    _this5.getMoveListWidth = _this5.getMoveListWidth.bind(_this5);
+    _this5.prevMove = _this5.prevMove.bind(_this5);
     _this5.loadGameHistory();
     return _this5;
   }
@@ -755,6 +759,19 @@ var ReplayView = function (_React$Component5) {
           moveListWidth: el.offsetWidth
         });
       }
+    }
+  }, {
+    key: 'parseMapFromString',
+    value: function parseMapFromString(mapStr) {
+      var map = [];
+      var pos = 0;
+      for (var y = 0; y < 10; ++y) {
+        map[y] = [];
+        for (var x = 0; x < 10; ++x) {
+          map[y][x] = mapStr[pos++];
+        }
+      }
+      return map;
     }
   }, {
     key: 'fillEmptyMap',
@@ -796,24 +813,6 @@ var ReplayView = function (_React$Component5) {
       });
     }
   }, {
-    key: 'parseMapFromString',
-    value: function parseMapFromString(mapStr) {
-      var map = [];
-      var pos = 0;
-      for (var y = 0; y < 10; ++y) {
-        map[y] = [];
-        for (var x = 0; x < 10; ++x) {
-          map[y][x] = mapStr[pos++];
-        }
-      }
-      return map;
-    }
-  }, {
-    key: 'nextMove',
-    value: function nextMove() {
-      if (this.state.currentMove + 1 != this.state.moves.length) this.calculateMove(this.state.currentMove + 1);
-    }
-  }, {
     key: 'calculateMove',
     value: function calculateMove(moveid) {
       var p1 = this.props.gameData.pid1;
@@ -821,15 +820,14 @@ var ReplayView = function (_React$Component5) {
       var maps = [this.state.map1, this.state.map2];
       var boards = [this.fillEmptyMap(), this.fillEmptyMap()];
       var bi = void 0;
-      var activeCell = [-1, -1];
+      var x = void 0;
+      var y = void 0;
       for (var i = 0; i <= moveid; ++i) {
         var move = moves[i];
         bi = move.pid == p1 ? 1 : 0;
         var pos = move.pos.split('-');
-        var x = parseInt(pos[0]);
-        var y = parseInt(pos[1]);
-        activeCell[0] = x;
-        activeCell[1] = y;
+        x = parseInt(pos[0]);
+        y = parseInt(pos[1]);
         switch (move.res[0]) {
           case '0':
             boards[bi][y][x] = '1';
@@ -871,8 +869,18 @@ var ReplayView = function (_React$Component5) {
         board2: boards[1],
         currentMove: moveid,
         activeBoard: bi,
-        activeCell: activeCell
+        activeCell: [x, y]
       });
+    }
+  }, {
+    key: 'nextMove',
+    value: function nextMove() {
+      if (this.state.currentMove + 1 != this.state.moves.length) this.calculateMove(this.state.currentMove + 1);
+    }
+  }, {
+    key: 'prevMove',
+    value: function prevMove() {
+      if (this.state.currentMove != -1) this.calculateMove(this.state.currentMove - 1);
     }
   }, {
     key: 'render',
@@ -918,7 +926,7 @@ var ReplayView = function (_React$Component5) {
             { className: 'gameContainer' },
             React.createElement(GameHeader, { gameData: this.props.gameData }),
             mainWrapper,
-            React.createElement(GameFooter, { returnAction: this.props.returnToDash, onNextMoveClick: this.nextMove })
+            React.createElement(GameFooter, { returnAction: this.props.returnToDash, nextMove: this.nextMove, prevMove: this.prevMove })
           )
         )
       );

@@ -391,10 +391,12 @@ function MoveItem(props){
     'done': props.isDone,
     'active': props.isActive,
   });
+  const posx = parseInt(props.pos[0]) + 1;
+  const posy = parseInt(props.pos[1]) + 1;
   return (
     <div className={classes} onClick={props.onClick}>
       <span className='movePlayer'>{props.username}</span>
-      <span className='movePos'>{` (${props.pos[0]}; ${props.pos[1]}) `}</span>
+      <span className='movePos'>{` (${posx}; ${posy}) `}</span>
       <span className='moveResult'>{resText}</span>
     </div>
   );
@@ -444,7 +446,8 @@ function GameFooter(props) {
         <GameButton type='return' text='EXIT' onClick={props.returnAction} /> 
       </div>
       <div className='gameFooterColRight'>
-        <GameButton type='next' text='NEXT MOVE' onClick={props.onNextMoveClick} />
+        <GameButton type='prev' text='PREV' onClick={props.prevMove} />
+        <GameButton type='next' text='NEXT' onClick={props.nextMove} />
       </div>
     </div>
   );
@@ -466,11 +469,12 @@ class ReplayView extends React.Component {
       activeBoard: -1,
       activeCell: [-1,-1],
     };
+    this.getMoveListWidth = this.getMoveListWidth.bind(this);
+    this.parseMapFromString = this.parseMapFromString.bind(this);
     this.loadGameHistory = this.loadGameHistory.bind(this);
     this.calculateMove = this.calculateMove.bind(this);
     this.nextMove = this.nextMove.bind(this);
-    this.parseMapFromString = this.parseMapFromString.bind(this);
-    this.getMoveListWidth = this.getMoveListWidth.bind(this);
+    this.prevMove = this.prevMove.bind(this);
     this.loadGameHistory();
   }
   getMoveListWidth(el) {
@@ -479,6 +483,17 @@ class ReplayView extends React.Component {
         moveListWidth: el.offsetWidth,
       });
     }
+  }
+  parseMapFromString(mapStr) {
+    let map = [];
+    let pos = 0;
+    for (let y = 0; y < 10; ++y) {
+      map[y] = [];
+      for (let x = 0; x < 10; ++x) {
+        map[y][x] = mapStr[pos++];
+      }
+    }
+    return map;
   }
   fillEmptyMap() {
     let map = [];
@@ -515,36 +530,20 @@ class ReplayView extends React.Component {
       }
     });
   }
-  parseMapFromString(mapStr) {
-    let map = [];
-    let pos = 0;
-    for (let y = 0; y < 10; ++y) {
-      map[y] = [];
-      for (let x = 0; x < 10; ++x) {
-        map[y][x] = mapStr[pos++];
-      }
-    }
-    return map;
-  }
-  nextMove() {
-    if (this.state.currentMove + 1 != this.state.moves.length)
-      this.calculateMove(this.state.currentMove + 1);
-  }
   calculateMove(moveid) {
     const p1 = this.props.gameData.pid1;
     const moves = this.state.moves;
     const maps = [this.state.map1, this.state.map2];
     let boards = [this.fillEmptyMap(), this.fillEmptyMap()];
     let bi;
-    let activeCell = [-1,-1];
+    let x;
+    let y;
     for (let i = 0; i <= moveid; ++i) {
       let move = moves[i];
       bi = move.pid == p1 ? 1 : 0;
       let pos = move.pos.split('-');
-      let x = parseInt(pos[0]);
-      let y = parseInt(pos[1]);
-      activeCell[0] = x;
-      activeCell[1] = y;
+      x = parseInt(pos[0]);
+      y = parseInt(pos[1]);
       switch (move.res[0]) {
         case '0':
           boards[bi][y][x] = '1';
@@ -586,8 +585,16 @@ class ReplayView extends React.Component {
       board2: boards[1],
       currentMove: moveid,
       activeBoard: bi,
-      activeCell: activeCell,
+      activeCell: [x, y],
     });
+  }
+  nextMove() {
+    if (this.state.currentMove + 1 != this.state.moves.length)
+      this.calculateMove(this.state.currentMove + 1);
+  }
+  prevMove() {
+    if (this.state.currentMove != -1)
+      this.calculateMove(this.state.currentMove - 1);
   }
   render() {
     let mainWrapper = null;
@@ -623,7 +630,7 @@ class ReplayView extends React.Component {
           <div className='gameContainer'>
             <GameHeader gameData={this.props.gameData} />
             {mainWrapper}
-            <GameFooter returnAction={this.props.returnToDash} onNextMoveClick={this.nextMove} />
+            <GameFooter returnAction={this.props.returnToDash} nextMove={this.nextMove} prevMove={this.prevMove} />
           </div>
         </div>
       </div>

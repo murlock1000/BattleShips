@@ -12,7 +12,7 @@
 using namespace std;
 
 
-int stdConnect(HANDLE childIO[2], int childPid, const char* childPath, const char* childProcName, const char* argument) {
+int stdConnect(HANDLE childIO[2], int* childPid, const char* childPath, const char* childProcName, const char* argument) {
 	//HANDLE[0] = Out_Rd read child's cout
 	//HANDLE[1] = In_Wr write to child's cin
 	HANDLE g_hChildStd_IN_Rd = NULL;
@@ -29,27 +29,27 @@ int stdConnect(HANDLE childIO[2], int childPid, const char* childPath, const cha
 
 	if (!CreatePipe(&childIO[0], &g_hChildStd_OUT_Wr, &saAttr, 0))
 	{
-		cout << "StdoutRd CreatePipe" << endl; return 0;
+		cout << "StdoutRd CreatePipe" << endl; return -1;
 	}
 
 	// Ensure the read handle to the pipe for STDOUT is not inherited.
 
 	if (!SetHandleInformation(childIO[0], HANDLE_FLAG_INHERIT, 0))
 	{
-		cout << "Stdout SetHandleInformation" << endl; return 0;
+		cout << "Stdout SetHandleInformation" << endl; return -1;
 	}
 	// Create a pipe for the child process's STDIN.
 
 	if (!CreatePipe(&g_hChildStd_IN_Rd, &childIO[1], &saAttr, 0))
 	{
-		cout << "Stdin CreatePipe" << endl; return 0;
+		cout << "Stdin CreatePipe" << endl; return -1;
 	}
 
 	// Ensure the write handle to the pipe for STDIN is not inherited.
 
-	if (!SetHandleInformation(childIO[1], HANDLE_FLAG_INHERIT, 0))
+	if (!SetHandleInformation(childIO[1], HANDLE_FLAG_INHERIT, -1))
 	{
-		cout << "Stdin SetHandleInformation" << endl; return 0;
+		cout << "Stdin SetHandleInformation" << endl; return -1;
 	}
 
 	int processID;
@@ -83,7 +83,7 @@ int stdConnect(HANDLE childIO[2], int childPid, const char* childPath, const cha
 	}
 	else
 	{
-		childPid = (int)piProcInfo.dwProcessId;
+		*childPid = (int)piProcInfo.dwProcessId;
 
 		CloseHandle(piProcInfo.hProcess);
 		CloseHandle(piProcInfo.hThread);

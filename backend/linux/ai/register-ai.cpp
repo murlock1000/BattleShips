@@ -1,13 +1,13 @@
 //This utility is meant to be a simple way to register AIs
 
 #include <iostream>
-#include "../dbconnector/dbconnector.h"
+#include "../dbconnector.h"
 
 using namespace std;
 
 int main (int argc, char* argv []) {
     if (argc == 1) { //if there are no arguments provided:
-        cerr << "USAGE: register_ai ai_name_1 [ai_name_2] ...\n";
+        cerr << "USAGE: battleships-register-ai AI_NAME_1 [AI_NAME_2] ...\n";
         return 0;
     }
     else { //we have at least one argument provided

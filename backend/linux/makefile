@@ -1,4 +1,4 @@
-.PHONY: ai clean
+.PHONY: clean
 
 CXX = g++
 CXXFLAGS = -g 

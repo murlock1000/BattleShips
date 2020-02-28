@@ -40,6 +40,11 @@ install : all
 	done
 	install -m755 register-ai $(bindir)/battleships-register-ai
 	install -m644 ai/kaip_sukurti_ai $(datadir)/ai
+
+uninstall :
+	-rm -r $(datadir) \
+	$(patsubst %, $(bindir)/battleships-%, $(execs)) \
+	$(bindir)/battleships-register-ai
 	
 clean :
 	-rm $(execs) $(patsubst %, %.o, $(execs)) $(ai_execs) \

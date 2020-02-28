@@ -1,7 +1,7 @@
 #include <iostream> //do i really need to tell what this header provides?
 #include <string>
 #include "stdcomm.h" //Provides AI communication functions prototypes
-#include "dbconnector/dbconnector.h" //Provides database communication functions prototypes
+#include "dbconnector.h" //Provides database communication functions prototypes
 #include <cstdlib>
 #include <ctime>
 #include <thread>

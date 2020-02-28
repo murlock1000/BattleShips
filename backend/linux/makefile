@@ -1,15 +1,22 @@
-.PHONY: server game ai
+.PHONY: ai clean
 
-all : server game ai
+CXX = g++
+CXXFLAGS = -g 
 
-server :
-	g++ -g server.cpp stdcomm-linux.cpp dbconnector/dbconnector.cpp -o server -lmysqlclient
+objects = stdcomm.o dbconnector.o
+libraries = -lmysqlclient
+executables = game server
 
-game :
-	g++ -g game.cpp stdcomm-linux.cpp dbconnector/dbconnector.cpp -o game -lmysqlclient
+all : $(executables)
 
-ai : register-ai
-	g++ -g ai/ai_random.cpp -o ai/ai_random
+server : server.o $(objects)
+	$(CXX) $(CXXFLAGS) -o server server.o $(objects) $(libraries)
 
-register-ai :
-	g++ -g ai/register_ai.cpp dbconnector/dbconnector.cpp -o ai/register_ai -lmysqlclient
+game : game.o $(objects)
+	$(CXX) $(CXXFLAGS) -o game game.o $(objects) $(libraries)
+
+*.o :
+	$(CXX) $(CXXFLAGS) -c -o %.o %.cpp
+	
+clean:
+	-rm $(executables) $(patsubst %, %.o, $(executables)) $(objects)

@@ -2,7 +2,7 @@
 #include "stdcomm.h"
 #include <string>
 #include <vector>
-#include "dbconnector/dbconnector.h"
+#include "dbconnector.h"
 #include <unistd.h>
 #include <sys/wait.h>
 

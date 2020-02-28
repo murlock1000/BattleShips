@@ -39,7 +39,7 @@ int main() {
 			lobbyId_s << lobbies [i];
 			const char* lobbyId_c = lobbyId_s.str().c_str();
 
-			int stdConnSuccess = stdConnect (unusedIO, unusedPid, "./game", "game", lobbyId_c);
+			int stdConnSuccess = stdConnect (unusedIO, unusedPid, "/usr/local/bin/battleships-game", "battleships-game", lobbyId_c);
 
 			if (stdConnSuccess < 0) {
 				 cerr << "server: (error) Failed to launch lobby " << lobbies[i] << "\n";

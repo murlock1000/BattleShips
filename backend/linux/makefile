@@ -1,11 +1,14 @@
-.PHONY: clean
+.PHONY: clean install
 
 CXX = g++
 CXXFLAGS = -g 
 
 objects = stdcomm.o dbconnector.o
 libraries = -lmysqlclient
-executables = game server
+executables = server game
+
+install = install
+install-dir = /usr/local
 
 all : $(executables)
 
@@ -17,6 +20,11 @@ game : game.o $(objects)
 
 *.o :
 	$(CXX) $(CXXFLAGS) -c -o %.o %.cpp
+
+install : all
+	for exec in $(executables); do \
+		$(install) -m755 $$exec $(install-dir)/bin/battleships-$$exec; \
+	done
 	
-clean:
+clean :
 	-rm $(executables) $(patsubst %, %.o, $(executables)) $(objects)

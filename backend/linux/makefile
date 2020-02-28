@@ -1,15 +1,51 @@
-.PHONY: server game ai
+.PHONY: clean ai install
 
-all : server game ai
+CXX = g++
+CXXFLAGS = -g 
 
-server :
-	g++ -g server.cpp stdcomm-linux.cpp dbconnector/dbconnector.cpp -o server -lmysqlclient
+objs = stdcomm.o dbconnector.o
+libflags = -lmysqlclient
+execs = server game
+ai_execs = ai_random register-ai
 
-game :
-	g++ -g game.cpp stdcomm-linux.cpp dbconnector/dbconnector.cpp -o game -lmysqlclient
+install = install
+bindir = /usr/local/bin
+datadir = /usr/local/share/battleships
 
-ai : register-ai
-	g++ -g ai/ai_random.cpp -o ai/ai_random
+all : $(execs) $(ai_execs)
 
-register-ai :
-	g++ -g ai/register_ai.cpp dbconnector/dbconnector.cpp -o ai/register_ai -lmysqlclient
+server : server.o $(objs)
+	$(CXX) $(CXXFLAGS) -o server server.o $(objs) $(libflags)
+
+game : game.o $(objs)
+	$(CXX) $(CXXFLAGS) -o game game.o $(objs) $(libflags)
+
+ai_random : ai/ai_random.o
+	$(CXX) $(CXXFLAGS) -o ai_random ai/ai_random.o
+
+register-ai : ai/register-ai.o dbconnector.o
+	$(CXX) $(CXXFLAGS) -o register-ai ai/register-ai.o dbconnector.o $(libflags)
+
+*.o :
+	$(CXX) $(CXXFLAGS) -c -o %.o %.cpp
+
+install : all
+	mkdir -p $(bindir)
+	mkdir -p $(datadir)/ai
+	for exec in $(execs); do \
+		$(install) -m755 $$exec $(bindir)/battleships-$$exec; \
+	done
+	for exec in $(ai_execs); do \
+		$(install) -m755 $$exec $(datadir)/ai; \
+	done
+	install -m755 register-ai $(bindir)/battleships-register-ai
+	install -m644 ai/kaip_sukurti_ai $(datadir)/ai
+
+uninstall :
+	-rm -r $(datadir) \
+	$(patsubst %, $(bindir)/battleships-%, $(execs)) \
+	$(bindir)/battleships-register-ai
+	
+clean :
+	-rm $(execs) $(patsubst %, %.o, $(execs)) $(ai_execs) \
+	   	$(patsubst %, ai/%.o, $(ai_execs))  $(objs)

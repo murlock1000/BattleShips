@@ -1,7 +1,59 @@
-Kompiliavimo instrukcijos Linux operacinei sistemai
+Battleships serverio kompiliavimo, įdiegimo ir naudojimo instrukcijos Linux operacinei sistemai
 
-	* Įdiekite MySQL klientą ('Oracle MySQL' arba 'MariaDB')
-	* Įdiekite 'Oracle MySQL Connector/C++' (Pastaba: 'MariaDB' nebepalaiko naujesnių versijų, nei 1.1.9)
-	* Įdiekite 'make' ir 'gcc', jei šios programos dar nėra įdiegtos
-	* Paleiskite 'make' ($ make)
-	* Paleiskite server failą ($ ./server)
+1. Priklausomybės:
+
+	* MySQL klientas ('Oracle MySQL' arba 'MariaDB')
+	* 'Oracle MySQL Connector/C++' (Pastaba: 'MariaDB' nebepalaiko naujesnių versijų, nei 1.1.9)
+	* 'make'
+	* 'g++' arba 'g++' palaikantis C++ kompiliatorius
+
+2. Kompiliavimas
+
+	Kad sukompiliuotumėte programą, naudokite:
+	
+		$ make [PARAMETRAI]
+	
+	Palaikomi kompiliavimo parametrai:
+
+	* 'CXX' - C++ kompiliatorius (pagal nutylėjimą 'g++')
+	* 'CXXFLAGS' - C++ kompiliatoriaus parametrai (pagal nutylėjimą '-g')
+
+	Parametrų naudojimo pavyzdys:
+
+		$ make CXXFLAGS="-g -O2"
+
+	Jei po kompiliavimo norėsite išvalyti dvejetainius failus, naudokite:
+	
+		$ make clean
+
+3. Įdiegimas ir išdiegimas
+
+	Kad įdiegtumėte programą, naudokite:
+
+		# make [PARAMETRAI] install
+
+	Palaikomi įdiegimo parametrai:
+
+	* 'install' - 'install' programa (pagal nutylėjimą 'install')
+	* 'bindir' - programų įdiegimo direktorija (pagal nutylėjimą '/usr/local/bin')
+	* 'datadir' - duomenų saugojimo direktorija (pagal nutylėjimą '/usr/local/share/battleships')
+
+	Pastaba: 'bindir' ir 'datadir' direktorijos NEGALI baigtis '/' simboliu
+
+	Įspėjimas: Kol kas 'bindir' ir 'datadir' parametrų keisti negalima
+
+	Kad išdiegtumėte programą, naudokite:
+
+		# make [bindir=BINDIR] [datadir=DATADIR] uninstall
+
+	Pastaba: Programos išdiegimui naudokite tas pačias 'bindir' ir 'datadir' reikšmes, kurias naudojote programai įdiegti
+
+4. Naudojimas
+
+	Serveris paleidžiamas šia komanda:
+
+		$ battleships-server
+
+	Jeigu norite pridėti savo AI į serverį, nukopijuokite sukompiliuotą AI į $(DATADIR)/ai aplanką ir paleiskite:
+
+		$ battleships-register-ai AI_PAVADINIMAS [AI_2_PAVADINIMAS] ...

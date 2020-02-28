@@ -1,7 +1,7 @@
 #include <iostream> //do i really need to tell what this header provides?
 #include <string>
 #include "stdcomm.h" //Provides AI communication functions prototypes
-#include "dbconnector/dbconnector.h" //Provides database communication functions prototypes
+#include "dbconnector.h" //Provides database communication functions prototypes
 #include <cstdlib>
 #include <ctime>
 #include <thread>
@@ -48,7 +48,6 @@ int waitForUserResponse (DBconnector &dbc, int lobbyId, int timeout, int playerN
 	//This is used solely to tell server that the client is still connected and just needs more time.
 
 	else if (lobby.user_input == "moar") {
-		cerr << "game: (debug) \"moar\" request received\n";
 		dbc.UpdateLobby (lobbyId, "i", lobby.user_input, "", lobby.admin_map, lobby.opponent_map, 0, "w", playerId [currentPlayer]);
 		return waitForUserResponse (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, registeredPlayers, playerId, isPlayerConnected, currentPlayer);
 	}
@@ -87,8 +86,8 @@ int finishGame (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, in
 int main (int argc, char* argv []) {
 stringstream ss;
 	if (argc != 2) { //must have exactly one argument (not counting process name)
-		cerr << "game: (error) Must be launched with exactly one argument\n";
-		cout << "1 " << flush;
+		cerr << "This program is not supposed to be launched directly\n";
+		cerr << "If you want to start battleships server, run \"battleships-server\" instead\n";
 		return 1;
 	}
 
@@ -163,7 +162,7 @@ stringstream ss;
 
 			string aiName = userInfo.username;
 
-			string aiPath = "./ai/" + aiName;
+			string aiPath = "/usr/local/share/battleships/ai/" + aiName;
 
 			int aiIO [2];
 

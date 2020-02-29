@@ -1,7 +1,7 @@
 .PHONY: clean ai install
 
 CXX = g++
-CXXFLAGS = -g 
+CXXFLAGS = -g -Wno-narrowing
 
 objs = stdcomm.o dbconnector.o
 libflags = -lmysqlclient

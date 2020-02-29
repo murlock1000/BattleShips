@@ -42,7 +42,19 @@ int main() {
 			int stdConnSuccess = stdConnect (unusedIO, unusedPid, "/usr/local/bin/battleships-game", "battleships-game", lobbyId_c);
 
 			if (stdConnSuccess < 0) {
-				 cerr << "server: (error) Failed to launch lobby " << lobbies[i] << "\n";
+				stdConnSuccess = stdConnect (unusedIO, unusedPid, "/usr/bin/battleships-game", "battleships-game", lobbyId_c);
+
+				if (stdConnSuccess < 0) {
+					cerr << "server: (error) Failed to launch lobby " << lobbies[i] << "\n";
+				}
+				else if (stdConnSuccess > 0) {
+					//finally ends finished game process
+				return 0;
+				}
+				else {
+					signal (SIGCHLD, zombiePrevention);
+				}
+				
 			}
 			else if (stdConnSuccess > 0) {
 				//finally ends finished game process

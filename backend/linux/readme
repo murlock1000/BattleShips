@@ -1,11 +1,15 @@
 Battleships serverio kompiliavimo, įdiegimo ir naudojimo instrukcijos Linux operacinei sistemai
 
-1. Priklausomybės:
+Priklausomybės:
 
 	* MySQL klientas ('Oracle MySQL' arba 'MariaDB')
 	* 'Oracle MySQL Connector/C++' (Pastaba: 'MariaDB' nebepalaiko naujesnių versijų, nei 1.1.9)
 	* 'make'
 	* 'g++' arba 'g++' palaikantis C++ kompiliatorius
+
+1. Duomenų bazės paruošimas
+
+	Paleiskite 'database.sql' failą su jūsų pasirinktu MySQL klientu
 
 2. Kompiliavimas
 
@@ -16,11 +20,11 @@ Battleships serverio kompiliavimo, įdiegimo ir naudojimo instrukcijos Linux ope
 	Palaikomi kompiliavimo parametrai:
 
 	* 'CXX' - C++ kompiliatorius (pagal nutylėjimą 'g++')
-	* 'CXXFLAGS' - C++ kompiliatoriaus parametrai (pagal nutylėjimą '-g')
+	* 'CXXFLAGS' - C++ kompiliatoriaus parametrai (pagal nutylėjimą '-g -Wno-narrowing')
 
 	Parametrų naudojimo pavyzdys:
 
-		$ make CXXFLAGS="-g -O2"
+		$ make CXXFLAGS="-g -Wno-narrowing -O2"
 
 	Jei po kompiliavimo norėsite išvalyti dvejetainius failus, naudokite:
 	
@@ -38,15 +42,17 @@ Battleships serverio kompiliavimo, įdiegimo ir naudojimo instrukcijos Linux ope
 	* 'bindir' - programų įdiegimo direktorija (pagal nutylėjimą '/usr/local/bin')
 	* 'datadir' - duomenų saugojimo direktorija (pagal nutylėjimą '/usr/local/share/battleships')
 
-	Pastaba: 'bindir' ir 'datadir' direktorijos NEGALI baigtis '/' simboliu
-
-	Įspėjimas: Kol kas 'bindir' ir 'datadir' parametrų keisti negalima
+	Pastaba: Jei nekuriate paketo, NEKEISKITE 'bindir' ir 'datadir' parametrų.
+	Jei kuriate paketą, pasirūpinkite, kad 'bindir' rodytų į '/usr/bin', o 'datadir' - į '/usr/share/battleships'
+	'bindir' ir 'datadir' direktorijos NEGALI baigtis '/' simboliu
 
 	Kad išdiegtumėte programą, naudokite:
 
 		# make [bindir=BINDIR] [datadir=DATADIR] uninstall
 
-	Pastaba: Programos išdiegimui naudokite tas pačias 'bindir' ir 'datadir' reikšmes, kurias naudojote programai įdiegti
+	Pastaba: Nenaudokite 'make uninstall' komandos, jei įdiegėte programą naudodami paketų tvarkyklę
+	Programos išdiegimui naudokite tas pačias 'bindir' ir 'datadir' reikšmes, kurias naudojote programai įdiegti
+	
 
 4. Naudojimas
 

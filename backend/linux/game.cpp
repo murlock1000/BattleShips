@@ -163,6 +163,7 @@ stringstream ss;
 			string aiName = userInfo.username;
 
 			string aiPath = "/usr/local/share/battleships/ai/" + aiName;
+			string aiPathAlt = "/usr/share/battleships/ai/" + aiName;
 
 			int aiIO [2];
 
@@ -171,12 +172,21 @@ stringstream ss;
 			int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiName.c_str(), "0");
 
 			if (stdConnSuccess < 0) {
-				//If launching an ai process fails, we have to kill parent.
-				//However, before that we must terminate other AIs which may have been lauched before.
-				//We only need to do that to previous players, so we enter i instead of playerNumber.
 
-				sendError (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected);
-				return 1;
+				stdConnSuccess = stdConnect (aiIO, aiPid, aiPathAlt.c_str(), aiName.c_str(), "0");
+
+				if (stdConnSuccess < 0) {
+					//If launching an ai process fails, we have to kill parent.
+					//However, before that we must terminate other AIs which may have been lauched before.
+					//We only need to do that to previous players, so we enter i instead of playerNumber.
+
+					sendError (dbc, lobbyId, timeout, playerNumber, fdOutput, fdInput, pid, playerType, i, playerId, isPlayerConnected);
+					return 1;
+				}
+				else if (stdConnSuccess > 0) { //code executed by child
+					return 0;
+				}
+
 			}
 			else if (stdConnSuccess > 0) { //code executed by child
 				return 0;

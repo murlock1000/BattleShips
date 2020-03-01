@@ -56,10 +56,10 @@ Priklausomybės:
 
 4. Naudojimas
 
-	Serveris paleidžiamas šia komanda:
+	Kad perskaitytumėte naudojimo instrukcijas, įveskite:
 
-		$ battleships-server
+		$ battleships-server --help
 
-	Jeigu norite pridėti savo AI į serverį, nukopijuokite sukompiliuotą AI į $(DATADIR)/ai aplanką ir paleiskite:
+	Kad priregistruotumėte savo AI, nukopijuokite sukompiliuotą AI į $(datadir)/ai ir įveskite:
 
-		$ battleships-register-ai AI_PAVADINIMAS [AI_2_PAVADINIMAS] ...
+		$ battleships-server --register AI_PAVADINIMAS [AI_2_PAVADINIMAS] ...

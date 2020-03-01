@@ -83,19 +83,12 @@ int finishGame (DBconnector &dbc, int lobbyId, int timeout, int playerNumber, in
 	return 0;
 }
 
-int main (int argc, char* argv []) {
-stringstream ss;
-	if (argc != 2) { //must have exactly one argument (not counting process name)
-		cerr << "This program is not supposed to be launched directly\n";
-		cerr << "If you want to start battleships server, run \"battleships-server\" instead\n";
-		return 1;
-	}
+int startGame (int lobbyId) {
+	stringstream ss;
 
 	DBconnector dbc;
 
 	dbc.Connect ("127.0.0.1", "ServerAdmin", "admin", "battleships"); //connecting to database
-
-	int lobbyId = stoi(argv[1]); //reads lobbyId from a provided argument
 
 	DBconnector::ConsoleReadStruct lobby = dbc.ConsoleRead (lobbyId); //gets information about lobby
 
@@ -128,8 +121,10 @@ stringstream ss;
 	srand (time(NULL));
 	int admin = rand() % playerNumber; //randomises which player plays first
 
-	//We should get players' ID first before attempting to communicate with them.
+	//We should get players' ID and type first before attempting to communicate with them.
 	//This means that if initialisation of any player fails, all clients can be warned about failure.
+
+	DBconnector::UserInfoTable userInfo; //get info about user
 
 	for (int i = 0; i < playerNumber; i++) {
 		if (i == admin) {
@@ -139,6 +134,11 @@ stringstream ss;
 		else {
 			playerId [i] = lobby.opponentID;
 		}
+
+		userInfo = dbc.GetUserInfo (playerId [i]);
+
+		playerType [i] = userInfo.is_ai;
+
 	}
 
 	//Now we can properly initialise players
@@ -151,12 +151,8 @@ stringstream ss;
 		for (int j = 0; j < shipNumber; j++) {
 			shipHealth [i] [j] = 0;
 		}
-
-		DBconnector::UserInfoTable userInfo; //get info about user
-
+		
 		userInfo = dbc.GetUserInfo (playerId [i]);
-
-		playerType [i] = userInfo.is_ai;
 
 		if (playerType [i]) { //ai initialisation
 
@@ -169,11 +165,11 @@ stringstream ss;
 
 			int* aiPid = new int;
 
-			int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiName.c_str(), "0");
+			int stdConnSuccess = stdConnect (aiIO, aiPid, aiPath.c_str(), aiName.c_str(), "0", "0");
 
 			if (stdConnSuccess < 0) {
 
-				stdConnSuccess = stdConnect (aiIO, aiPid, aiPathAlt.c_str(), aiName.c_str(), "0");
+				stdConnSuccess = stdConnect (aiIO, aiPid, aiPathAlt.c_str(), aiName.c_str(), "0", "0");
 
 				if (stdConnSuccess < 0) {
 					//If launching an ai process fails, we have to kill parent.

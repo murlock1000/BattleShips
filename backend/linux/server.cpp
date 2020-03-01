@@ -12,7 +12,7 @@ void zombiePrevention (int signum) {
 	wait (NULL);
 }
 
-int main() {
+int startServer () {
 
 	DBconnector dbc;
 
@@ -39,10 +39,10 @@ int main() {
 			lobbyId_s << lobbies [i];
 			const char* lobbyId_c = lobbyId_s.str().c_str();
 
-			int stdConnSuccess = stdConnect (unusedIO, unusedPid, "/usr/local/bin/battleships-game", "battleships-game", lobbyId_c);
+			int stdConnSuccess = stdConnect (unusedIO, unusedPid, "/usr/local/bin/battleships-server", "battleships-server", "-g", lobbyId_c);
 
 			if (stdConnSuccess < 0) {
-				stdConnSuccess = stdConnect (unusedIO, unusedPid, "/usr/bin/battleships-game", "battleships-game", lobbyId_c);
+				stdConnSuccess = stdConnect (unusedIO, unusedPid, "/usr/bin/battleships-server", "battleships-server", "-g", lobbyId_c);
 
 				if (stdConnSuccess < 0) {
 					cerr << "server: (error) Failed to launch lobby " << lobbies[i] << "\n";

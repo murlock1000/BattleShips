@@ -1,6 +1,6 @@
 #pragma once
 
-int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName, const char* argument);
+int stdConnect (int childIO [2], int* childPid, const char* childPath, const char* childProcName, const char* argument1, const char* argument2);
 
 //This function should start a child process which would communicate with parent via stdin/stdout.
 //It requires an empty int [2] array, an empty int pointer, a path of an executable and the process name of an executable (name of an executable without its path).
